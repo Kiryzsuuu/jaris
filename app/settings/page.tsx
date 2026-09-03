@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 
 type Settings = {
@@ -13,8 +14,24 @@ type Settings = {
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
+  secondaryColor: string;
+  aiColor: string;
+  highlightColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  sidebarColor: string;
   footerText: string;
 };
+
+const COLOR_FIELDS = [
+  { key: "primaryColor", label: "Deep Navy (Utama)", desc: "Warna utama - tombol, tautan, aksen judul" },
+  { key: "secondaryColor", label: "Corporate Blue (Sekunder)", desc: "Elemen sekunder" },
+  { key: "aiColor", label: "AI Blue", desc: "Gradient pada elemen berbau AI (mis. hero carousel)" },
+  { key: "highlightColor", label: "Digital Cyan (Highlight)", desc: "Highlight fitur AI (mis. badge \"Baru\")" },
+  { key: "accentColor", label: "Intelligent Teal (Aksen)", desc: "Aksen umum (mis. titik eyebrow landing page)" },
+  { key: "backgroundColor", label: "Soft Light Gray (Background)", desc: "Warna latar halaman" },
+  { key: "sidebarColor", label: "Warna Sidebar", desc: "Latar sidebar navigasi aplikasi" },
+] as const;
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -26,6 +43,7 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +54,13 @@ export default function SettingsPage() {
     siteName: "",
     tagline: "",
     footerText: "",
-    primaryColor: "#0A3D91",
+    primaryColor: "#0B2A55",
+    secondaryColor: "#155C9B",
+    aiColor: "#167FBC",
+    highlightColor: "#13A8C7",
+    accentColor: "#168C91",
+    backgroundColor: "#F5F6F7",
+    sidebarColor: "#3f4d67",
     heroHeadline: "",
     heroSubheadline: "",
   });
@@ -61,6 +85,12 @@ export default function SettingsPage() {
         tagline: data.tagline,
         footerText: data.footerText,
         primaryColor: data.primaryColor,
+        secondaryColor: data.secondaryColor,
+        aiColor: data.aiColor,
+        highlightColor: data.highlightColor,
+        accentColor: data.accentColor,
+        backgroundColor: data.backgroundColor,
+        sidebarColor: data.sidebarColor,
         heroHeadline: data.heroHeadline,
         heroSubheadline: data.heroSubheadline,
       });
@@ -125,7 +155,8 @@ export default function SettingsPage() {
         setMessage(json.message ?? "Gagal menyimpan pengaturan");
         return;
       }
-      setMessage("Pengaturan berhasil disimpan. Muat ulang halaman lain untuk melihat perubahan.");
+      setMessage("Pengaturan berhasil disimpan dan langsung diterapkan.");
+      router.refresh();
     } catch {
       setMessage("Tidak dapat menghubungi server");
     } finally {
@@ -183,14 +214,29 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="mb-1">
-              <label className="form-label">Warna Utama</label>
-              <input
-                type="color"
-                value={form.primaryColor}
-                onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))}
-                className="border-secondary-200 block h-9 w-[60px] rounded-lg border p-0"
-              />
+          </div>
+        </div>
+
+        <div className="card md:col-span-2">
+          <div className="card-body">
+            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Palet Warna</h2>
+            <p className="text-secondary-400 mb-4 text-xs">
+              Setiap warna mengendalikan bagian berbeda dari tampilan. Latar kartu/input tetap putih dan tidak
+              bisa diubah, supaya isi kartu selalu terbaca jelas apa pun warna yang dipilih.
+            </p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {COLOR_FIELDS.map((c) => (
+                <div key={c.key}>
+                  <label className="form-label">{c.label}</label>
+                  <input
+                    type="color"
+                    value={form[c.key]}
+                    onChange={(e) => setForm((f) => ({ ...f, [c.key]: e.target.value }))}
+                    className="border-secondary-200 block h-9 w-[60px] rounded-lg border p-0"
+                  />
+                  <p className="text-secondary-400 mt-1 mb-0 text-xs">{c.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

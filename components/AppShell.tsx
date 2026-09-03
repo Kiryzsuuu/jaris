@@ -118,10 +118,12 @@ export default function AppShell({
         <div className="navbar-wrapper">
           <div className="m-header flex h-header-height items-center px-6">
             <Link href="/dashboard" className="flex items-center gap-2.5 text-white">
-              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10">
+              <span
+                className={`flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg ${settings?.logoDataUrl ? "" : "bg-white/10"}`}
+              >
                 {settings?.logoDataUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
-                  <img src={settings.logoDataUrl} alt={siteName} className="h-full w-full object-cover" />
+                  <img src={settings.logoDataUrl} alt={siteName} className="h-full w-full object-contain" />
                 ) : (
                   <span className="text-primary-400 text-sm font-bold">{siteName.slice(0, 1)}</span>
                 )}

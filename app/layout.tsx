@@ -20,6 +20,26 @@ const roboto = Roboto({
 // change here would only ever show up after the next redeploy.
 export const dynamic = "force-dynamic";
 
+const FALLBACK_SETTINGS = {
+  siteName: "JARIS",
+  tagline: "Jasa Raharja Integrated Intelligence System",
+  logoDataUrl: null,
+  faviconDataUrl: null,
+  heroImageDataUrl: null,
+  sectionImageDataUrl: null,
+  heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
+  heroSubheadline:
+    "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
+  primaryColor: "#0B2A55",
+  secondaryColor: "#155C9B",
+  aiColor: "#167FBC",
+  highlightColor: "#13A8C7",
+  accentColor: "#168C91",
+  backgroundColor: "#F5F6F7",
+  sidebarColor: "#3f4d67",
+  footerText: "PT Nusa Inspira Teknologi",
+};
+
 async function loadSettings() {
   try {
     await connectToDatabase();
@@ -28,18 +48,7 @@ async function loadSettings() {
   } catch {
     // Fall back to defaults if the database is unreachable (e.g. env not
     // configured yet) so the app still renders instead of crashing.
-    return {
-      siteName: "JARIS",
-      tagline: "Jasa Raharja Integrated Intelligence System",
-      logoDataUrl: null,
-      faviconDataUrl: null,
-      heroImageDataUrl: null,
-      heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
-      heroSubheadline:
-        "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-      primaryColor: "#0A3D91",
-      footerText: "PT Nusa Inspira Teknologi",
-    };
+    return FALLBACK_SETTINGS;
   }
 }
 
@@ -54,17 +63,40 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const settings = await loadSettings();
-  const scale = deriveColorScale(settings.primaryColor);
+
+  const primary = deriveColorScale(settings.primaryColor);
+  const secondary = deriveColorScale(settings.secondaryColor);
+  const ai = deriveColorScale(settings.aiColor);
+  const highlight = deriveColorScale(settings.highlightColor);
+  const accent = deriveColorScale(settings.accentColor);
+
+  const cssVars = [
+    ...Object.entries(primary).map(([stop, value]) => `--primary-${stop}:${value};`),
+    ...Object.entries(secondary).map(([stop, value]) => `--color-secondary-${stop}:${value};`),
+    `--color-secondary:${secondary[500]};`,
+    `--ai-500:${ai[500]};`,
+    `--ai-600:${ai[600]};`,
+    `--ai-100:${ai[100]};`,
+    `--highlight-500:${highlight[500]};`,
+    `--highlight-600:${highlight[600]};`,
+    `--highlight-100:${highlight[100]};`,
+    `--accent-500:${accent[500]};`,
+    `--accent-600:${accent[600]};`,
+    `--accent-100:${accent[100]};`,
+    `--color-theme-bodybg:${settings.backgroundColor};`,
+    `--brand-bg:${settings.backgroundColor};`,
+    `--color-theme-sidebarbg:${settings.sidebarColor};`,
+  ].join("");
 
   return (
     <html lang="id" className={roboto.variable}>
       <head>
-        {/* Admin-configurable accent color (Pengaturan Situs) - overrides the
-            template's default --primary-* scale everywhere it's used,
-            computed server-side so there's no flash of the default color. */}
-        <style>{`:root{${Object.entries(scale)
-          .map(([stop, value]) => `--primary-${stop}:${value};`)
-          .join("")}}`}</style>
+        {/* Full brand palette (Pengaturan Situs) - overrides the template's
+            default color scales, computed server-side so there's no flash
+            of the default colors. Card/input backgrounds intentionally stay
+            pure white/fixed - not admin-configurable, to avoid a picked
+            color making card content unreadable against itself. */}
+        <style>{`:root{${cssVars}}`}</style>
       </head>
       <body>{children}</body>
     </html>

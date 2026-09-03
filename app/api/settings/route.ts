@@ -47,8 +47,20 @@ export async function PATCH(request: NextRequest) {
     if (typeof body.footerText === "string") {
       settings.footerText = body.footerText.trim();
     }
-    if (typeof body.primaryColor === "string" && /^#[0-9a-fA-F]{6}$/.test(body.primaryColor)) {
-      settings.primaryColor = body.primaryColor;
+    const HEX = /^#[0-9a-fA-F]{6}$/;
+    const colorFields = [
+      "primaryColor",
+      "secondaryColor",
+      "aiColor",
+      "highlightColor",
+      "accentColor",
+      "backgroundColor",
+      "sidebarColor",
+    ] as const;
+    for (const field of colorFields) {
+      if (typeof body[field] === "string" && HEX.test(body[field])) {
+        settings[field] = body[field];
+      }
     }
     if (typeof body.heroHeadline === "string" && body.heroHeadline.trim()) {
       settings.heroHeadline = body.heroHeadline.trim();

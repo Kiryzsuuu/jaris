@@ -15,6 +15,12 @@ export interface ISiteSettings {
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  highlightColor: string;
+  aiColor: string;
+  backgroundColor: string;
+  sidebarColor: string;
   footerText: string;
   updatedAt?: Date;
 }
@@ -51,7 +57,19 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       default:
         "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
     },
-    primaryColor: { type: String, required: true, default: "#0A3D91" },
+    // Full brand palette - each color drives a distinct part of the UI so
+    // admins can tune the whole look without touching code. Card/input
+    // backgrounds intentionally stay pure white (not admin-configurable) -
+    // making that editable risks an admin picking a color that makes card
+    // content unreadable against itself.
+    primaryColor: { type: String, required: true, default: "#0B2A55" }, // Deep Navy - buttons/links/headings accent
+    secondaryColor: { type: String, required: true, default: "#155C9B" }, // Corporate Blue - secondary elements
+    aiColor: { type: String, required: true, default: "#167FBC" }, // AI Blue - "AI-powered" gradient accents
+    highlightColor: { type: String, required: true, default: "#13A8C7" }, // Digital Cyan - AI highlight touches
+    accentColor: { type: String, required: true, default: "#168C91" }, // Intelligent Teal - general accent
+    backgroundColor: { type: String, required: true, default: "#F5F6F7" }, // Soft Light Gray - page canvas
+    // Solid background color for the admin app's sidebar/nav.
+    sidebarColor: { type: String, required: true, default: "#3f4d67" },
     footerText: {
       type: String,
       required: true,

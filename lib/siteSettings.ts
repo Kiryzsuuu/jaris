@@ -32,6 +32,12 @@ export function serializeSiteSettings(settings: Awaited<ReturnType<typeof getSit
     heroHeadline: settings.heroHeadline,
     heroSubheadline: settings.heroSubheadline,
     primaryColor: settings.primaryColor,
+    secondaryColor: settings.secondaryColor,
+    aiColor: settings.aiColor,
+    highlightColor: settings.highlightColor,
+    accentColor: settings.accentColor,
+    backgroundColor: settings.backgroundColor,
+    sidebarColor: settings.sidebarColor,
     footerText: settings.footerText,
     updatedAt: settings.get("updatedAt"),
   };

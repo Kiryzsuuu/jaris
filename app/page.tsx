@@ -254,7 +254,7 @@ export default function Home() {
     <div className="landing-page">
       <nav className="landing-nav">
         <span className="landing-nav-brand">
-          <span className="landing-nav-mark">
+          <span className={`landing-nav-mark ${settings.logoDataUrl ? "has-image" : ""}`}>
             {settings.logoDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
               <img src={settings.logoDataUrl} alt={settings.siteName} />
