@@ -1,0 +1,16 @@
+/* Design system comes from /public/vendor/spark/css/main.css (Bootstrap 5
+   based template). Keep this file minimal - just app-wide resets that
+   don't conflict with it. */
+
+html {
+  height: 100%;
+}
+
+html,
+body {
+  max-width: 100vw;
+}
+
+body {
+  min-height: 100%;
+}
