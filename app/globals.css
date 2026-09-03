@@ -25,15 +25,58 @@ body {
 }
 
 /* ---------------------------------------------------------------------
-   Public landing page (/) - professional SaaS-style marketing page.
-   Namespaced under .landing-* so it never collides with template classes.
-   Uses the same admin-configurable accent (Tailwind --primary-* scale, set
-   from Site Settings) as the rest of the app.
+   Design overrides - flat, plain, Berry-admin-inspired neutral palette.
+   Datta's own components (.card/.btn/.badge/etc.) already ship with
+   near-zero border-radius; these overrides remove the remaining soft
+   shadows/pill shapes so the whole app reads flat and understated.
+--------------------------------------------------------------------- */
+
+:root {
+  --ink-900: #111926;
+  --ink-700: #364152;
+  --ink-500: #697586;
+  --ink-300: #cdd5df;
+  --ink-200: #e3e8ef;
+  --ink-100: #eef2f6;
+  --ink-50: #f8fafc;
+}
+
+.card {
+  border: 1px solid var(--ink-200) !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+}
+
+.badge {
+  border-radius: 4px !important;
+}
+
+.dropdown-menu {
+  border: 1px solid var(--ink-200) !important;
+  box-shadow: 0 4px 16px -4px rgba(17, 25, 38, 0.12) !important;
+  border-radius: 6px !important;
+}
+
+.form-control,
+.form-select {
+  border-radius: 5px !important;
+}
+
+.btn {
+  border-radius: 5px !important;
+}
+
+/* ---------------------------------------------------------------------
+   Public landing page (/) - flat, plain, professional. Namespaced under
+   .landing-* so it never collides with template classes. Uses the same
+   admin-configurable accent (Tailwind --primary-* scale, set from Site
+   Settings) as the rest of the app, kept to small doses (buttons/links)
+   rather than backgrounds, gradients, or pill shapes.
 --------------------------------------------------------------------- */
 
 .landing-page {
   background: #ffffff;
-  color: #1d2630;
+  color: var(--ink-900);
   min-height: 100vh;
 }
 
@@ -45,10 +88,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.1rem clamp(1.25rem, 5vw, 4rem);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid #f1f1f1;
+  background: #ffffff;
+  border-bottom: 1px solid var(--ink-200);
 }
 
 .landing-nav-brand {
@@ -59,14 +100,14 @@ body {
   font-size: 1.02rem;
   letter-spacing: -0.01em;
   text-decoration: none;
-  color: #1d2630;
+  color: var(--ink-900);
 }
 
 .landing-nav-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: #1d2630;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  background: var(--ink-900);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,9 +122,9 @@ body {
 }
 
 .landing-nav-mark-letter {
-  color: var(--primary-400);
+  color: #ffffff;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .landing-nav-links {
@@ -94,36 +135,37 @@ body {
 
 .landing-nav-link {
   font-size: 0.9rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-weight: 500;
+  color: var(--ink-500);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .landing-nav-link:hover {
-  color: #1d2630;
+  color: var(--ink-900);
 }
 
 .landing-nav-cta {
-  padding: 0.55rem 1.3rem;
-  border-radius: 9px;
-  background: var(--primary-500);
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  background: var(--primary-600);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.85rem;
   text-decoration: none;
-  transition: opacity 0.15s ease;
+  transition: background-color 0.15s ease;
   border: none;
 }
 
 .landing-nav-cta:hover {
-  opacity: 0.88;
+  background: var(--primary-700);
   color: #ffffff;
 }
 
 .landing-hero {
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 4rem) clamp(2.5rem, 6vw, 4rem);
-  background: radial-gradient(60% 50% at 85% 0%, var(--primary-50) 0%, transparent 100%), #ffffff;
+  padding: clamp(3rem, 8vw, 5.5rem) clamp(1.25rem, 5vw, 4rem) clamp(2.5rem, 6vw, 4rem);
+  background: #ffffff;
+  border-bottom: 1px solid var(--ink-100);
 }
 
 .landing-hero-grid {
@@ -141,36 +183,33 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--primary-700);
-  background: var(--primary-100);
-  padding: 0.4rem 0.85rem 0.4rem 0.65rem;
-  border-radius: 50rem;
-  margin-bottom: 1.75rem;
+  color: var(--ink-500);
+  margin-bottom: 1.5rem;
 }
 
 .landing-eyebrow-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--primary-500);
+  background: var(--primary-600);
 }
 
 .landing-headline {
-  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   margin: 0 0 1.35rem;
-  color: #1d2630;
+  color: var(--ink-900);
 }
 
 .landing-subheadline {
-  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  font-size: clamp(1rem, 1.3vw, 1.1rem);
   line-height: 1.65;
-  color: #6b7280;
+  color: var(--ink-500);
   max-width: 48ch;
   margin: 0 0 2.25rem;
 }
@@ -178,52 +217,49 @@ body {
 .landing-hero-actions {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
 }
 
 .landing-primary-btn {
-  padding: 0.9rem 2.1rem;
-  border-radius: 11px;
-  background: var(--primary-500);
+  padding: 0.8rem 1.9rem;
+  border-radius: 5px;
+  background: var(--primary-600);
   color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.92rem;
   text-decoration: none;
   border: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.15s ease;
   display: inline-block;
 }
 
 .landing-primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px var(--primary-300);
-  opacity: 0.94;
+  background: var(--primary-700);
   color: #ffffff;
 }
 
 .landing-secondary-link {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #1d2630;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink-700);
   text-decoration: none;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--ink-300);
   padding-bottom: 2px;
   transition: border-color 0.2s ease;
 }
 
 .landing-secondary-link:hover {
-  border-color: #1d2630;
+  border-color: var(--ink-700);
 }
 
 .landing-hero-visual {
   position: relative;
-  border-radius: 24px;
+  border-radius: 6px;
   overflow: hidden;
   aspect-ratio: 4 / 3.3;
-  background: linear-gradient(155deg, #fafbfa 0%, #eef1ef 100%);
-  border: 1px solid #f1f1f1;
-  box-shadow: 0 20px 50px -20px rgba(29, 38, 48, 0.25);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
 }
 
 .landing-hero-visual img {
@@ -245,21 +281,21 @@ body {
 }
 
 .landing-hero-visual-placeholder-mark {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: var(--primary-100);
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  background: var(--ink-900);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-700);
-  font-weight: 800;
-  font-size: 1.3rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.2rem;
   margin-bottom: 1.25rem;
 }
 
 .landing-hero-visual-placeholder p {
-  color: #6b7280;
+  color: var(--ink-500);
   font-size: 0.88rem;
   max-width: 24ch;
   margin: 0;
@@ -269,7 +305,7 @@ body {
 
 .landing-stats {
   padding: clamp(1.75rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: #1d2630;
+  background: var(--ink-900);
 }
 
 .landing-stats-inner {
@@ -285,10 +321,10 @@ body {
 }
 
 .landing-stat-value {
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  font-weight: 800;
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -318,24 +354,24 @@ body {
 
 .landing-features-eyebrow {
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--ink-500);
   margin-bottom: 0.75rem;
   display: block;
 }
 
 .landing-features-title {
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 0.85rem;
-  color: #1d2630;
+  color: var(--ink-900);
 }
 
 .landing-features-desc {
-  color: #6b7280;
+  color: var(--ink-500);
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
@@ -344,65 +380,69 @@ body {
 .landing-feature-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  gap: 1px;
+  background: var(--ink-200);
+  border: 1px solid var(--ink-200);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .landing-feature-card {
   padding: 1.75rem;
-  border-radius: 18px;
-  border: 1px solid #f1f1f1;
   background: #ffffff;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: background-color 0.15s ease;
 }
 
 .landing-feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px -12px rgba(29, 38, 48, 0.18);
-  border-color: transparent;
+  background: var(--ink-50);
 }
 
 .landing-feature-card.is-highlighted {
   background: var(--primary-50);
-  border-color: var(--primary-200);
 }
 
 .landing-feature-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: var(--primary-100);
-  color: var(--primary-700);
+  width: 36px;
+  height: 36px;
+  border-radius: 5px;
+  background: var(--ink-100);
+  color: var(--ink-700);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.15rem;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+}
+
+.landing-feature-card.is-highlighted .landing-feature-icon {
+  background: var(--primary-100);
+  color: var(--primary-700);
 }
 
 .landing-feature-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.98rem;
+  font-weight: 600;
   margin: 0 0 0.5rem;
-  color: #1d2630;
+  color: var(--ink-900);
 }
 
 .landing-feature-desc {
-  font-size: 0.88rem;
+  font-size: 0.87rem;
   line-height: 1.55;
-  color: #6b7280;
+  color: var(--ink-500);
   margin: 0;
 }
 
 .landing-feature-badge {
   display: inline-block;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--primary-800);
-  background: var(--primary-200);
-  padding: 0.2rem 0.55rem;
-  border-radius: 50rem;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
   margin-top: 0.75rem;
 }
 
@@ -410,8 +450,8 @@ body {
   padding: 2rem clamp(1.25rem, 5vw, 4rem);
   text-align: center;
   font-size: 0.8rem;
-  color: #6b7280;
-  border-top: 1px solid #f1f1f1;
+  color: var(--ink-500);
+  border-top: 1px solid var(--ink-100);
 }
 
 @media (max-width: 992px) {
