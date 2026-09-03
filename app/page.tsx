@@ -255,6 +255,17 @@ export default function Home() {
       </nav>
 
       <header className="landing-hero">
+        <div className="landing-hero-visual">
+          {settings.heroImageDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+            <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
+          ) : (
+            <HeroCarousel />
+          )}
+        </div>
+
+        <div className="landing-hero-overlay" />
+
         <div className="landing-hero-text">
           <span className="landing-eyebrow">
             <span className="landing-eyebrow-dot" />
@@ -271,15 +282,6 @@ export default function Home() {
               Lihat kapabilitas
             </a>
           </div>
-        </div>
-
-        <div className="landing-hero-visual">
-          {settings.heroImageDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
-            <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
-          ) : (
-            <HeroCarousel />
-          )}
         </div>
       </header>
 
@@ -311,7 +313,6 @@ export default function Home() {
                   </div>
                   <h3 className="landing-feature-title">{f.title}</h3>
                   <p className="landing-feature-desc">{f.desc}</p>
-                  <span className="landing-card-hint">Lihat detail <i className="ti ti-arrow-right" /></span>
                 </button>
               </Reveal>
             ))}
@@ -344,7 +345,6 @@ export default function Home() {
                   <h3 className="landing-feature-title">{c.title}</h3>
                   <p className="landing-feature-desc">{c.desc}</p>
                   {c.badge && <span className="landing-feature-badge">{c.badge}</span>}
-                  <span className="landing-card-hint">Lihat detail <i className="ti ti-arrow-right" /></span>
                 </button>
               </Reveal>
             ))}
