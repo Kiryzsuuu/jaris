@@ -113,7 +113,6 @@ export const CAPABILITIES: LandingCard[] = [
     desc: "Foto kerusakan yang diunggah petugas dianalisis AI untuk saran tingkat keparahan - langsung di form klaim.",
     detail:
       "Foto kerusakan/lokasi kecelakaan yang diunggah sebagai dokumen pendukung bisa dianalisis oleh AI vision untuk mendapatkan saran tingkat keparahan dan deskripsi singkat. Hasil ini murni saran (isSuggestionOnly) - keputusan akhir tetap di tangan petugas yang meninjau klaim.",
-    badge: "Baru",
     highlighted: true,
   },
 ];
