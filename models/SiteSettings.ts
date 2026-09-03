@@ -44,7 +44,7 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       default:
         "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
     },
-    primaryColor: { type: String, required: true, default: "#2196f3" },
+    primaryColor: { type: String, required: true, default: "#0A3D91" },
     footerText: {
       type: String,
       required: true,

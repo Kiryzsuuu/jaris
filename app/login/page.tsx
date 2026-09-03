@@ -3,6 +3,13 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const LOGIN_HIGHLIGHTS = [
+  { icon: "ti-file-text", text: "Manajemen klaim dari laporan hingga pencairan santunan" },
+  { icon: "ti-map-pin", text: "Peta titik rawan kecelakaan dengan deteksi klaster otomatis" },
+  { icon: "ti-message-chatbot", text: "AI Asisten internal berbasis knowledge base resmi" },
+  { icon: "ti-gauge", text: "Dashboard analitik real-time dari data operasional" },
+];
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,71 +62,82 @@ function LoginForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#f4f7fa] px-6 py-10">
-      <span className="bg-primary-100 animate-[floating_7s_infinite] absolute -top-24 -right-24 block h-72 w-72 rounded-full opacity-70" />
-      <span className="bg-primary-500 animate-[floating_9s_infinite] absolute top-32 -right-6 block h-4 w-4 rounded-full" />
-      <span className="bg-primary-200 animate-[floating_9s_infinite] absolute -bottom-20 -left-20 block h-72 w-72 rounded-full opacity-70" />
+    <div className="login-shell">
+      <div className="login-visual">
+        <div className="login-visual-brand">
+          {logoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+            <img src={logoDataUrl} alt={siteName} />
+          ) : (
+            <span className="login-visual-mark">{siteName.slice(0, 1)}</span>
+          )}
+          <span>{siteName}</span>
+        </div>
 
-      <div className="relative w-full max-w-[380px]">
-        <div className="card w-full">
-          <div className="card-body p-10">
-            <div className="mb-8 flex flex-col items-center text-center">
-              {logoDataUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
-                <img src={logoDataUrl} alt={siteName} className="mb-3 h-10 w-auto object-contain" />
-              ) : (
-                <div className="bg-primary-500 mb-3 flex h-11 w-11 items-center justify-center rounded-xl text-lg font-bold text-white">
-                  {siteName.slice(0, 1)}
-                </div>
-              )}
-              <h4 className="text-lg font-semibold text-[#1d2630]">{siteName}</h4>
-              <p className="text-secondary-400 mt-1 text-sm">
-                Masuk untuk mengakses sistem informasi Jasa Raharja
-              </p>
+        <div className="login-visual-body">
+          <span className="login-visual-eyebrow">PT Jasa Raharja (Persero)</span>
+          <h1>Satu sistem, seluruh kecerdasan operasional Jasa Raharja</h1>
+          <ul className="login-visual-list">
+            {LOGIN_HIGHLIGHTS.map((h) => (
+              <li key={h.text}>
+                <span className="login-visual-icon">
+                  <i className={`ti ${h.icon}`} />
+                </span>
+                {h.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="login-visual-footer">© 2026 - Nusa Inspira Teknologi (RFS), All Rights Reserved.</p>
+      </div>
+
+      <div className="login-form-side">
+        <div className="login-form-box">
+          <h4>Masuk</h4>
+          <p>Masuk untuk mengakses sistem informasi Jasa Raharja</p>
+
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="mb-3">
+              <label className="mb-1 block text-sm font-medium text-[#1d2630]">Email</label>
+              <input
+                type="email"
+                required
+                className="form-control"
+                placeholder="nama@jasaraharja.co.id"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="mb-3">
-                <label className="mb-1 block text-sm font-medium text-[#1d2630]">Email</label>
+            <div className="mb-4">
+              <label className="mb-1 block text-sm font-medium text-[#1d2630]">Password</label>
+              <div className="relative">
                 <input
-                  type="email"
+                  type={showPassword ? "text" : "password"}
                   required
-                  className="form-control"
-                  placeholder="nama@jasaraharja.co.id"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  className="form-control pr-10"
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  className="text-secondary-400 absolute top-1/2 right-3 -translate-y-1/2"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label="Show password"
+                >
+                  <i className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"}`} />
+                </button>
               </div>
+            </div>
 
-              <div className="mb-4">
-                <label className="mb-1 block text-sm font-medium text-[#1d2630]">Password</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    className="form-control pr-10"
-                    placeholder="********"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="text-secondary-400 absolute top-1/2 right-3 -translate-y-1/2"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label="Show password"
-                  >
-                    <i className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"}`} />
-                  </button>
-                </div>
-              </div>
+            {error && <p className="text-danger-600 mb-4 text-sm">{error}</p>}
 
-              {error && <p className="text-danger-600 mb-4 text-sm">{error}</p>}
-
-              <button type="submit" disabled={loading} className="btn btn-primary w-full">
-                {loading ? "Memproses..." : "Masuk"}
-              </button>
-            </form>
-          </div>
+            <button type="submit" disabled={loading} className="btn btn-primary w-full">
+              {loading ? "Memproses..." : "Masuk"}
+            </button>
+          </form>
         </div>
       </div>
     </div>

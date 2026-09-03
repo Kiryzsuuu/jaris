@@ -31,6 +31,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     title: "Administrasi",
     items: [
       { href: "/users", label: "Manajemen Pengguna", icon: "ti-users", permission: "user:view" },
+      { href: "/knowledge-base", label: "Knowledge Base", icon: "ti-database", permission: "kb:manage" },
       { href: "/settings", label: "Pengaturan Situs", icon: "ti-settings", permission: "settings:manage" },
     ],
   },
@@ -187,6 +188,10 @@ export default function AppShell({
           </div>
 
           {children}
+
+          <p className="text-secondary-300 mt-10 mb-2 text-center text-xs">
+            © 2026 - Nusa Inspira Teknologi (RFS), All Rights Reserved.
+          </p>
         </div>
       </div>
     </>

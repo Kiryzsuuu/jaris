@@ -29,7 +29,7 @@ async function loadSettings() {
       heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
       heroSubheadline:
         "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-      primaryColor: "#2196f3",
+      primaryColor: "#0A3D91",
       footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
     };
   }

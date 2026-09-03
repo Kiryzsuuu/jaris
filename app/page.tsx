@@ -216,15 +216,34 @@ const DEFAULTS: SettingsResponse = {
   footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
 };
 
+type NewsItem = { title: string; link: string; pubDate: string; image: string | null };
+
+function timeAgo(pubDate: string) {
+  const then = new Date(pubDate).getTime();
+  if (Number.isNaN(then)) return "";
+  const minutes = Math.max(1, Math.round((Date.now() - then) / 60000));
+  if (minutes < 60) return `${minutes} menit lalu`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  return `${Math.round(hours / 24)} hari lalu`;
+}
+
 export default function Home() {
   const [settings, setSettings] = useState<SettingsResponse>(DEFAULTS);
   const [activeRegion, setActiveRegion] = useState(MAP_REGIONS[0]);
+  const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((json) => {
         if (json.success) setSettings(json.data);
+      })
+      .catch(() => {});
+    fetch("/api/news")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setNews(json.data);
       })
       .catch(() => {});
   }, []);
@@ -247,6 +266,7 @@ export default function Home() {
         <div className="landing-nav-links">
           <a href="#alur-klaim" className="landing-nav-link">Alur Klaim</a>
           <a href="#kapabilitas" className="landing-nav-link">Kapabilitas</a>
+          <a href="#berita" className="landing-nav-link">Berita</a>
           <a href="#peta" className="landing-nav-link">Peta</a>
         </div>
 
@@ -342,6 +362,43 @@ export default function Home() {
         </div>
       </section>
 
+      {news.length > 0 && (
+        <section id="berita" className="landing-news">
+          <div className="landing-news-inner">
+            <Reveal className="landing-news-header">
+              <div>
+                <span className="landing-features-eyebrow">
+                  <span className="landing-live-dot" /> Live
+                </span>
+                <h2 className="landing-features-title">Berita nasional terkini</h2>
+              </div>
+              <span className="landing-news-source">Sumber: CNN Indonesia</span>
+            </Reveal>
+
+            <div className="landing-news-grid">
+              {news.map((n, i) => (
+                <Reveal key={n.link} style={{ transitionDelay: `${(i % 3) * 80}ms` }}>
+                  <a href={n.link} target="_blank" rel="noopener noreferrer" className="landing-news-card">
+                    {n.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- external news thumbnail, not a static asset
+                      <img src={n.image} alt="" className="landing-news-image" />
+                    ) : (
+                      <div className="landing-news-image landing-news-image-placeholder">
+                        <i className="ti ti-news" />
+                      </div>
+                    )}
+                    <div className="landing-news-body">
+                      <span className="landing-news-time">{timeAgo(n.pubDate)}</span>
+                      <h3>{n.title}</h3>
+                    </div>
+                  </a>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section id="peta" className="landing-map">
         <div className="landing-map-inner">
           <Reveal className="landing-features-header">
@@ -391,7 +448,10 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="landing-footer">{settings.footerText}</footer>
+      <footer className="landing-footer">
+        <p className="m-0">{settings.footerText}</p>
+        <p className="landing-footer-copyright">© 2026 - Nusa Inspira Teknologi (RFS), All Rights Reserved.</p>
+      </footer>
     </div>
   );
 }
