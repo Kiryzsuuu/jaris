@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Script from "next/script";
 
 type Me = { id: string; email: string; roleSlug: string; permissions: string[] };
 type Settings = { siteName: string; logoDataUrl: string | null; footerText: string };
@@ -18,21 +17,21 @@ type NavItem = {
 const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "Menu",
-    items: [{ href: "/dashboard", label: "Dashboard", icon: "bi-grid-fill", permission: "dashboard:view" }],
+    items: [{ href: "/dashboard", label: "Dashboard", icon: "ti-layout-dashboard", permission: "dashboard:view" }],
   },
   {
     title: "Operasional",
     items: [
-      { href: "/claims", label: "Manajemen Klaim", icon: "bi-file-earmark-text", permission: "claim:view" },
-      { href: "/assistant", label: "AI Asisten", icon: "bi-chat-dots", permission: "assistant:use" },
-      { href: "/accident-map", label: "Peta Kecelakaan", icon: "bi-geo-alt", permission: "map:view" },
+      { href: "/claims", label: "Manajemen Klaim", icon: "ti-file-text", permission: "claim:view" },
+      { href: "/assistant", label: "AI Asisten", icon: "ti-message-chatbot", permission: "assistant:use" },
+      { href: "/accident-map", label: "Peta Kecelakaan", icon: "ti-map-pin", permission: "map:view" },
     ],
   },
   {
     title: "Administrasi",
     items: [
-      { href: "/users", label: "Manajemen Pengguna", icon: "bi-people", permission: "user:view" },
-      { href: "/settings", label: "Pengaturan Situs", icon: "bi-gear", permission: "settings:manage" },
+      { href: "/users", label: "Manajemen Pengguna", icon: "ti-users", permission: "user:view" },
+      { href: "/settings", label: "Pengaturan Situs", icon: "ti-settings", permission: "settings:manage" },
     ],
   },
 ];
@@ -53,7 +52,7 @@ export default function AppShell({
   const [me, setMe] = useState<Me | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [minimized, setMinimized] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -70,14 +69,9 @@ export default function AppShell({
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    document.body.classList.toggle("sidebar-minimized", minimized);
-    return () => document.body.classList.remove("sidebar-minimized");
-  }, [minimized]);
-
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 
@@ -85,165 +79,115 @@ export default function AppShell({
 
   return (
     <>
-      <Script
-        src="/vendor/spark/libs/bootstrap/js/bootstrap.bundle.min.js"
-        strategy="afterInteractive"
-      />
-
-      <div className={`sidebar-wrapper ${mobileOpen ? "show" : ""}`} id="sidebar">
-        <Link href="/dashboard" className="sidebar-brand">
-          {settings?.logoDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
-            <img src={settings.logoDataUrl} alt={siteName} style={{ height: 24, width: "auto" }} />
-          ) : (
-            <i className="bi bi-shield-check" />
-          )}
-          <span>{siteName}</span>
-        </Link>
-
-        <div className="flex-grow-1 overflow-y-auto">
-          {NAV_SECTIONS.map((section) => {
-            const visibleItems = section.items.filter(
-              (item) => !item.permission || me?.permissions.includes(item.permission)
-            );
-            if (visibleItems.length === 0) return null;
-
-            return (
-              <div className="sidebar-menu-section" key={section.title}>
-                <div className="sidebar-menu-title">{section.title}</div>
-                <ul className="sidebar-menu-list">
-                  {visibleItems.map((item) => (
-                    <li className="sidebar-menu-item" key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`sidebar-menu-link ${pathname.startsWith(item.href) ? "active" : ""}`}
-                        title={item.label}
-                      >
-                        <i className={`bi ${item.icon}`} />
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-
-        {me && (
-          <div className="sidebar-profile">
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "var(--brand-lime)",
-                color: "var(--theme-foreground, var(--brand-forest-dark))",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: 14,
-                flexShrink: 0,
-              }}
-            >
-              {me.email.slice(0, 1).toUpperCase()}
-            </div>
-            <div className="sidebar-profile-info">
-              <div className="sidebar-profile-name">{me.roleSlug.replace(/-/g, " ")}</div>
-              <div className="sidebar-profile-email">{me.email}</div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {mobileOpen && (
-        <div
-          onClick={() => setMobileOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", zIndex: 1040 }}
-        />
+        <div className="pc-menu-overlay lg:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
-      <div className="main-wrapper">
-        <header className="navbar-custom">
-          <div className="navbar-left">
+      <nav className={`pc-sidebar ${mobileOpen ? "mob-sidebar-active" : ""}`}>
+        <div className="navbar-wrapper">
+          <div className="m-header flex h-header-height items-center px-6">
+            <Link href="/dashboard" className="flex items-center gap-2.5 text-white">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10">
+                {settings?.logoDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+                  <img src={settings.logoDataUrl} alt={siteName} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-primary-400 text-sm font-bold">{siteName.slice(0, 1)}</span>
+                )}
+              </span>
+              <span className="text-base font-semibold tracking-tight">{siteName}</span>
+            </Link>
+          </div>
+
+          <div className="navbar-content overflow-y-auto">
+            <ul className="pc-navbar">
+              {NAV_SECTIONS.map((section) => {
+                const visibleItems = section.items.filter(
+                  (item) => !item.permission || me?.permissions.includes(item.permission)
+                );
+                if (visibleItems.length === 0) return null;
+
+                return (
+                  <li key={section.title}>
+                    <span className="pc-caption">
+                      <label>{section.title}</label>
+                    </span>
+                    <ul className="pc-navbar">
+                      {visibleItems.map((item) => (
+                        <li key={item.href} className={`pc-item ${pathname.startsWith(item.href) ? "active" : ""}`}>
+                          <Link href={item.href} className="pc-link">
+                            <span className="pc-micon">
+                              <i className={`ti ${item.icon}`} />
+                            </span>
+                            <span className="pc-mtext">{item.label}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <header className="pc-header">
+        <div className="flex w-full items-center justify-between px-6">
+          <div className="flex items-center gap-2">
             <button
-              className="btn-desktop-toggle d-none d-xl-flex align-items-center justify-content-center me-3"
-              aria-label="Minimize Sidebar"
-              onClick={() => setMinimized((v) => !v)}
-              type="button"
-            >
-              <i className="bi bi-chevron-bar-left" />
-            </button>
-            <button
-              className="sidebar-toggle-btn me-2"
+              className="pc-head-link lg:hidden"
               aria-label="Toggle Navigation"
               onClick={() => setMobileOpen((v) => !v)}
               type="button"
             >
-              <i className="bi bi-list" />
+              <i className="ti ti-menu-2" />
             </button>
           </div>
 
-          <div className="navbar-search-wrapper" />
-
-          <div className="navbar-actions">
-            <div className="dropdown ms-2">
-              <button
-                className="navbar-profile-btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <span
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background: "var(--brand-forest-dark)",
-                    color: "var(--brand-lime)",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 700,
-                    fontSize: 13,
-                  }}
-                >
-                  {me?.email.slice(0, 1).toUpperCase() ?? "?"}
+          <div className={`dropdown ${profileOpen ? "drp-show" : ""}`}>
+            <button
+              className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-black/[.03]"
+              type="button"
+              onClick={() => setProfileOpen((v) => !v)}
+            >
+              <span className="bg-dark-500 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white">
+                {me?.email.slice(0, 1).toUpperCase() ?? "?"}
+              </span>
+              <span className="hidden text-left md:block">
+                <span className="block text-sm leading-tight font-medium">{me?.email ?? ""}</span>
+                <span className="text-secondary-400 block text-xs leading-tight capitalize">
+                  {me?.roleSlug.replace(/-/g, " ")}
                 </span>
-                <span className="navbar-profile-name d-none d-md-inline">{me?.email ?? ""}</span>
-                <i className="bi bi-chevron-down navbar-profile-caret" />
+              </span>
+              <i className="ti ti-chevron-down text-base" />
+            </button>
+
+            <div className="dropdown-menu dropdown-menu-end">
+              <button
+                className="dropdown-item text-danger-500 w-full text-left"
+                type="button"
+                onClick={handleLogout}
+              >
+                <i className="ti ti-logout" /> Keluar
               </button>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-profile">
-                <li className="dropdown-header">{me?.roleSlug.replace(/-/g, " ")}</li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button className="dropdown-item text-danger" type="button" onClick={handleLogout}>
-                    <i className="bi bi-box-arrow-right" /> Keluar
-                  </button>
-                </li>
-              </ul>
             </div>
           </div>
-        </header>
-
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">{pageTitle}</h1>
-            {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
-          </div>
-          {headerActions}
         </div>
+      </header>
 
-        {children}
-
-        <footer className="footer-custom mt-4">
-          <div className="footer-left">
-            <span className="footer-copy">{settings?.footerText}</span>
+      <div className="pc-container">
+        <div className="pc-content">
+          <div className="page-header flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-[#1d2630]">{pageTitle}</h1>
+              {pageSubtitle && <p className="text-secondary-400 mt-1 text-sm">{pageSubtitle}</p>}
+            </div>
+            {headerActions}
           </div>
-        </footer>
+
+          {children}
+        </div>
       </div>
     </>
   );

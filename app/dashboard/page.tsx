@@ -144,41 +144,31 @@ export default function DashboardPage() {
           : "Dihitung langsung dari MongoDB aggregation pipeline"
       }
       headerActions={
-        <div className="d-flex gap-2">
-          <button className="btn-date-picker" type="button" onClick={() => handleExport("excel")}>
-            <i className="bi bi-file-earmark-excel" />
-            <span>Excel</span>
+        <div className="flex gap-2">
+          <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => handleExport("excel")}>
+            <i className="ti ti-file-spreadsheet mr-1" />
+            Excel
           </button>
-          <button className="btn-date-picker" type="button" onClick={() => handleExport("pdf")}>
-            <i className="bi bi-file-earmark-pdf" />
-            <span>PDF</span>
+          <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => handleExport("pdf")}>
+            <i className="ti ti-file-type-pdf mr-1" />
+            PDF
           </button>
         </div>
       }
     >
-      <form onSubmit={applyFilters} className="card mb-4">
-        <div className="d-flex gap-3 flex-wrap align-items-end">
-          <label className="login-form-label" style={{ minWidth: 160 }}>
-            Dari tanggal
-            <input
-              type="date"
-              className="form-control"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
+      <form onSubmit={applyFilters} className="card">
+        <div className="card-body flex flex-wrap items-end gap-4">
+          <label className="text-sm" style={{ minWidth: 160 }}>
+            <span className="mb-1 block font-medium text-[#1d2630]">Dari tanggal</span>
+            <input type="date" className="form-control" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </label>
-          <label className="login-form-label" style={{ minWidth: 160 }}>
-            Sampai tanggal
-            <input
-              type="date"
-              className="form-control"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
+          <label className="text-sm" style={{ minWidth: 160 }}>
+            <span className="mb-1 block font-medium text-[#1d2630]">Sampai tanggal</span>
+            <input type="date" className="form-control" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </label>
           {branches.length > 0 && (
-            <label className="login-form-label" style={{ minWidth: 200 }}>
-              Cabang
+            <label className="text-sm" style={{ minWidth: 200 }}>
+              <span className="mb-1 block font-medium text-[#1d2630]">Cabang</span>
               <select className="form-select" value={branch} onChange={(e) => setBranch(e.target.value)}>
                 <option value="">Semua cabang</option>
                 {branches.map((b) => (
@@ -187,152 +177,141 @@ export default function DashboardPage() {
               </select>
             </label>
           )}
-          <button type="submit" className="btn btn-dark">
-            Terapkan Filter
-          </button>
+          <button type="submit" className="btn btn-primary">Terapkan Filter</button>
         </div>
       </form>
 
-      {loading && <p>Memuat...</p>}
-      {error && <p className="text-danger">{error}</p>}
+      {loading && <p className="mt-4">Memuat...</p>}
+      {error && <p className="text-danger-600 mt-4">{error}</p>}
 
       {!loading && !error && summary && (
         <>
-          <div className="row g-4 mb-1">
-            <div className="col-md-4">
-              <div className="card card-stat">
-                <span className="stat-label">Total Klaim</span>
-                <div className="stat-value">{summary.totalClaims}</div>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="card">
+              <div className="card-body">
+                <span className="text-secondary-400 text-xs font-medium">Total Klaim</span>
+                <div className="mt-1 text-2xl font-bold text-[#1d2630]">{summary.totalClaims}</div>
               </div>
             </div>
-            <div className="col-md-4">
-              <div className="card card-stat">
-                <span className="stat-label">Total Realisasi Santunan</span>
-                <div className="stat-value">{formatCurrency(summary.totalPaidAmount)}</div>
+            <div className="card">
+              <div className="card-body">
+                <span className="text-secondary-400 text-xs font-medium">Total Realisasi Santunan</span>
+                <div className="mt-1 text-2xl font-bold text-[#1d2630]">{formatCurrency(summary.totalPaidAmount)}</div>
               </div>
             </div>
-            <div className="col-md-4">
-              <div className="card card-stat">
-                <span className="stat-label">Rata-rata Penyelesaian</span>
-                <div className="stat-value">
-                  {summary.resolution.avgResolutionDays !== null
-                    ? `${summary.resolution.avgResolutionDays} hari`
-                    : "N/A"}
+            <div className="card">
+              <div className="card-body">
+                <span className="text-secondary-400 text-xs font-medium">Rata-rata Penyelesaian</span>
+                <div className="mt-1 text-2xl font-bold text-[#1d2630]">
+                  {summary.resolution.avgResolutionDays !== null ? `${summary.resolution.avgResolutionDays} hari` : "N/A"}
                 </div>
-                <div className="text-muted-green" style={{ fontSize: 12 }}>
-                  dari {summary.resolution.sampleSize} klaim lunas
-                </div>
+                <div className="text-secondary-400 mt-1 text-xs">dari {summary.resolution.sampleSize} klaim lunas</div>
               </div>
             </div>
           </div>
 
           {clusterWarnings.length > 0 && (
-            <div className="card mt-4" style={{ borderLeft: "4px solid var(--sys-red)" }}>
-              <h2 className="card-title" style={{ color: "var(--sys-red)" }}>
-                <i className="bi bi-exclamation-triangle-fill me-2" />
-                Sinyal Peringatan - Titik Rawan Kecelakaan
-              </h2>
-              <p className="text-muted-green" style={{ fontSize: 13 }}>
-                Terdeteksi {clusterWarnings.length} klaster kecelakaan berulang dalam radius dekat
-                (analisis pola dari data peta kecelakaan).
-              </p>
-              <ul style={{ paddingLeft: 18, fontSize: 14, marginBottom: 8 }}>
-                {clusterWarnings.slice(0, 8).map((c, i) => (
-                  <li key={i}>
-                    {c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan
-                  </li>
-                ))}
-              </ul>
-              <Link href="/accident-map" className="fw-semibold" style={{ fontSize: 13 }}>
-                Lihat di peta <i className="bi bi-arrow-right" />
-              </Link>
+            <div className="card border-danger-500 mt-6 border-l-4">
+              <div className="card-body">
+                <h2 className="text-danger-600 flex items-center gap-2 text-base font-semibold">
+                  <i className="ti ti-alert-triangle" />
+                  Sinyal Peringatan - Titik Rawan Kecelakaan
+                </h2>
+                <p className="text-secondary-400 mt-2 text-sm">
+                  Terdeteksi {clusterWarnings.length} klaster kecelakaan berulang dalam radius dekat
+                  (analisis pola dari data peta kecelakaan).
+                </p>
+                <ul className="mt-2 list-disc pl-5 text-sm">
+                  {clusterWarnings.slice(0, 8).map((c, i) => (
+                    <li key={i}>{c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan</li>
+                  ))}
+                </ul>
+                <Link href="/accident-map" className="text-primary-600 mt-2 inline-block text-sm font-semibold">
+                  Lihat di peta
+                </Link>
+              </div>
             </div>
           )}
 
-          <div className="row g-4 mt-1">
-            <div className="col-12">
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title">Jumlah Klaim per Status</h2>
-                </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="card md:col-span-2">
+              <div className="card-header">
+                <h5>Jumlah Klaim per Status</h5>
+              </div>
+              <div className="card-body">
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={summary.claimsByStatus}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                     <XAxis dataKey="status" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#072F1F" name="Jumlah Klaim" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--primary-500)" name="Jumlah Klaim" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="col-md-6">
-              <div className="card h-100">
-                <div className="card-header">
-                  <h2 className="card-title">Realisasi Santunan per Cabang</h2>
-                </div>
+            <div className="card">
+              <div className="card-header">
+                <h5>Realisasi Santunan per Cabang</h5>
+              </div>
+              <div className="card-body">
                 {summary.paymentsByBranch.length === 0 ? (
-                  <p className="text-muted-green" style={{ fontSize: 14 }}>Belum ada data pencairan pada filter ini.</p>
+                  <p className="text-secondary-400 text-sm">Belum ada data pencairan pada filter ini.</p>
                 ) : (
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart data={summary.paymentsByBranch}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                       <XAxis dataKey="branch" />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                      <Bar dataKey="totalPaid" fill="#B4F105" name="Total Santunan" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="totalPaid" fill="#1de9b6" name="Total Santunan" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
 
-            <div className="col-md-6">
-              <div className="card h-100">
-                <div className="card-header">
-                  <h2 className="card-title">Tren Kecelakaan Bulanan</h2>
-                </div>
+            <div className="card">
+              <div className="card-header">
+                <h5>Tren Kecelakaan Bulanan</h5>
+              </div>
+              <div className="card-body">
                 {trendData.length === 0 ? (
-                  <p className="text-muted-green" style={{ fontSize: 14 }}>Belum ada data pada filter ini.</p>
+                  <p className="text-secondary-400 text-sm">Belum ada data pada filter ini.</p>
                 ) : (
                   <ResponsiveContainer width="100%" height={260}>
                     <LineChart data={trendData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                       <XAxis dataKey="label" />
                       <YAxis allowDecimals={false} />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="count" stroke="#F97316" name="Jumlah Kecelakaan" strokeWidth={2} />
+                      <Line type="monotone" dataKey="count" stroke="#f44236" name="Jumlah Kecelakaan" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
 
-            <div className="col-12">
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title">Ringkasan Eksekutif (AI)</h2>
-                </div>
-                <p className="text-muted-green" style={{ fontSize: 13 }}>
+            <div className="card md:col-span-2">
+              <div className="card-header">
+                <h5>Ringkasan Eksekutif (AI)</h5>
+              </div>
+              <div className="card-body">
+                <p className="text-secondary-400 text-sm">
                   Dihasilkan Groq dari angka agregat di atas - bukan dari data mentah, dan tidak
                   memberi keputusan/otorisasi.
                 </p>
                 <button
-                  className="btn btn-dark"
-                  style={{ width: "fit-content" }}
+                  className="btn btn-primary mt-3"
                   onClick={handleGenerateNarrative}
                   disabled={narrativeLoading}
                 >
                   {narrativeLoading ? "Membuat ringkasan..." : "Buat Ringkasan Eksekutif"}
                 </button>
-                {narrativeError && <p className="text-danger mt-2" style={{ fontSize: 13 }}>{narrativeError}</p>}
-                {narrative && (
-                  <p className="mt-3" style={{ fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
-                    {narrative}
-                  </p>
-                )}
+                {narrativeError && <p className="text-danger-600 mt-2 text-sm">{narrativeError}</p>}
+                {narrative && <p className="mt-3 text-sm whitespace-pre-wrap">{narrative}</p>}
               </div>
             </div>
           </div>

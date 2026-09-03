@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSiteSettings, serializeSiteSettings } from "@/lib/siteSettings";
-import { deriveThemeShades } from "@/lib/colorUtils";
+import { deriveColorScale } from "@/lib/colorUtils";
 
 async function loadSettings() {
   try {
@@ -17,7 +17,11 @@ async function loadSettings() {
       tagline: "Jasa Raharja Integrated Intelligence System",
       logoDataUrl: null,
       faviconDataUrl: null,
-      primaryColor: "#111827",
+      heroImageDataUrl: null,
+      heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
+      heroSubheadline:
+        "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
+      primaryColor: "#04A9F5",
       footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
     };
   }
@@ -34,18 +38,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const settings = await loadSettings();
-  const theme = deriveThemeShades(settings.primaryColor);
+  const scale = deriveColorScale(settings.primaryColor);
 
   return (
     <html lang="id">
       <head>
-        <link rel="stylesheet" href="/vendor/spark/libs/bootstrap/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/vendor/spark/libs/bootstrap-icons/bootstrap-icons.css" />
-        <link rel="stylesheet" href="/vendor/spark/css/main.css" />
         {/* Admin-configurable accent color (Pengaturan Situs) - overrides the
-            template's default lime accent everywhere it's used, computed
-            server-side so there's no flash of the default color on load. */}
-        <style>{`:root{--brand-lime:${theme.base};--brand-lime-hover:${theme.hover};--brand-lime-translucent:${theme.translucent};--theme-foreground:${theme.foreground};}`}</style>
+            template's default --primary-* scale everywhere it's used,
+            computed server-side so there's no flash of the default color. */}
+        <style>{`:root{${Object.entries(scale)
+          .map(([stop, value]) => `--primary-${stop}:${value};`)
+          .join("")}}`}</style>
       </head>
       <body>{children}</body>
     </html>

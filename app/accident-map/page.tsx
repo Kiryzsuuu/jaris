@@ -69,60 +69,52 @@ export default function AccidentMapPage() {
 
   return (
     <AppShell pageTitle="Peta Data Kecelakaan" pageSubtitle="Visualisasi geospasial dan deteksi titik rawan">
-      <div
-        style={{
-          fontSize: 13,
-          color: "var(--sys-orange)",
-          background: "var(--sys-orange-bg)",
-          border: "1px solid var(--sys-orange)",
-          borderRadius: 10,
-          padding: "10px 14px",
-          marginBottom: 16,
-        }}
-      >
-        <i className="bi bi-exclamation-triangle-fill me-1" />
+      <div className="bg-warning-50 text-warning-700 border-warning-200 mb-4 rounded-lg border px-3.5 py-2.5 text-sm">
+        <i className="ti ti-alert-triangle mr-1" />
         Data pada peta ini adalah <strong>data mock/dummy</strong> untuk keperluan pengembangan -
         belum berasal dari data resmi Korlantas Polri. Struktur data sudah disiapkan
         siap-integrasi; pengisian data real menunggu kerja sama data resmi antar-instansi.
       </div>
 
-      <div className="card mb-4">
-        <form onSubmit={applyFilters} className="d-flex gap-3 flex-wrap align-items-end">
-          <div>
-            <label className="form-label">Dari tanggal</label>
-            <input type="date" className="form-control" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-          </div>
-          <div>
-            <label className="form-label">Sampai tanggal</label>
-            <input type="date" className="form-control" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-          </div>
-          <div>
-            <label className="form-label">Wilayah/Cabang</label>
-            <select className="form-select" value={branch} onChange={(e) => setBranch(e.target.value)}>
-              <option value="">Semua wilayah</option>
-              {branches.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-          </div>
-          <button type="submit" className="btn btn-dark">Terapkan Filter</button>
-          <span className="text-muted-green" style={{ fontSize: 13 }}>
-            {loading ? "Memuat..." : `${points.length} titik - ${clusters.length} titik rawan (klaster)`}
-          </span>
-        </form>
+      <div className="card mb-6">
+        <div className="card-body">
+          <form onSubmit={applyFilters} className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="form-label">Dari tanggal</label>
+              <input type="date" className="form-control" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+            </div>
+            <div>
+              <label className="form-label">Sampai tanggal</label>
+              <input type="date" className="form-control" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+            </div>
+            <div>
+              <label className="form-label">Wilayah/Cabang</label>
+              <select className="form-select" value={branch} onChange={(e) => setBranch(e.target.value)}>
+                <option value="">Semua wilayah</option>
+                {branches.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary">Terapkan Filter</button>
+            <span className="text-secondary-400 text-sm">
+              {loading ? "Memuat..." : `${points.length} titik - ${clusters.length} titik rawan (klaster)`}
+            </span>
+          </form>
 
-        {error && <p className="text-danger mt-2 mb-0" style={{ fontSize: 13 }}>{error}</p>}
+          {error && <p className="text-danger-600 mt-2 mb-0 text-sm">{error}</p>}
 
-        {clusters.length > 0 && (
-          <div className="mt-2" style={{ fontSize: 13 }}>
-            <strong>Sinyal titik rawan:</strong>{" "}
-            {clusters.slice(0, 5).map((c) => `${c.city ?? "?"} (${c.count} kejadian)`).join(", ")}
-            {clusters.length > 5 && ` +${clusters.length - 5} lainnya`}
-          </div>
-        )}
+          {clusters.length > 0 && (
+            <div className="mt-2 text-sm">
+              <strong>Sinyal titik rawan:</strong>{" "}
+              {clusters.slice(0, 5).map((c) => `${c.city ?? "?"} (${c.count} kejadian)`).join(", ")}
+              {clusters.length > 5 && ` +${clusters.length - 5} lainnya`}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="card p-0" style={{ height: "calc(100vh - 380px)", minHeight: 420, overflow: "hidden" }}>
+      <div className="card overflow-hidden p-0" style={{ height: "calc(100vh - 380px)", minHeight: 420 }}>
         <LeafletMap points={points} clusters={clusters} center={INDONESIA_CENTER} zoom={5} />
       </div>
     </AppShell>

@@ -18,13 +18,13 @@ type ClaimRow = {
 
 const STATUS_OPTIONS = ["draft", "submitted", "verified", "approved", "paid", "rejected"];
 
-const STATUS_BADGE: Record<string, "success" | "pending" | "failed"> = {
-  draft: "pending",
-  submitted: "pending",
-  verified: "pending",
-  approved: "success",
-  paid: "success",
-  rejected: "failed",
+const STATUS_BADGE: Record<string, string> = {
+  draft: "bg-secondary-100 text-secondary-700",
+  submitted: "bg-primary-100 text-primary-700",
+  verified: "bg-warning-100 text-warning-700",
+  approved: "bg-info-100 text-info-700",
+  paid: "bg-success-100 text-success-700",
+  rejected: "bg-danger-100 text-danger-700",
 };
 
 function formatCurrency(amount: number | null) {
@@ -75,19 +75,18 @@ export default function ClaimsPage() {
       pageSubtitle="Siklus hidup klaim dan santunan Jasa Raharja"
       headerActions={
         canCreate ? (
-          <Link href="/claims/new" className="btn btn-dark">
-            <i className="bi bi-plus-lg me-1" /> Laporan Baru
+          <Link href="/claims/new" className="btn btn-primary">
+            <i className="ti ti-plus mr-1" /> Laporan Baru
           </Link>
         ) : undefined
       }
     >
       <div className="card">
-        <div className="table-header-control mb-3">
-          <label style={{ fontSize: 13 }}>
+        <div className="card-body">
+          <label className="mb-3 block text-sm">
             Filter status:{" "}
             <select
-              className="form-select d-inline-block"
-              style={{ width: "auto" }}
+              className="form-select mt-1 inline-block w-auto"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
@@ -97,54 +96,54 @@ export default function ClaimsPage() {
               ))}
             </select>
           </label>
-        </div>
 
-        {loading && <p>Memuat...</p>}
-        {error && <p className="text-danger">{error}</p>}
+          {loading && <p>Memuat...</p>}
+          {error && <p className="text-danger-600">{error}</p>}
 
-        {!loading && !error && (
-          <div className="table-responsive">
-            <table className="table-custom w-100">
-              <thead>
-                <tr>
-                  <th>No. Klaim</th>
-                  <th>Korban/Penerima</th>
-                  <th>Kategori</th>
-                  <th>Status</th>
-                  <th>Estimasi</th>
-                  <th>Disetujui</th>
-                </tr>
-              </thead>
-              <tbody>
-                {claims.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <Link href={`/claims/${c.id}`} className="fw-semibold">
-                        {c.claimNumber}
-                      </Link>
-                    </td>
-                    <td>{c.claimant?.fullName ?? "-"}</td>
-                    <td>{c.caseCategory}</td>
-                    <td>
-                      <span className={`badge-table ${STATUS_BADGE[c.status] ?? "pending"}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td>{formatCurrency(c.estimatedAmount)}</td>
-                    <td>{formatCurrency(c.approvedAmount)}</td>
-                  </tr>
-                ))}
-                {claims.length === 0 && (
+          {!loading && !error && (
+            <div className="table-responsive">
+              <table className="table w-full">
+                <thead>
                   <tr>
-                    <td colSpan={6} style={{ padding: 16, textAlign: "center" }} className="text-muted-green">
-                      Tidak ada klaim
-                    </td>
+                    <th>No. Klaim</th>
+                    <th>Korban/Penerima</th>
+                    <th>Kategori</th>
+                    <th>Status</th>
+                    <th>Estimasi</th>
+                    <th>Disetujui</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {claims.map((c) => (
+                    <tr key={c.id}>
+                      <td>
+                        <Link href={`/claims/${c.id}`} className="text-primary-600 font-semibold">
+                          {c.claimNumber}
+                        </Link>
+                      </td>
+                      <td>{c.claimant?.fullName ?? "-"}</td>
+                      <td>{c.caseCategory}</td>
+                      <td>
+                        <span className={`badge ${STATUS_BADGE[c.status] ?? STATUS_BADGE.draft}`}>
+                          {c.status}
+                        </span>
+                      </td>
+                      <td>{formatCurrency(c.estimatedAmount)}</td>
+                      <td>{formatCurrency(c.approvedAmount)}</td>
+                    </tr>
+                  ))}
+                  {claims.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="text-secondary-400 py-4 text-center">
+                        Tidak ada klaim
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </AppShell>
   );

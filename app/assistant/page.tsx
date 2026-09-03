@@ -109,57 +109,44 @@ export default function AssistantPage() {
       pageTitle="AI Asisten Internal"
       pageSubtitle="Jawaban berbasis knowledge base internal (RAG) - bukan mengarang jawaban"
     >
-      <div className="card p-0" style={{ height: "calc(100vh - 220px)", minHeight: 420, display: "flex", overflow: "hidden" }}>
-        <aside style={{ width: 260, borderRight: "1px solid var(--border-light)", padding: 16, overflowY: "auto", flexShrink: 0 }}>
-          <button onClick={startNewConversation} className="btn btn-dark w-100 mb-3">
-            <i className="bi bi-plus-lg me-1" /> Percakapan Baru
+      <div className="card flex overflow-hidden p-0" style={{ height: "calc(100vh - 220px)", minHeight: 420 }}>
+        <aside className="border-secondary-200 w-[260px] shrink-0 overflow-y-auto border-r p-4">
+          <button onClick={startNewConversation} className="btn btn-primary mb-3 w-full">
+            <i className="ti ti-plus mr-1" /> Percakapan Baru
           </button>
-          <h2 className="text-muted-green" style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          <h2 className="text-secondary-400 mb-2 text-xs font-semibold tracking-wide uppercase">
             Riwayat
           </h2>
           {conversations.map((c) => (
             <button
               key={c.conversationId}
               onClick={() => openConversation(c.conversationId)}
-              className="btn text-start w-100 mb-1"
-              style={{
-                fontSize: 13,
-                background: c.conversationId === conversationId ? "var(--bs-body-bg)" : "transparent",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                display: "block",
-              }}
+              className={`mb-1 block w-full truncate rounded-lg px-2 py-1.5 text-left text-sm ${
+                c.conversationId === conversationId ? "bg-primary-50 text-primary-700" : "text-[#1d2630]"
+              }`}
             >
               {c.lastMessage}
             </button>
           ))}
           {conversations.length === 0 && (
-            <p className="text-muted-green" style={{ fontSize: 12 }}>Belum ada riwayat percakapan</p>
+            <p className="text-secondary-400 text-xs">Belum ada riwayat percakapan</p>
           )}
         </aside>
 
-        <section style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <div style={{ flex: 1, overflowY: "auto", padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+        <section className="flex min-w-0 flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-5">
             {messages.map((m, i) => (
               <div
                 key={i}
-                style={{
-                  alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "70%",
-                  background: m.role === "user" ? "var(--brand-forest-dark)" : "var(--bs-body-bg)",
-                  color: m.role === "user" ? "white" : "var(--text-main)",
-                  padding: "10px 14px",
-                  borderRadius: 14,
-                  fontSize: 14,
-                  whiteSpace: "pre-wrap",
-                }}
+                className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
+                  m.role === "user" ? "bg-primary-600 self-end text-white" : "bg-primary-50 self-start text-[#1d2630]"
+                }`}
               >
                 {m.content}
                 {m.role === "assistant" && m.sources && m.sources.length > 0 && (
-                  <div className="mt-2 text-muted-green" style={{ fontSize: 12 }}>
+                  <div className="text-secondary-400 mt-2 text-xs">
                     <strong>Sumber:</strong>
-                    <ul style={{ paddingLeft: 16, margin: "4px 0 0" }}>
+                    <ul className="mt-1 list-disc pl-4">
                       {m.sources.map((s, j) => (
                         <li key={j}>{s.documentTitle} (bagian #{s.chunkIndex}, skor {s.score.toFixed(2)})</li>
                       ))}
@@ -167,31 +154,31 @@ export default function AssistantPage() {
                   </div>
                 )}
                 {m.role === "assistant" && m.isGrounded === false && (
-                  <div className="mt-2" style={{ fontSize: 12, color: "var(--sys-orange)" }}>
-                    <i className="bi bi-exclamation-triangle me-1" />
+                  <div className="text-warning-600 mt-2 text-xs">
+                    <i className="ti ti-alert-triangle mr-1" />
                     Tidak ditemukan di knowledge base
                   </div>
                 )}
               </div>
             ))}
             {messages.length === 0 && (
-              <p className="text-muted-green" style={{ fontSize: 14 }}>
+              <p className="text-secondary-400 text-sm">
                 Tanyakan sesuatu, mis. &quot;Berapa santunan meninggal dunia untuk kendaraan darat?&quot;
               </p>
             )}
             <div ref={bottomRef} />
           </div>
 
-          {error && <p className="text-danger px-3" style={{ fontSize: 13 }}>{error}</p>}
+          {error && <p className="text-danger-600 px-4 text-sm">{error}</p>}
 
-          <form onSubmit={handleSend} className="d-flex gap-2 p-3" style={{ borderTop: "1px solid var(--border-light)" }}>
+          <form onSubmit={handleSend} className="border-secondary-200 flex gap-2 border-t p-4">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ketik pertanyaan Anda..."
               className="form-control"
             />
-            <button type="submit" disabled={sending || !input.trim()} className="btn btn-dark">
+            <button type="submit" disabled={sending || !input.trim()} className="btn btn-primary">
               {sending ? "Mengirim..." : "Kirim"}
             </button>
           </form>

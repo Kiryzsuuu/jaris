@@ -133,17 +133,17 @@ export default function SettingsPage() {
   if (error || !settings) {
     return (
       <AppShell pageTitle="Pengaturan Situs">
-        <p className="text-danger">{error ?? "Gagal memuat pengaturan"}</p>
+        <p className="text-danger-600">{error ?? "Gagal memuat pengaturan"}</p>
       </AppShell>
     );
   }
 
   return (
     <AppShell pageTitle="Pengaturan Situs" pageSubtitle="Identitas, halaman depan, warna tema, dan footer di seluruh aplikasi">
-      <form onSubmit={handleSave} className="row g-4" style={{ maxWidth: 960 }}>
-        <div className="col-md-6">
-          <div className="card h-100">
-            <h2 className="card-title mb-3">Identitas Situs</h2>
+      <form onSubmit={handleSave} className="grid max-w-[960px] grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="card">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Identitas Situs</h2>
 
             <div className="mb-3">
               <label className="form-label">Nama Situs</label>
@@ -179,22 +179,22 @@ export default function SettingsPage() {
                 type="color"
                 value={form.primaryColor}
                 onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))}
-                style={{ display: "block", width: 60, height: 36, padding: 0, border: "1px solid var(--border-light)", borderRadius: 8 }}
+                className="border-secondary-200 block h-9 w-[60px] rounded-lg border p-0"
               />
             </div>
           </div>
         </div>
 
-        <div className="col-md-6">
-          <div className="card h-100">
-            <h2 className="card-title mb-3">Logo &amp; Favicon</h2>
+        <div className="card">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Logo &amp; Favicon</h2>
 
             <div className="mb-3">
               <label className="form-label">Logo (base64 di database)</label>
               <input type="file" accept="image/*" className="form-control" onChange={handleLogoChange} />
               {logoDataUrl && (
                 // eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize
-                <img src={logoDataUrl} alt="Logo preview" className="mt-2" style={{ maxHeight: 64 }} />
+                <img src={logoDataUrl} alt="Logo preview" className="mt-2 max-h-16" />
               )}
             </div>
 
@@ -203,15 +203,15 @@ export default function SettingsPage() {
               <input type="file" accept="image/*" className="form-control" onChange={handleFaviconChange} />
               {faviconDataUrl && (
                 // eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize
-                <img src={faviconDataUrl} alt="Favicon preview" className="mt-2" style={{ maxHeight: 32 }} />
+                <img src={faviconDataUrl} alt="Favicon preview" className="mt-2 max-h-8" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="col-12">
-          <div className="card">
-            <h2 className="card-title mb-3">Halaman Depan (Landing Page)</h2>
+        <div className="card md:col-span-2">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Halaman Depan (Landing Page)</h2>
 
             <div className="mb-3">
               <label className="form-label">Judul Hero</label>
@@ -242,17 +242,16 @@ export default function SettingsPage() {
                 <img
                   src={heroImageDataUrl}
                   alt="Hero preview"
-                  className="mt-2"
-                  style={{ maxHeight: 180, borderRadius: 12, display: "block" }}
+                  className="mt-2 block max-h-[180px] rounded-xl"
                 />
               )}
             </div>
           </div>
         </div>
 
-        <div className="col-12">
-          {message && <p style={{ fontSize: 13 }} className="mb-2">{message}</p>}
-          <button type="submit" disabled={saving} className="btn btn-dark" style={{ width: "fit-content" }}>
+        <div className="md:col-span-2">
+          {message && <p className="text-secondary-400 mb-2 text-sm">{message}</p>}
+          <button type="submit" disabled={saving} className="btn btn-primary w-fit">
             {saving ? "Menyimpan..." : "Simpan Pengaturan"}
           </button>
         </div>

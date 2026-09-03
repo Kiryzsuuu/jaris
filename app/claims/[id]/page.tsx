@@ -32,6 +32,8 @@ type ClaimDetail = {
 
 type Me = { id: string; permissions: string[] };
 
+type DamageAnalysis = { severity: string | null; confidence: number | null; description: string | null };
+
 const DOCUMENT_TYPES = [
   { value: "ktp_korban", label: "KTP Korban" },
   { value: "surat_keterangan_kecelakaan", label: "Surat Keterangan Kecelakaan (Kepolisian)" },
@@ -40,8 +42,15 @@ const DOCUMENT_TYPES = [
   { value: "surat_keterangan_dokter_cacat_tetap", label: "Surat Keterangan Dokter (Cacat Tetap)" },
   { value: "kwitansi_biaya_rawatan", label: "Kwitansi Biaya Perawatan" },
   { value: "kwitansi_biaya_penguburan", label: "Kwitansi Biaya Penguburan" },
+  { value: "foto_kerusakan", label: "Foto Kerusakan (bisa dianalisis AI)" },
   { value: "lainnya", label: "Dokumen Lainnya" },
 ];
+
+const SEVERITY_LABELS: Record<string, string> = {
+  ringan: "Ringan",
+  sedang: "Sedang",
+  berat: "Berat",
+};
 
 function formatCurrency(amount: number | null) {
   if (amount === null) return "-";
@@ -73,6 +82,9 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
   const [docType, setDocType] = useState("ktp_korban");
   const [docFile, setDocFile] = useState<File | null>(null);
   const [reason, setReason] = useState("");
+
+  const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
+  const [damageAnalysis, setDamageAnalysis] = useState<Record<string, DamageAnalysis>>({});
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -136,6 +148,29 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
     setDocFile(null);
   }
 
+  async function handleAnalyzeDamage(docId: string) {
+    setAnalyzingDocId(docId);
+    try {
+      const res = await fetch(`/api/claims/${id}/documents/${docId}/analyze-damage`, { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        setDamageAnalysis((prev) => ({ ...prev, [docId]: json.data }));
+      } else {
+        setDamageAnalysis((prev) => ({
+          ...prev,
+          [docId]: { severity: null, confidence: null, description: json.message },
+        }));
+      }
+    } catch {
+      setDamageAnalysis((prev) => ({
+        ...prev,
+        [docId]: { severity: null, confidence: null, description: "Tidak dapat menghubungi server" },
+      }));
+    } finally {
+      setAnalyzingDocId(null);
+    }
+  }
+
   if (loading) {
     return (
       <AppShell pageTitle="Detail Klaim">
@@ -146,7 +181,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
   if (error || !claim) {
     return (
       <AppShell pageTitle="Detail Klaim">
-        <p className="text-danger">{error ?? "Klaim tidak ditemukan"}</p>
+        <p className="text-danger-600">{error ?? "Klaim tidak ditemukan"}</p>
       </AppShell>
     );
   }
@@ -161,118 +196,161 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
   return (
     <AppShell pageTitle={claim.claimNumber} pageSubtitle={`Status: ${claim.status}`}>
-      <div style={{ maxWidth: 720 }}>
-        {actionMessage && <p style={{ fontSize: 13 }} className="text-muted-green">{actionMessage}</p>}
+      <div className="max-w-[720px]">
+        {actionMessage && <p className="text-secondary-400 mb-3 text-sm">{actionMessage}</p>}
 
-        <div className="card mb-4">
-          <h2 className="card-title mb-3">Data Kecelakaan</h2>
-          <p><strong>Tanggal:</strong> {new Date(claim.accidentDate).toLocaleDateString("id-ID")}</p>
-          <p><strong>Lokasi:</strong> {claim.accidentLocation}</p>
-          <p><strong>Deskripsi:</strong> {claim.accidentDescription}</p>
-          <p><strong>Moda transportasi:</strong> {claim.transportMode}</p>
-          <p><strong>Klasifikasi kasus:</strong> {claim.caseCategory}</p>
-          {claim.disabilityPercentage !== null && <p><strong>Persentase cacat:</strong> {claim.disabilityPercentage}%</p>}
-          {claim.claimedTreatmentCost !== null && <p className="mb-0"><strong>Biaya klaim perawatan:</strong> {formatCurrency(claim.claimedTreatmentCost)}</p>}
+        <div className="card mb-6">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Data Kecelakaan</h2>
+            <p><strong>Tanggal:</strong> {new Date(claim.accidentDate).toLocaleDateString("id-ID")}</p>
+            <p><strong>Lokasi:</strong> {claim.accidentLocation}</p>
+            <p><strong>Deskripsi:</strong> {claim.accidentDescription}</p>
+            <p><strong>Moda transportasi:</strong> {claim.transportMode}</p>
+            <p><strong>Klasifikasi kasus:</strong> {claim.caseCategory}</p>
+            {claim.disabilityPercentage !== null && <p><strong>Persentase cacat:</strong> {claim.disabilityPercentage}%</p>}
+            {claim.claimedTreatmentCost !== null && <p className="mb-0"><strong>Biaya klaim perawatan:</strong> {formatCurrency(claim.claimedTreatmentCost)}</p>}
+          </div>
         </div>
 
-        <div className="card mb-4">
-          <h2 className="card-title mb-3">Korban / Penerima Santunan</h2>
-          <p><strong>Nama:</strong> {claim.claimant.fullName}</p>
-          <p><strong>NIK:</strong> {claim.claimant.nik}</p>
-          <p className="mb-0"><strong>Hubungan:</strong> {claim.claimant.relationshipToVictim}</p>
+        <div className="card mb-6">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Korban / Penerima Santunan</h2>
+            <p><strong>Nama:</strong> {claim.claimant.fullName}</p>
+            <p><strong>NIK:</strong> {claim.claimant.nik}</p>
+            <p className="mb-0"><strong>Hubungan:</strong> {claim.claimant.relationshipToVictim}</p>
+          </div>
         </div>
 
-        <div className="card mb-4">
-          <h2 className="card-title mb-3">Kalkulasi Santunan (Rules Engine)</h2>
-          <p><strong>Estimasi:</strong> {formatCurrency(claim.estimatedAmount)}</p>
-          <p><strong>Disetujui:</strong> {formatCurrency(claim.approvedAmount)}</p>
-          {claim.verification && (
-            <p style={{ fontSize: 13 }} className="text-muted-green">
-              Diverifikasi: {new Date(claim.verification.verifiedAt).toLocaleString("id-ID")}
-              {claim.verification.notes ? ` - ${claim.verification.notes}` : ""}
-            </p>
-          )}
-          {claim.approval && (
-            <p style={{ fontSize: 13 }} className="text-muted-green">
-              Disetujui: {new Date(claim.approval.approvedAt).toLocaleString("id-ID")}
-              {claim.approval.notes ? ` - ${claim.approval.notes}` : ""}
-            </p>
-          )}
-          {claim.rejection && (
-            <p style={{ fontSize: 13 }} className="text-danger mb-0">
-              Ditolak: {new Date(claim.rejection.rejectedAt).toLocaleString("id-ID")} - {claim.rejection.reason}
-            </p>
-          )}
+        <div className="card mb-6">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Kalkulasi Santunan (Rules Engine)</h2>
+            <p><strong>Estimasi:</strong> {formatCurrency(claim.estimatedAmount)}</p>
+            <p><strong>Disetujui:</strong> {formatCurrency(claim.approvedAmount)}</p>
+            {claim.verification && (
+              <p className="text-secondary-400 text-sm">
+                Diverifikasi: {new Date(claim.verification.verifiedAt).toLocaleString("id-ID")}
+                {claim.verification.notes ? ` - ${claim.verification.notes}` : ""}
+              </p>
+            )}
+            {claim.approval && (
+              <p className="text-secondary-400 text-sm">
+                Disetujui: {new Date(claim.approval.approvedAt).toLocaleString("id-ID")}
+                {claim.approval.notes ? ` - ${claim.approval.notes}` : ""}
+              </p>
+            )}
+            {claim.rejection && (
+              <p className="text-danger-600 mb-0 text-sm">
+                Ditolak: {new Date(claim.rejection.rejectedAt).toLocaleString("id-ID")} - {claim.rejection.reason}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="card mb-4">
-          <h2 className="card-title mb-3">Dokumen Pendukung</h2>
-          <ul style={{ paddingLeft: 18, fontSize: 14 }}>
-            {claim.documents.map((d) => (
-              <li key={d.id}>{d.type} - {d.fileName}</li>
-            ))}
-            {claim.documents.length === 0 && <li className="text-muted-green">Belum ada dokumen</li>}
-          </ul>
+        <div className="card mb-6">
+          <div className="card-body">
+            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Dokumen Pendukung</h2>
+            <ul className="space-y-2 text-sm">
+              {claim.documents.map((d) => {
+                const isImage = d.mimeType.startsWith("image/");
+                const analysis = damageAnalysis[d.id];
+                return (
+                  <li key={d.id} className="border-secondary-200 border-b pb-2 last:border-0">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span>{d.type} - {d.fileName}</span>
+                      {isImage && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          disabled={analyzingDocId === d.id}
+                          onClick={() => handleAnalyzeDamage(d.id)}
+                        >
+                          <i className="ti ti-camera mr-1" />
+                          {analyzingDocId === d.id ? "Menganalisis..." : "Analisis Foto (AI)"}
+                        </button>
+                      )}
+                    </div>
+                    {analysis && (
+                      <div className="bg-primary-50 mt-2 rounded-lg p-3 text-xs">
+                        {analysis.severity ? (
+                          <>
+                            <strong>Saran AI:</strong> Tingkat kerusakan {SEVERITY_LABELS[analysis.severity] ?? analysis.severity}
+                            {analysis.confidence !== null && ` (keyakinan ${(analysis.confidence * 100).toFixed(0)}%)`}
+                            {analysis.description && <p className="mt-1">{analysis.description}</p>}
+                            <p className="text-secondary-400 mt-1">Ini hanya saran - petugas tetap yang menilai final.</p>
+                          </>
+                        ) : (
+                          <span className="text-warning-600">{analysis.description ?? "AI tidak memberikan hasil"}</span>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+              {claim.documents.length === 0 && <li className="text-secondary-400">Belum ada dokumen</li>}
+            </ul>
 
-          {canUploadDoc && (
-            <form onSubmit={handleUpload} className="d-flex gap-2 align-items-end flex-wrap mt-2">
-              <div>
-                <label className="form-label">Jenis dokumen</label>
-                <select className="form-select" value={docType} onChange={(e) => setDocType(e.target.value)}>
-                  {DOCUMENT_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="form-label">File</label>
-                <input
-                  type="file"
-                  required
-                  className="form-control"
-                  onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-              <button type="submit" disabled={busy || !docFile} className="btn btn-dark">
-                Unggah
-              </button>
-            </form>
-          )}
+            {canUploadDoc && (
+              <form onSubmit={handleUpload} className="mt-4 flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="form-label">Jenis dokumen</label>
+                  <select className="form-select" value={docType} onChange={(e) => setDocType(e.target.value)}>
+                    {DOCUMENT_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">File</label>
+                  <input
+                    type="file"
+                    required
+                    className="form-control"
+                    onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
+                  />
+                </div>
+                <button type="submit" disabled={busy || !docFile} className="btn btn-primary">
+                  Unggah
+                </button>
+              </form>
+            )}
+          </div>
         </div>
 
         {(canSubmit || canVerify || canApprove || canPay) && (
           <div className="card">
-            <h2 className="card-title mb-3">Aksi</h2>
+            <div className="card-body">
+              <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Aksi</h2>
 
-            {canSubmit && (
-              <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/submit`, {})} className="btn btn-dark me-2 mb-2">
-                Ajukan Klaim (Submit)
-              </button>
-            )}
-
-            {canVerify && (
-              <>
-                <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/verify`, { action: "verify" })} className="btn btn-dark me-2 mb-2">
-                  Verifikasi Lengkap
+              {canSubmit && (
+                <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/submit`, {})} className="btn btn-primary mr-2 mb-2">
+                  Ajukan Klaim (Submit)
                 </button>
-                <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/verify`, { action: "reject", reason })} />
-              </>
-            )}
+              )}
 
-            {canApprove && (
-              <>
-                <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/approve`, { action: "approve" })} className="btn btn-dark me-2 mb-2">
-                  Setujui Klaim
+              {canVerify && (
+                <>
+                  <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/verify`, { action: "verify" })} className="btn btn-primary mr-2 mb-2">
+                    Verifikasi Lengkap
+                  </button>
+                  <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/verify`, { action: "reject", reason })} />
+                </>
+              )}
+
+              {canApprove && (
+                <>
+                  <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/approve`, { action: "approve" })} className="btn btn-primary mr-2 mb-2">
+                    Setujui Klaim
+                  </button>
+                  <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/approve`, { action: "reject", reason })} />
+                </>
+              )}
+
+              {canPay && (
+                <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/payment`, {})} className="btn btn-primary mb-2">
+                  Catat Pencairan Santunan
                 </button>
-                <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/approve`, { action: "reject", reason })} />
-              </>
-            )}
-
-            {canPay && (
-              <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/payment`, {})} className="btn btn-dark mb-2">
-                Catat Pencairan Santunan
-              </button>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -292,19 +370,17 @@ function RejectControl({
   onReject: () => void;
 }) {
   return (
-    <span className="d-inline-flex gap-2 align-items-center mb-2">
+    <span className="mb-2 inline-flex items-center gap-2">
       <input
         placeholder="Alasan penolakan"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
-        className="form-control"
-        style={{ fontSize: 13 }}
+        className="form-control text-sm"
       />
       <button
         disabled={busy || !reason}
         onClick={onReject}
-        className="btn"
-        style={{ background: "white", color: "var(--sys-red)", border: "1px solid var(--sys-red)" }}
+        className="btn btn-outline-danger"
       >
         Tolak
       </button>

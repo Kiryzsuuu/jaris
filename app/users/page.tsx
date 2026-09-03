@@ -99,94 +99,97 @@ export default function UsersPage() {
 
   return (
     <AppShell pageTitle="Manajemen Pengguna" pageSubtitle="Akun, peran, dan wilayah penempatan pegawai">
-      <div className="card mb-4">
-        <h2 className="card-title mb-3">Tambah Pengguna</h2>
-        <form onSubmit={handleCreate} className="d-flex gap-3 flex-wrap align-items-end">
-          <div>
-            <label className="form-label">Nama</label>
-            <input required className="form-control" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div>
-            <label className="form-label">Email</label>
-            <input type="email" required className="form-control" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-          </div>
-          <div>
-            <label className="form-label">Password</label>
-            <input type="password" required minLength={8} className="form-control" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
-          </div>
-          <div>
-            <label className="form-label">Wilayah/Cabang</label>
-            <input required placeholder="mis. Cabang Jakarta" className="form-control" value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))} />
-          </div>
-          <div>
-            <label className="form-label">Peran</label>
-            <select required className="form-select" value={form.roleId} onChange={(e) => setForm((f) => ({ ...f, roleId: e.target.value }))}>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>{r.name}</option>
-              ))}
-            </select>
-          </div>
-          <button type="submit" disabled={creating} className="btn btn-dark">
-            {creating ? "Menyimpan..." : "Tambah"}
-          </button>
-        </form>
-        {formMessage && <p style={{ fontSize: 13 }} className="mt-2 mb-0">{formMessage}</p>}
+      <div className="card mb-6">
+        <div className="card-body">
+          <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Tambah Pengguna</h2>
+          <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="form-label">Nama</label>
+              <input required className="form-control" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div>
+              <label className="form-label">Email</label>
+              <input type="email" required className="form-control" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+            </div>
+            <div>
+              <label className="form-label">Password</label>
+              <input type="password" required minLength={8} className="form-control" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+            </div>
+            <div>
+              <label className="form-label">Wilayah/Cabang</label>
+              <input required placeholder="mis. Cabang Jakarta" className="form-control" value={form.branch} onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))} />
+            </div>
+            <div>
+              <label className="form-label">Peran</label>
+              <select required className="form-select" value={form.roleId} onChange={(e) => setForm((f) => ({ ...f, roleId: e.target.value }))}>
+                {roles.map((r) => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" disabled={creating} className="btn btn-primary">
+              {creating ? "Menyimpan..." : "Tambah"}
+            </button>
+          </form>
+          {formMessage && <p className="text-secondary-400 mt-2 mb-0 text-sm">{formMessage}</p>}
+        </div>
       </div>
 
       <div className="card">
-        {loading && <p>Memuat...</p>}
-        {error && <p className="text-danger">{error}</p>}
+        <div className="card-body">
+          {loading && <p>Memuat...</p>}
+          {error && <p className="text-danger-600">{error}</p>}
 
-        {!loading && !error && (
-          <div className="table-responsive">
-            <table className="table-custom w-100">
-              <thead>
-                <tr>
-                  <th>Nama</th>
-                  <th>Email</th>
-                  <th>Cabang</th>
-                  <th>Peran</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>{u.branch}</td>
-                    <td>
-                      <select
-                        className="form-select form-select-sm"
-                        style={{ width: "auto" }}
-                        value={u.role?.id ?? ""}
-                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      >
-                        {roles.map((r) => (
-                          <option key={r.id} value={r.id}>{r.name}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <span className={`badge-table ${u.isActive ? "success" : "failed"}`}>
-                        {u.isActive ? "Aktif" : "Nonaktif"}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleToggleActive(u.id, u.isActive)}
-                        className="btn-table-action"
-                      >
-                        {u.isActive ? "Nonaktifkan" : "Aktifkan"}
-                      </button>
-                    </td>
+          {!loading && !error && (
+            <div className="table-responsive">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>Cabang</th>
+                    <th>Peran</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u.id}>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>{u.branch}</td>
+                      <td>
+                        <select
+                          className="form-select w-auto"
+                          value={u.role?.id ?? ""}
+                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                        >
+                          {roles.map((r) => (
+                            <option key={r.id} value={r.id}>{r.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <span className={`badge ${u.isActive ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"}`}>
+                          {u.isActive ? "Aktif" : "Nonaktif"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleToggleActive(u.id, u.isActive)}
+                          className="btn btn-outline-primary btn-sm"
+                        >
+                          {u.isActive ? "Nonaktifkan" : "Aktifkan"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </AppShell>
   );
