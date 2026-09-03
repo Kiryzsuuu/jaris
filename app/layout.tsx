@@ -41,8 +41,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <link rel="stylesheet" href="/vendor/spark/libs/bootstrap/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/vendor/spark/libs/bootstrap-icons/bootstrap-icons.css" />
-        <link rel="stylesheet" href="/vendor/spark/libs/apexcharts/apexcharts.css" />
-        <link rel="stylesheet" href="/vendor/spark/libs/flatpickr/flatpickr.min.css" />
         <link rel="stylesheet" href="/vendor/spark/css/main.css" />
         {/* Admin-configurable accent color (Pengaturan Situs) - overrides the
             template's default lime accent everywhere it's used, computed

@@ -7,7 +7,7 @@ Single Next.js (App Router) monorepo: UI and API routes live in one codebase, on
 
 ## UI
 
-The whole app uses the **Spark Admin** template (Bootstrap 5, MIT-licensed, free - by Spark Admin Dev / ThemeWagon) for its visual design: dark forest-green sidebar, lime accent, card-based layout. The vendored template assets (CSS, Bootstrap, Bootstrap Icons, ApexCharts CSS, Flatpickr CSS/JS) live at `public/vendor/spark/` and are loaded via plain `<link>` tags in [`app/layout.tsx`](./app/layout.tsx) - not npm packages, so there's no bundler/version coupling.
+The whole app uses the **Spark Admin** template (Bootstrap 5, MIT-licensed, free - by Spark Admin Dev / ThemeWagon) for its visual design: dark forest-green sidebar, lime accent, card-based layout. The vendored template assets (`main.css`, Bootstrap CSS/JS, Bootstrap Icons) live at `public/vendor/spark/` and are loaded via plain `<link>`/`<script>` tags in [`app/layout.tsx`](./app/layout.tsx)/[`components/AppShell.tsx`](./components/AppShell.tsx) - not npm packages, so there's no bundler/version coupling. The template also ships ApexCharts and Flatpickr, but this app uses Recharts for charts and native `<input type="date">` instead, so those two libraries (and the template's stock avatar/demo images) were deliberately left out - don't re-add them unless a page actually starts using them.
 
 Every authenticated page is wrapped in [`components/AppShell.tsx`](./components/AppShell.tsx), which renders the sidebar (nav items filtered by the current user's permissions), topbar (profile dropdown + logout), and the `page-header` title/subtitle block:
 
