@@ -8,6 +8,10 @@ export interface ISiteSettings {
   logoMimeType: string | null;
   faviconBase64: string | null;
   faviconMimeType: string | null;
+  heroImageBase64: string | null;
+  heroImageMimeType: string | null;
+  heroHeadline: string;
+  heroSubheadline: string;
   primaryColor: string;
   footerText: string;
   updatedAt?: Date;
@@ -27,6 +31,19 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     logoMimeType: { type: String, default: null },
     faviconBase64: { type: String, default: null },
     faviconMimeType: { type: String, default: null },
+    heroImageBase64: { type: String, default: null },
+    heroImageMimeType: { type: String, default: null },
+    heroHeadline: {
+      type: String,
+      required: true,
+      default: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
+    },
+    heroSubheadline: {
+      type: String,
+      required: true,
+      default:
+        "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
+    },
     primaryColor: { type: String, required: true, default: "#111827" },
     footerText: {
       type: String,

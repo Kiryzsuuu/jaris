@@ -21,6 +21,12 @@ export function serializeSiteSettings(settings: Awaited<ReturnType<typeof getSit
       settings.faviconBase64 && settings.faviconMimeType
         ? `data:${settings.faviconMimeType};base64,${settings.faviconBase64}`
         : null,
+    heroImageDataUrl:
+      settings.heroImageBase64 && settings.heroImageMimeType
+        ? `data:${settings.heroImageMimeType};base64,${settings.heroImageBase64}`
+        : null,
+    heroHeadline: settings.heroHeadline,
+    heroSubheadline: settings.heroSubheadline,
     primaryColor: settings.primaryColor,
     footerText: settings.footerText,
     updatedAt: settings.get("updatedAt"),

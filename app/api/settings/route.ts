@@ -18,9 +18,10 @@ export async function GET() {
   }
 }
 
-// Images (logo/favicon) must be submitted as base64 data URLs from the
+// Images (logo/favicon/hero) must be submitted as base64 data URLs from the
 // client - never as raw file uploads or external URLs.
 const MAX_IMAGE_BASE64_LENGTH = 2_000_000; // ~1.5MB raw image
+const MAX_HERO_IMAGE_BASE64_LENGTH = 6_000_000; // ~4.5MB raw image
 
 function parseDataUrl(dataUrl: string): { mimeType: string; base64: string } | null {
   const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/.exec(dataUrl);
@@ -48,6 +49,12 @@ export async function PATCH(request: NextRequest) {
     }
     if (typeof body.primaryColor === "string" && /^#[0-9a-fA-F]{6}$/.test(body.primaryColor)) {
       settings.primaryColor = body.primaryColor;
+    }
+    if (typeof body.heroHeadline === "string" && body.heroHeadline.trim()) {
+      settings.heroHeadline = body.heroHeadline.trim();
+    }
+    if (typeof body.heroSubheadline === "string" && body.heroSubheadline.trim()) {
+      settings.heroSubheadline = body.heroSubheadline.trim();
     }
 
     if (typeof body.logoDataUrl === "string") {
@@ -80,6 +87,21 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    if (typeof body.heroImageDataUrl === "string") {
+      if (body.heroImageDataUrl === "") {
+        settings.heroImageBase64 = null;
+        settings.heroImageMimeType = null;
+      } else {
+        const parsed = parseDataUrl(body.heroImageDataUrl);
+        if (!parsed) return errorResponse("heroImageDataUrl harus data URL gambar base64 yang valid", 400);
+        if (parsed.base64.length > MAX_HERO_IMAGE_BASE64_LENGTH) {
+          return errorResponse("Ukuran gambar hero terlalu besar (maksimum ~4.5MB)", 400);
+        }
+        settings.heroImageBase64 = parsed.base64;
+        settings.heroImageMimeType = parsed.mimeType;
+      }
+    }
+
     await settings.save();
     const after = serializeSiteSettings(settings);
 
@@ -88,8 +110,16 @@ export async function PATCH(request: NextRequest) {
       actorEmail: session.email,
       action: "site_settings_updated",
       target: "site_settings",
-      before: { ...before, logoDataUrl: before.logoDataUrl ? "(image)" : null },
-      after: { ...after, logoDataUrl: after.logoDataUrl ? "(image)" : null },
+      before: {
+        ...before,
+        logoDataUrl: before.logoDataUrl ? "(image)" : null,
+        heroImageDataUrl: before.heroImageDataUrl ? "(image)" : null,
+      },
+      after: {
+        ...after,
+        logoDataUrl: after.logoDataUrl ? "(image)" : null,
+        heroImageDataUrl: after.heroImageDataUrl ? "(image)" : null,
+      },
     });
 
     return successResponse(after, "Pengaturan situs berhasil disimpan");
