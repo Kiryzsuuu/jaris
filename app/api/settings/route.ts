@@ -5,6 +5,7 @@ import { requirePermission, authErrorResponse, AuthError } from "@/lib/authGuard
 import { PERMISSIONS } from "@/lib/permissions";
 import { getSiteSettings, serializeSiteSettings } from "@/lib/siteSettings";
 import { recordAuditLog } from "@/lib/auditLog";
+import { ALL_LANDING_CARDS } from "@/lib/landingContent";
 
 // Public on purpose: the login page and every layout need site name/logo
 // before a session exists. Nothing sensitive is stored here.
@@ -127,6 +128,25 @@ export async function PATCH(request: NextRequest) {
         settings.sectionImageBase64 = parsed.base64;
         settings.sectionImageMimeType = parsed.mimeType;
       }
+    }
+
+    if (body.cardImages && typeof body.cardImages === "object") {
+      const validSlugs = new Set(ALL_LANDING_CARDS.map((c) => c.slug));
+      for (const [slug, dataUrl] of Object.entries(body.cardImages as Record<string, unknown>)) {
+        if (!validSlugs.has(slug)) continue;
+        if (dataUrl === "") {
+          settings.cardImages.delete(slug);
+          continue;
+        }
+        if (typeof dataUrl !== "string") continue;
+        const parsed = parseDataUrl(dataUrl);
+        if (!parsed) return errorResponse(`Gambar untuk kartu '${slug}' harus data URL gambar base64 yang valid`, 400);
+        if (parsed.base64.length > MAX_IMAGE_BASE64_LENGTH) {
+          return errorResponse(`Ukuran gambar untuk kartu '${slug}' terlalu besar (maksimum ~1.5MB)`, 400);
+        }
+        settings.cardImages.set(slug, parsed);
+      }
+      settings.markModified("cardImages");
     }
 
     await settings.save();

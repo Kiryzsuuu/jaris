@@ -22,6 +22,10 @@ export interface ISiteSettings {
   backgroundColor: string;
   sidebarColor: string;
   footerText: string;
+  // Keyed by LandingCard.slug (lib/landingContent.ts) - optional image an
+  // admin can attach to any landing-page flow/capability card, shown in
+  // its detail modal.
+  cardImages: Map<string, { base64: string; mimeType: string }>;
   updatedAt?: Date;
 }
 
@@ -75,6 +79,11 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       type: String,
       required: true,
       default: "PT Nusa Inspira Teknologi",
+    },
+    cardImages: {
+      type: Map,
+      of: new Schema({ base64: String, mimeType: String }, { _id: false }),
+      default: () => new Map(),
     },
   },
   { timestamps: { createdAt: false, updatedAt: true } }

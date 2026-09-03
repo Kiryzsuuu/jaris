@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import { ALL_LANDING_CARDS } from "@/lib/landingContent";
 
 type Settings = {
   siteName: string;
@@ -11,6 +12,7 @@ type Settings = {
   faviconDataUrl: string | null;
   heroImageDataUrl: string | null;
   sectionImageDataUrl: string | null;
+  cardImages: Record<string, string>;
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
@@ -68,6 +70,7 @@ export default function SettingsPage() {
   const [faviconDataUrl, setFaviconDataUrl] = useState<string | null>(null);
   const [heroImageDataUrl, setHeroImageDataUrl] = useState<string | null>(null);
   const [sectionImageDataUrl, setSectionImageDataUrl] = useState<string | null>(null);
+  const [cardImages, setCardImages] = useState<Record<string, string>>({});
 
   const [demoCounts, setDemoCounts] = useState<{ claims: number; claimants: number; payments: number; accidentPoints: number } | null>(null);
   const [deletingDemo, setDeletingDemo] = useState(false);
@@ -133,6 +136,7 @@ export default function SettingsPage() {
       setFaviconDataUrl(data.faviconDataUrl);
       setHeroImageDataUrl(data.heroImageDataUrl);
       setSectionImageDataUrl(data.sectionImageDataUrl);
+      setCardImages(data.cardImages ?? {});
     } catch {
       setError("Tidak dapat menghubungi server");
     } finally {
@@ -170,6 +174,17 @@ export default function SettingsPage() {
     setSectionImageDataUrl(await fileToDataUrl(file));
   }
 
+  async function handleCardImageChange(slug: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    setCardImages((prev) => ({ ...prev, [slug]: dataUrl }));
+  }
+
+  function handleRemoveCardImage(slug: string) {
+    setCardImages((prev) => ({ ...prev, [slug]: "" }));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -184,6 +199,7 @@ export default function SettingsPage() {
           faviconDataUrl: faviconDataUrl ?? "",
           heroImageDataUrl: heroImageDataUrl ?? "",
           sectionImageDataUrl: sectionImageDataUrl ?? "",
+          cardImages,
         }),
       });
       const json = await res.json();
@@ -357,6 +373,46 @@ export default function SettingsPage() {
                 className="mt-2 block max-h-[180px] rounded-xl"
               />
             )}
+          </div>
+        </div>
+
+        <div className="card md:col-span-2">
+          <div className="card-body">
+            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Kartu Landing Page</h2>
+            <p className="text-secondary-400 mb-4 text-xs">
+              Setiap kartu &quot;Cara Kerja&quot; dan &quot;Kapabilitas&quot; di halaman depan bisa diklik untuk membuka
+              detail. Unggah gambar opsional untuk kartu tertentu - akan tampil di bagian atas jendela detailnya.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {ALL_LANDING_CARDS.map((c) => (
+                <div key={c.slug} className="border-secondary-100 rounded-lg border p-3">
+                  <p className="mb-2 text-sm font-medium text-[#1d2630]">
+                    <i className={`ti ${c.icon} text-primary-600 mr-1.5`} />
+                    {c.title}
+                  </p>
+                  {cardImages[c.slug] ? (
+                    <div>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize */}
+                      <img src={cardImages[c.slug]} alt="" className="mb-2 h-24 w-full rounded object-cover" />
+                      <button
+                        type="button"
+                        className="text-danger-600 text-xs font-medium"
+                        onClick={() => handleRemoveCardImage(c.slug)}
+                      >
+                        Hapus gambar
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="form-control"
+                      onChange={(e) => handleCardImageChange(c.slug, e)}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

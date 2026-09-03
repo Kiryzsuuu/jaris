@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { CLAIM_FLOW, CAPABILITIES, type LandingCard } from "@/lib/landingContent";
 
 type SettingsResponse = {
   siteName: string;
@@ -11,6 +12,7 @@ type SettingsResponse = {
   heroHeadline: string;
   heroSubheadline: string;
   footerText: string;
+  cardImages: Record<string, string>;
 };
 
 const HERO_SLIDES = [
@@ -94,8 +96,10 @@ function HeroCarousel() {
           <div className="landing-hero-slide-icon">
             <i className={`ti ${slide.icon}`} />
           </div>
-          <h3>{slide.title}</h3>
-          <p>{slide.desc}</p>
+          <div className="landing-hero-slide-text">
+            <h3>{slide.title}</h3>
+            <p>{slide.desc}</p>
+          </div>
         </div>
       ))}
 
@@ -132,73 +136,6 @@ function HeroCarousel() {
   );
 }
 
-const CLAIM_FLOW = [
-  {
-    step: "01",
-    title: "Laporan Diajukan",
-    desc: "Petugas mengisi data kecelakaan, korban, dan dokumen pendukung langsung dari lapangan.",
-    icon: "ti-file-plus",
-  },
-  {
-    step: "02",
-    title: "Verifikasi Kelengkapan",
-    desc: "Petugas verifikasi memeriksa kelengkapan berkas sebelum klaim berlanjut ke tahap persetujuan.",
-    icon: "ti-list-check",
-  },
-  {
-    step: "03",
-    title: "Kalkulasi & Persetujuan",
-    desc: "Rules engine menghitung besaran santunan secara deterministik, lalu pejabat berwenang menyetujui.",
-    icon: "ti-calculator",
-  },
-  {
-    step: "04",
-    title: "Pencairan Santunan",
-    desc: "Setelah disetujui, pencairan dana ke penerima santunan tercatat dan dapat dilacak riwayatnya.",
-    icon: "ti-wallet",
-  },
-];
-
-const CAPABILITIES = [
-  {
-    title: "Memahami Data",
-    desc: "AI membaca dan merangkum data operasional secara otomatis, dari laporan klaim hingga dokumen internal.",
-    icon: "ti-file-text",
-  },
-  {
-    title: "Menganalisis Pola",
-    desc: "Mendeteksi pola dan tren dari ribuan data kecelakaan dan klaim secara berkelanjutan.",
-    icon: "ti-chart-line",
-  },
-  {
-    title: "Mempercepat Proses",
-    desc: "Alur klaim dari verifikasi hingga pencairan berjalan lebih cepat dengan rules engine yang deterministik.",
-    icon: "ti-bolt",
-  },
-  {
-    title: "Mendeteksi Potensi Risiko",
-    desc: "Klaster titik rawan kecelakaan terdeteksi otomatis sebagai sinyal peringatan dini bagi manajemen.",
-    icon: "ti-map-pin",
-  },
-  {
-    title: "Memberikan Rekomendasi",
-    desc: "AI memberi saran klasifikasi kasus dan ringkasan eksekutif - keputusan akhir tetap di tangan Anda.",
-    icon: "ti-message-chatbot",
-  },
-  {
-    title: "Insight Real-Time",
-    desc: "Dashboard analitik yang selalu mencerminkan kondisi operasional terkini, kapan saja dibutuhkan.",
-    icon: "ti-gauge",
-  },
-  {
-    title: "Analisis Gambar Kerusakan",
-    desc: "Foto kerusakan yang diunggah petugas dianalisis AI untuk saran tingkat keparahan - langsung di form klaim.",
-    icon: "ti-camera",
-    badge: "Baru",
-    highlighted: true,
-  },
-];
-
 const MAP_REGIONS = [
   { name: "Jakarta", query: "Jasa Raharja Jakarta Pusat, Indonesia" },
   { name: "Surabaya", query: "Jasa Raharja Surabaya, Indonesia" },
@@ -216,9 +153,48 @@ const DEFAULTS: SettingsResponse = {
   heroSubheadline:
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
   footerText: "PT Nusa Inspira Teknologi",
+  cardImages: {},
 };
 
 type NewsItem = { title: string; link: string; pubDate: string; image: string | null };
+
+function CardModal({ card, image, onClose }: { card: LandingCard; image: string | null; onClose: () => void }) {
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="landing-modal-overlay" onClick={onClose}>
+      <div className="landing-modal" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="landing-modal-close" aria-label="Tutup" onClick={onClose}>
+          <i className="ti ti-x" />
+        </button>
+
+        {image && (
+          // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+          <img src={image} alt={card.title} className="landing-modal-image" />
+        )}
+
+        <div className="landing-modal-body">
+          <div className="landing-modal-icon">
+            <i className={`ti ${card.icon}`} />
+          </div>
+          <h3>{card.title}</h3>
+          <p>{card.detail}</p>
+          {card.linkHref && (
+            <Link href={card.linkHref} className="landing-primary-btn">
+              {card.linkLabel ?? "Pelajari lebih lanjut"}
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function timeAgo(pubDate: string) {
   const then = new Date(pubDate).getTime();
@@ -234,6 +210,7 @@ export default function Home() {
   const [settings, setSettings] = useState<SettingsResponse>(DEFAULTS);
   const [activeRegion, setActiveRegion] = useState(MAP_REGIONS[0]);
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [activeCard, setActiveCard] = useState<LandingCard | null>(null);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -278,33 +255,31 @@ export default function Home() {
       </nav>
 
       <header className="landing-hero">
-        <div className="landing-hero-grid">
-          <div>
-            <span className="landing-eyebrow">
-              <span className="landing-eyebrow-dot" />
-              PT Jasa Raharja (Persero)
-            </span>
-            <h1 className="landing-headline">{settings.heroHeadline}</h1>
-            <p className="landing-subheadline">{settings.heroSubheadline}</p>
+        <div className="landing-hero-text">
+          <span className="landing-eyebrow">
+            <span className="landing-eyebrow-dot" />
+            PT Jasa Raharja (Persero)
+          </span>
+          <h1 className="landing-headline">{settings.heroHeadline}</h1>
+          <p className="landing-subheadline">{settings.heroSubheadline}</p>
 
-            <div className="landing-hero-actions">
-              <Link href="/login" className="landing-primary-btn">
-                Masuk ke Sistem
-              </Link>
-              <a href="#kapabilitas" className="landing-secondary-link">
-                Lihat kapabilitas
-              </a>
-            </div>
+          <div className="landing-hero-actions">
+            <Link href="/login" className="landing-primary-btn">
+              Masuk ke Sistem
+            </Link>
+            <a href="#kapabilitas" className="landing-secondary-link">
+              Lihat kapabilitas
+            </a>
           </div>
+        </div>
 
-          <div className="landing-hero-visual">
-            {settings.heroImageDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
-              <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
-            ) : (
-              <HeroCarousel />
-            )}
-          </div>
+        <div className="landing-hero-visual">
+          {settings.heroImageDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+            <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
+          ) : (
+            <HeroCarousel />
+          )}
         </div>
       </header>
 
@@ -328,13 +303,16 @@ export default function Home() {
 
           <div className="landing-flow-grid">
             {CLAIM_FLOW.map((f, i) => (
-              <Reveal key={f.step} className="landing-flow-card" style={{ transitionDelay: `${i * 80}ms` }}>
-                <span className="landing-flow-step">{f.step}</span>
-                <div className="landing-flow-icon">
-                  <i className={`ti ${f.icon}`} />
-                </div>
-                <h3 className="landing-feature-title">{f.title}</h3>
-                <p className="landing-feature-desc">{f.desc}</p>
+              <Reveal key={f.slug} style={{ transitionDelay: `${i * 80}ms` }}>
+                <button type="button" className="landing-flow-card landing-clickable-card" onClick={() => setActiveCard(f)}>
+                  <span className="landing-flow-step">{String(i + 1).padStart(2, "0")}</span>
+                  <div className="landing-flow-icon">
+                    <i className={`ti ${f.icon}`} />
+                  </div>
+                  <h3 className="landing-feature-title">{f.title}</h3>
+                  <p className="landing-feature-desc">{f.desc}</p>
+                  <span className="landing-card-hint">Lihat detail <i className="ti ti-arrow-right" /></span>
+                </button>
               </Reveal>
             ))}
           </div>
@@ -354,17 +332,20 @@ export default function Home() {
 
           <div className="landing-feature-grid">
             {CAPABILITIES.map((c, i) => (
-              <Reveal
-                key={c.title}
-                className={`landing-feature-card ${c.highlighted ? "is-highlighted" : ""}`}
-                style={{ transitionDelay: `${(i % 4) * 80}ms` }}
-              >
-                <div className="landing-feature-icon">
-                  <i className={`ti ${c.icon}`} />
-                </div>
-                <h3 className="landing-feature-title">{c.title}</h3>
-                <p className="landing-feature-desc">{c.desc}</p>
-                {c.badge && <span className="landing-feature-badge">{c.badge}</span>}
+              <Reveal key={c.slug} style={{ transitionDelay: `${(i % 4) * 80}ms` }}>
+                <button
+                  type="button"
+                  className={`landing-feature-card landing-clickable-card ${c.highlighted ? "is-highlighted" : ""}`}
+                  onClick={() => setActiveCard(c)}
+                >
+                  <div className="landing-feature-icon">
+                    <i className={`ti ${c.icon}`} />
+                  </div>
+                  <h3 className="landing-feature-title">{c.title}</h3>
+                  <p className="landing-feature-desc">{c.desc}</p>
+                  {c.badge && <span className="landing-feature-badge">{c.badge}</span>}
+                  <span className="landing-card-hint">Lihat detail <i className="ti ti-arrow-right" /></span>
+                </button>
               </Reveal>
             ))}
           </div>
@@ -461,6 +442,10 @@ export default function Home() {
         <p className="m-0">{settings.footerText}</p>
         <p className="landing-footer-copyright">© 2026 - Nusa Inspira Teknologi (RFS), All Rights Reserved.</p>
       </footer>
+
+      {activeCard && (
+        <CardModal card={activeCard} image={settings.cardImages[activeCard.slug] ?? null} onClose={() => setActiveCard(null)} />
+      )}
     </div>
   );
 }

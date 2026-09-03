@@ -284,16 +284,12 @@ body {
   z-index: 0;
 }
 
-.landing-hero-grid {
+.landing-hero-text {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: clamp(2.5rem, 5vw, 4.5rem);
-  align-items: center;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto clamp(2.5rem, 5vw, 3.5rem);
 }
 
 .landing-eyebrow {
@@ -376,7 +372,10 @@ body {
   z-index: 1;
   border-radius: 8px;
   overflow: hidden;
-  aspect-ratio: 4 / 3.3;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   background: var(--ink-50);
   border: 1px solid var(--ink-200);
   box-shadow: 0 24px 48px -24px rgba(10, 30, 66, 0.22);
@@ -413,10 +412,10 @@ body {
   position: absolute;
   inset: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2.25rem 2.25rem 4rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 2.5rem clamp(2rem, 6vw, 4rem) 4rem;
   opacity: 0;
   transform: translateX(12px);
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -430,16 +429,16 @@ body {
 }
 
 .landing-hero-slide-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 12px;
   background: linear-gradient(135deg, var(--ai-500), var(--highlight-600));
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
 }
 
 .landing-hero-slide h3 {
@@ -451,11 +450,11 @@ body {
 }
 
 .landing-hero-slide p {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   color: var(--ink-500);
   margin: 0;
-  max-width: 34ch;
+  max-width: 52ch;
 }
 
 .landing-hero-carousel-controls {
@@ -562,6 +561,42 @@ body {
   position: relative;
   padding: 1.75rem;
   background: #ffffff;
+  transition: background-color 0.15s ease;
+}
+
+.landing-flow-card:hover {
+  background: var(--brand-bg);
+}
+
+/* Cards render as <button> so they're keyboard/click accessible - reset
+   the browser's default button chrome back to plain block styling. */
+.landing-clickable-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.landing-card-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ai-600);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.landing-clickable-card:hover .landing-card-hint,
+.landing-clickable-card:focus-visible .landing-card-hint {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .landing-flow-step {
@@ -941,15 +976,6 @@ body {
 }
 
 @media (max-width: 992px) {
-  .landing-hero-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-hero-visual {
-    order: -1;
-    aspect-ratio: 16 / 9;
-  }
-
   .landing-feature-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1155,4 +1181,101 @@ body {
   .login-form-side {
     padding: 2.5rem 1.5rem 3rem;
   }
+}
+
+/* ---------------------------------------------------------------------
+   Landing card detail modal
+--------------------------------------------------------------------- */
+
+.landing-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(11, 20, 34, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: landing-modal-fade 0.15s ease;
+}
+
+@keyframes landing-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.landing-modal {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 24px 64px -16px rgba(10, 20, 40, 0.35);
+}
+
+.landing-modal-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.landing-modal-close:hover {
+  background: var(--ink-100);
+}
+
+.landing-modal-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.landing-modal-body {
+  padding: 2rem;
+}
+
+.landing-modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--ai-500), var(--highlight-600));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.landing-modal-body h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.landing-modal-body p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--ink-500);
+  margin: 0 0 1.5rem;
+}
+
+.landing-modal-body .landing-primary-btn {
+  padding: 0.65rem 1.5rem;
+  font-size: 0.85rem;
 }

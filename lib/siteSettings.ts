@@ -39,6 +39,9 @@ export function serializeSiteSettings(settings: Awaited<ReturnType<typeof getSit
     backgroundColor: settings.backgroundColor,
     sidebarColor: settings.sidebarColor,
     footerText: settings.footerText,
+    cardImages: Object.fromEntries(
+      Array.from(settings.cardImages ?? new Map(), ([slug, img]) => [slug, `data:${img.mimeType};base64,${img.base64}`])
+    ),
     updatedAt: settings.get("updatedAt"),
   };
 }
