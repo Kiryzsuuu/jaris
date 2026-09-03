@@ -102,18 +102,41 @@ export default function UsersPage() {
       <div className="card mb-6">
         <div className="card-body">
           <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Tambah Pengguna</h2>
-          <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
+          <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3" autoComplete="off">
             <div>
               <label className="form-label">Nama</label>
-              <input required className="form-control" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+              <input
+                required
+                className="form-control"
+                autoComplete="off"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              />
             </div>
             <div>
-              <label className="form-label">Email</label>
-              <input type="email" required className="form-control" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+              <label className="form-label">Email Pengguna Baru</label>
+              <input
+                type="email"
+                required
+                className="form-control"
+                autoComplete="off"
+                name="new-user-email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              />
             </div>
             <div>
-              <label className="form-label">Password</label>
-              <input type="password" required minLength={8} className="form-control" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+              <label className="form-label">Password Awal</label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                className="form-control"
+                autoComplete="new-password"
+                name="new-user-password"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+              />
             </div>
             <div>
               <label className="form-label">Wilayah/Cabang</label>
