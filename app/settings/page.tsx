@@ -35,7 +35,7 @@ export default function SettingsPage() {
     siteName: "",
     tagline: "",
     footerText: "",
-    primaryColor: "#111827",
+    primaryColor: "#2196f3",
     heroHeadline: "",
     heroSubheadline: "",
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 type SettingsResponse = {
@@ -12,12 +12,151 @@ type SettingsResponse = {
   footerText: string;
 };
 
-type PublicStats = {
-  totalClaims: number;
-  totalPaidAmount: number;
-  totalAccidentPoints: number;
-  totalActiveUsers: number;
-};
+const HERO_SLIDES = [
+  {
+    icon: "ti-gauge",
+    title: "Dashboard Analitik Real-Time",
+    desc: "Jumlah klaim, realisasi santunan, dan tren kecelakaan langsung dari agregasi database - bukan laporan statis.",
+  },
+  {
+    icon: "ti-map-pin",
+    title: "Peta Titik Rawan Kecelakaan",
+    desc: "Klaster kecelakaan terdeteksi otomatis di peta geospasial sebagai sinyal peringatan dini bagi manajemen.",
+  },
+  {
+    icon: "ti-message-chatbot",
+    title: "AI Asisten Berbasis Knowledge Base",
+    desc: "Jawaban internal yang selalu bersumber dari dokumen resmi (RAG) - lengkap dengan rujukan sumbernya.",
+  },
+  {
+    icon: "ti-camera",
+    title: "Analisis Foto Kerusakan (AI)",
+    desc: "Foto kerusakan yang diunggah petugas dianalisis AI untuk saran tingkat keparahan, langsung di form klaim.",
+  },
+];
+
+function Reveal({
+  children,
+  className = "",
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className={`reveal ${visible ? "is-visible" : ""} ${className}`} style={style}>
+      {children}
+    </div>
+  );
+}
+
+function HeroCarousel() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setActive((i) => (i + 1) % HERO_SLIDES.length);
+    }, 4200);
+    return () => clearInterval(timer);
+  }, [paused]);
+
+  return (
+    <div
+      className="landing-hero-carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {HERO_SLIDES.map((slide, i) => (
+        <div key={slide.title} className={`landing-hero-slide ${i === active ? "is-active" : ""}`}>
+          <div className="landing-hero-slide-icon">
+            <i className={`ti ${slide.icon}`} />
+          </div>
+          <h3>{slide.title}</h3>
+          <p>{slide.desc}</p>
+        </div>
+      ))}
+
+      <div className="landing-hero-carousel-controls">
+        <button
+          type="button"
+          aria-label="Sebelumnya"
+          className="landing-hero-arrow"
+          onClick={() => setActive((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
+        >
+          <i className="ti ti-chevron-left" />
+        </button>
+        <div className="landing-hero-dots">
+          {HERO_SLIDES.map((slide, i) => (
+            <button
+              key={slide.title}
+              type="button"
+              aria-label={`Slide ${i + 1}`}
+              className={`landing-hero-dot ${i === active ? "is-active" : ""}`}
+              onClick={() => setActive(i)}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          aria-label="Berikutnya"
+          className="landing-hero-arrow"
+          onClick={() => setActive((i) => (i + 1) % HERO_SLIDES.length)}
+        >
+          <i className="ti ti-chevron-right" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const CLAIM_FLOW = [
+  {
+    step: "01",
+    title: "Laporan Diajukan",
+    desc: "Petugas mengisi data kecelakaan, korban, dan dokumen pendukung langsung dari lapangan.",
+    icon: "ti-file-plus",
+  },
+  {
+    step: "02",
+    title: "Verifikasi Kelengkapan",
+    desc: "Petugas verifikasi memeriksa kelengkapan berkas sebelum klaim berlanjut ke tahap persetujuan.",
+    icon: "ti-list-check",
+  },
+  {
+    step: "03",
+    title: "Kalkulasi & Persetujuan",
+    desc: "Rules engine menghitung besaran santunan secara deterministik, lalu pejabat berwenang menyetujui.",
+    icon: "ti-calculator",
+  },
+  {
+    step: "04",
+    title: "Pencairan Santunan",
+    desc: "Setelah disetujui, pencairan dana ke penerima santunan tercatat dan dapat dilacak riwayatnya.",
+    icon: "ti-wallet",
+  },
+];
 
 const CAPABILITIES = [
   {
@@ -69,29 +208,14 @@ const DEFAULTS: SettingsResponse = {
   footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
 };
 
-function formatCompactNumber(value: number) {
-  return new Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 }).format(value);
-}
-
-function formatCompactCurrency(value: number) {
-  return `Rp${formatCompactNumber(value)}`;
-}
-
 export default function Home() {
   const [settings, setSettings] = useState<SettingsResponse>(DEFAULTS);
-  const [stats, setStats] = useState<PublicStats | null>(null);
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((json) => {
         if (json.success) setSettings(json.data);
-      })
-      .catch(() => {});
-    fetch("/api/public-stats")
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.success) setStats(json.data);
       })
       .catch(() => {});
   }, []);
@@ -112,8 +236,8 @@ export default function Home() {
         </span>
 
         <div className="landing-nav-links">
+          <a href="#alur-klaim" className="landing-nav-link">Alur Klaim</a>
           <a href="#kapabilitas" className="landing-nav-link">Kapabilitas</a>
-          <a href="#statistik" className="landing-nav-link">Statistik</a>
         </div>
 
         <Link href="/login" className="landing-nav-cta">
@@ -146,59 +270,63 @@ export default function Home() {
               // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
               <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
             ) : (
-              <div className="landing-hero-visual-placeholder">
-                <div className="landing-hero-visual-placeholder-mark">
-                  {settings.siteName.slice(0, 1)}
-                </div>
-                <p>Gambar hero dapat diatur admin lewat Pengaturan Situs, tanpa perlu ubah kode.</p>
-              </div>
+              <HeroCarousel />
             )}
           </div>
         </div>
       </header>
 
-      <section id="statistik" className="landing-stats">
-        <div className="landing-stats-inner">
-          <div className="landing-stat">
-            <div className="landing-stat-value">{stats ? formatCompactNumber(stats.totalClaims) : "-"}</div>
-            <div className="landing-stat-label">Klaim Diproses</div>
-          </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">{stats ? formatCompactCurrency(stats.totalPaidAmount) : "-"}</div>
-            <div className="landing-stat-label">Santunan Tersalurkan</div>
-          </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">{stats ? formatCompactNumber(stats.totalAccidentPoints) : "-"}</div>
-            <div className="landing-stat-label">Titik Kecelakaan Terpetakan</div>
-          </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">{stats ? formatCompactNumber(stats.totalActiveUsers) : "-"}</div>
-            <div className="landing-stat-label">Pengguna Aktif</div>
+      <section id="alur-klaim" className="landing-flow">
+        <div className="landing-flow-inner">
+          <Reveal className="landing-features-header">
+            <span className="landing-features-eyebrow">Cara Kerja</span>
+            <h2 className="landing-features-title">Empat tahap, satu sistem terpadu</h2>
+            <p className="landing-features-desc">
+              Dari laporan kecelakaan hingga pencairan santunan, seluruh siklus klaim tercatat dan
+              dapat dilacak dalam satu alur kerja yang sama.
+            </p>
+          </Reveal>
+
+          <div className="landing-flow-grid">
+            {CLAIM_FLOW.map((f, i) => (
+              <Reveal key={f.step} className="landing-flow-card" style={{ transitionDelay: `${i * 80}ms` }}>
+                <span className="landing-flow-step">{f.step}</span>
+                <div className="landing-flow-icon">
+                  <i className={`ti ${f.icon}`} />
+                </div>
+                <h3 className="landing-feature-title">{f.title}</h3>
+                <p className="landing-feature-desc">{f.desc}</p>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
       <section id="kapabilitas" className="landing-features">
         <div className="landing-features-inner">
-          <div className="landing-features-header">
+          <Reveal className="landing-features-header">
             <span className="landing-features-eyebrow">Kecerdasan Terintegrasi</span>
             <h2 className="landing-features-title">Tujuh kemampuan inti JARIS</h2>
             <p className="landing-features-desc">
               Dirancang untuk membantu setiap unit kerja Jasa Raharja bekerja lebih cepat dan lebih
               tepat, dengan kecerdasan buatan yang selalu berbasis data resmi internal.
             </p>
-          </div>
+          </Reveal>
 
           <div className="landing-feature-grid">
-            {CAPABILITIES.map((c) => (
-              <div className={`landing-feature-card ${c.highlighted ? "is-highlighted" : ""}`} key={c.title}>
+            {CAPABILITIES.map((c, i) => (
+              <Reveal
+                key={c.title}
+                className={`landing-feature-card ${c.highlighted ? "is-highlighted" : ""}`}
+                style={{ transitionDelay: `${(i % 4) * 80}ms` }}
+              >
                 <div className="landing-feature-icon">
                   <i className={`ti ${c.icon}`} />
                 </div>
                 <h3 className="landing-feature-title">{c.title}</h3>
                 <p className="landing-feature-desc">{c.desc}</p>
                 {c.badge && <span className="landing-feature-badge">{c.badge}</span>}
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>

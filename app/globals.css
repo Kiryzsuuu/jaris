@@ -20,8 +20,9 @@ body {
 
 body {
   min-height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  /* Matches the Berry admin template's default theme font. */
+  font-family: var(--font-roboto), Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif;
 }
 
 /* ---------------------------------------------------------------------
@@ -44,26 +45,26 @@ body {
 .card {
   border: 1px solid var(--ink-200) !important;
   box-shadow: none !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
 }
 
 .badge {
-  border-radius: 4px !important;
+  border-radius: 8px !important;
 }
 
 .dropdown-menu {
   border: 1px solid var(--ink-200) !important;
   box-shadow: 0 4px 16px -4px rgba(17, 25, 38, 0.12) !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
 }
 
 .form-control,
 .form-select {
-  border-radius: 5px !important;
+  border-radius: 8px !important;
 }
 
 .btn {
-  border-radius: 5px !important;
+  border-radius: 8px !important;
 }
 
 /* ---------------------------------------------------------------------
@@ -106,7 +107,7 @@ body {
 .landing-nav-mark {
   width: 30px;
   height: 30px;
-  border-radius: 5px;
+  border-radius: 8px;
   background: var(--ink-900);
   display: flex;
   align-items: center;
@@ -147,7 +148,7 @@ body {
 
 .landing-nav-cta {
   padding: 0.5rem 1.2rem;
-  border-radius: 5px;
+  border-radius: 8px;
   background: var(--primary-600);
   color: #ffffff;
   font-weight: 600;
@@ -223,7 +224,7 @@ body {
 
 .landing-primary-btn {
   padding: 0.8rem 1.9rem;
-  border-radius: 5px;
+  border-radius: 8px;
   background: var(--primary-600);
   color: #ffffff;
   font-weight: 600;
@@ -255,7 +256,7 @@ body {
 
 .landing-hero-visual {
   position: relative;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   aspect-ratio: 4 / 3.3;
   background: var(--ink-50);
@@ -269,70 +270,190 @@ body {
   display: block;
 }
 
-.landing-hero-visual-placeholder {
+/* ---------- Hero carousel ---------- */
+
+.landing-hero-carousel {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
 }
 
-.landing-hero-visual-placeholder-mark {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
+.landing-hero-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2.25rem 2.25rem 4rem;
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.landing-hero-slide.is-active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.landing-hero-slide-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   background: var(--ink-900);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
+
+.landing-hero-slide h3 {
+  font-size: 1.25rem;
   font-weight: 700;
-  font-size: 1.2rem;
-  margin-bottom: 1.25rem;
+  color: var(--ink-900);
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.01em;
 }
 
-.landing-hero-visual-placeholder p {
+.landing-hero-slide p {
+  font-size: 0.92rem;
+  line-height: 1.6;
   color: var(--ink-500);
-  font-size: 0.88rem;
-  max-width: 24ch;
   margin: 0;
+  max-width: 34ch;
 }
 
-/* ---------- Live stats strip ---------- */
-
-.landing-stats {
-  padding: clamp(1.75rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: var(--ink-900);
+.landing-hero-carousel-controls {
+  position: absolute;
+  left: 2.25rem;
+  right: 2.25rem;
+  bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
 }
 
-.landing-stats-inner {
+.landing-hero-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.landing-hero-dot {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  border: none;
+  background: var(--ink-300);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.landing-hero-dot.is-active {
+  background: var(--primary-600);
+}
+
+.landing-hero-arrow {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--ink-200);
+  background: #ffffff;
+  color: var(--ink-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.landing-hero-arrow:hover {
+  background: var(--ink-50);
+  border-color: var(--ink-300);
+}
+
+/* ---------- Scroll reveal ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .landing-hero-slide {
+    transition: opacity 0.3s ease;
+    transform: none;
+  }
+}
+
+/* ---------- Claim flow (how it works) ---------- */
+
+.landing-flow {
+  padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  background: var(--ink-50);
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.landing-flow-inner {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.landing-flow-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 1px;
+  background: var(--ink-200);
+  border: 1px solid var(--ink-200);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.landing-stat {
-  text-align: center;
+.landing-flow-card {
+  position: relative;
+  padding: 1.75rem;
+  background: #ffffff;
 }
 
-.landing-stat-value {
-  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+.landing-flow-step {
+  display: block;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--ink-300);
+  margin-bottom: 1rem;
 }
 
-.landing-stat-label {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.55);
-  margin-top: 0.35rem;
-  font-weight: 500;
+.landing-flow-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.15rem;
+  font-size: 1.05rem;
 }
 
 /* ---------- Features ---------- */
@@ -383,7 +504,7 @@ body {
   gap: 1px;
   background: var(--ink-200);
   border: 1px solid var(--ink-200);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -404,7 +525,7 @@ body {
 .landing-feature-icon {
   width: 36px;
   height: 36px;
-  border-radius: 5px;
+  border-radius: 8px;
   background: var(--ink-100);
   color: var(--ink-700);
   display: flex;
@@ -442,7 +563,7 @@ body {
   color: var(--primary-700);
   background: var(--primary-100);
   padding: 0.18rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-top: 0.75rem;
 }
 
