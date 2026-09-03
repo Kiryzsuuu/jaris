@@ -32,11 +32,11 @@ const FALLBACK_SETTINGS = {
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
   primaryColor: "#0B2A55",
   secondaryColor: "#155C9B",
-  aiColor: "#167FBC",
-  highlightColor: "#13A8C7",
-  accentColor: "#168C91",
+  aiColor: "#1B85C9",
+  highlightColor: "#29B6E8",
+  accentColor: "#16A3AE",
   backgroundColor: "#F5F6F7",
-  sidebarColor: "#3f4d67",
+  sidebarColor: "#0B2A55",
   footerText: "PT Nusa Inspira Teknologi",
 };
 
