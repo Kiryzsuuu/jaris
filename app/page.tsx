@@ -198,6 +198,14 @@ const CAPABILITIES = [
   },
 ];
 
+const MAP_REGIONS = [
+  { name: "Jakarta", query: "Jasa Raharja Jakarta Pusat, Indonesia" },
+  { name: "Surabaya", query: "Jasa Raharja Surabaya, Indonesia" },
+  { name: "Medan", query: "Jasa Raharja Medan, Indonesia" },
+  { name: "Bandung", query: "Jasa Raharja Bandung, Indonesia" },
+  { name: "Makassar", query: "Jasa Raharja Makassar, Indonesia" },
+];
+
 const DEFAULTS: SettingsResponse = {
   siteName: "JARIS",
   logoDataUrl: null,
@@ -210,6 +218,7 @@ const DEFAULTS: SettingsResponse = {
 
 export default function Home() {
   const [settings, setSettings] = useState<SettingsResponse>(DEFAULTS);
+  const [activeRegion, setActiveRegion] = useState(MAP_REGIONS[0]);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -238,6 +247,7 @@ export default function Home() {
         <div className="landing-nav-links">
           <a href="#alur-klaim" className="landing-nav-link">Alur Klaim</a>
           <a href="#kapabilitas" className="landing-nav-link">Kapabilitas</a>
+          <a href="#peta" className="landing-nav-link">Peta</a>
         </div>
 
         <Link href="/login" className="landing-nav-cta">
@@ -329,6 +339,55 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="peta" className="landing-map">
+        <div className="landing-map-inner">
+          <Reveal className="landing-features-header">
+            <span className="landing-features-eyebrow">Wilayah Kerja</span>
+            <h2 className="landing-features-title">Peta interaktif cabang Jasa Raharja</h2>
+            <p className="landing-features-desc">
+              Pilih kota untuk menelusuri peta - data titik rawan kecelakaan yang terintegrasi
+              tersedia setelah masuk ke sistem, di halaman Peta Data Kecelakaan.
+            </p>
+          </Reveal>
+
+          <Reveal className="landing-map-panel">
+            <div className="landing-map-region-list">
+              {MAP_REGIONS.map((r) => (
+                <button
+                  key={r.name}
+                  type="button"
+                  className={`landing-map-region ${r.name === activeRegion.name ? "is-active" : ""}`}
+                  onClick={() => setActiveRegion(r)}
+                >
+                  {r.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="landing-map-frame">
+              <iframe
+                key={activeRegion.name}
+                title={`Peta ${activeRegion.name}`}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(activeRegion.query)}&z=12&output=embed`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+
+            <div className="landing-map-note">
+              <i className="ti ti-video" />
+              <span>
+                Pantauan CCTV lalu lintas tersedia lewat portal resmi Jasa Marga Travoy - JARIS
+                belum memiliki akses API resmi untuk menampilkannya langsung di sini.
+              </span>
+              <a href="https://travoy.jasamarga.com/" target="_blank" rel="noopener noreferrer">
+                Buka Travoy <i className="ti ti-external-link" />
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
