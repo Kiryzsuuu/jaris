@@ -42,18 +42,45 @@ body {
   --ink-50: #f8fafc;
 
   /* accent, highlight, ai, and brand-bg tokens default to sensible values
-     here, but app/layout.tsx always overrides them from Site Settings
-     (Pengaturan Situs) computed server-side - these are just the fallback
-     if that injection somehow didn't run. */
+     here, but app/layout.tsx always overrides the full 50-950 scale from
+     Site Settings (Pengaturan Situs), computed server-side - these are
+     just the fallback if that injection somehow didn't run. */
+  --accent-50: #f2fbfb;
   --accent-100: #d7f0f1;
-  --accent-500: #168c91;
-  --accent-600: #12787c;
+  --accent-200: #b0e1e4;
+  --accent-300: #7dcbd0;
+  --accent-400: #40b1b8;
+  --accent-500: #16a3ae;
+  --accent-600: #12868f;
+  --accent-700: #0e6a71;
+  --accent-800: #0a4e53;
+  --accent-900: #063236;
+  --accent-950: #031a1c;
+
+  --highlight-50: #f0fbfd;
   --highlight-100: #d3f3f7;
-  --highlight-500: #13a8c7;
-  --highlight-600: #0f8ba5;
+  --highlight-200: #a3e6ef;
+  --highlight-300: #6ad6e6;
+  --highlight-400: #3fc6dc;
+  --highlight-500: #29b6e8;
+  --highlight-600: #2296bf;
+  --highlight-700: #1a7595;
+  --highlight-800: #12546b;
+  --highlight-900: #0a3340;
+  --highlight-950: #051c24;
+
+  --ai-50: #eef7fc;
   --ai-100: #d6ecf6;
-  --ai-500: #167fbc;
-  --ai-600: #136a9e;
+  --ai-200: #a9d8ed;
+  --ai-300: #74c0e3;
+  --ai-400: #439fcf;
+  --ai-500: #1b85c9;
+  --ai-600: #166ea7;
+  --ai-700: #125782;
+  --ai-800: #0d405e;
+  --ai-900: #08293c;
+  --ai-950: #04161f;
+
   --brand-bg: #f5f6f7;
 }
 

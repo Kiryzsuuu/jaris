@@ -25,6 +25,9 @@ export interface IClaim {
   claimedTreatmentCost?: number | null;
   status: ClaimStatus;
   submittedAt?: Date | null;
+  // Marks records created by scripts/seedDemoData.ts, so an admin can wipe
+  // all demo data in one action without touching real claims.
+  isDemo?: boolean;
   documents: IClaimDocument[];
   estimatedAmount: number | null;
   approvedAmount: number | null;
@@ -76,6 +79,7 @@ const ClaimSchema = new Schema<IClaim>(
     claimedTreatmentCost: { type: Number, min: 0, default: null },
     status: { type: String, enum: CLAIM_STATUSES, required: true, default: "draft" },
     submittedAt: { type: Date, default: null },
+    isDemo: { type: Boolean, default: false },
     documents: { type: [ClaimDocumentSchema], default: [] },
     estimatedAmount: { type: Number, default: null },
     approvedAmount: { type: Number, default: null },

@@ -11,6 +11,7 @@ export interface IPayment {
   notes?: string;
   recordedBy: Types.ObjectId;
   recordedAt: Date;
+  isDemo?: boolean;
 }
 
 const PaymentSchema = new Schema<IPayment>(
@@ -25,6 +26,7 @@ const PaymentSchema = new Schema<IPayment>(
     notes: { type: String },
     recordedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     recordedAt: { type: Date, required: true, default: () => new Date() },
+    isDemo: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -9,6 +9,7 @@ export interface IClaimant {
   bankName?: string;
   bankAccountNumber?: string;
   bankAccountHolder?: string;
+  isDemo?: boolean;
 }
 
 const ClaimantSchema = new Schema<IClaimant>(
@@ -21,6 +22,7 @@ const ClaimantSchema = new Schema<IClaimant>(
     bankName: { type: String },
     bankAccountNumber: { type: String },
     bankAccountHolder: { type: String },
+    isDemo: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

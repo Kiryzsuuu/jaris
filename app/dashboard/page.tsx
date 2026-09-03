@@ -188,24 +188,39 @@ export default function DashboardPage() {
         <>
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="card">
-              <div className="card-body">
-                <span className="text-secondary-400 text-xs font-medium">Total Klaim</span>
-                <div className="mt-1 text-2xl font-bold text-[#1d2630]">{summary.totalClaims}</div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body">
-                <span className="text-secondary-400 text-xs font-medium">Total Realisasi Santunan</span>
-                <div className="mt-1 text-2xl font-bold text-[#1d2630]">{formatCurrency(summary.totalPaidAmount)}</div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body">
-                <span className="text-secondary-400 text-xs font-medium">Rata-rata Penyelesaian</span>
-                <div className="mt-1 text-2xl font-bold text-[#1d2630]">
-                  {summary.resolution.avgResolutionDays !== null ? `${summary.resolution.avgResolutionDays} hari` : "N/A"}
+              <div className="card-body flex items-start gap-4">
+                <span className="bg-primary-100 text-primary-700 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                  <i className="ti ti-file-text" />
+                </span>
+                <div>
+                  <span className="text-secondary-400 text-xs font-medium">Total Klaim</span>
+                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">{summary.totalClaims}</div>
                 </div>
-                <div className="text-secondary-400 mt-1 text-xs">dari {summary.resolution.sampleSize} klaim lunas</div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body flex items-start gap-4">
+                <span className="bg-success-100 text-success-700 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                  <i className="ti ti-wallet" />
+                </span>
+                <div>
+                  <span className="text-secondary-400 text-xs font-medium">Total Realisasi Santunan</span>
+                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">{formatCurrency(summary.totalPaidAmount)}</div>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body flex items-start gap-4">
+                <span className="bg-highlight-100 text-highlight-600 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                  <i className="ti ti-clock-check" />
+                </span>
+                <div>
+                  <span className="text-secondary-400 text-xs font-medium">Rata-rata Penyelesaian</span>
+                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">
+                    {summary.resolution.avgResolutionDays !== null ? `${summary.resolution.avgResolutionDays} hari` : "N/A"}
+                  </div>
+                  <div className="text-secondary-400 mt-1 text-xs">dari {summary.resolution.sampleSize} klaim lunas</div>
+                </div>
               </div>
             </div>
           </div>
@@ -245,7 +260,7 @@ export default function DashboardPage() {
                     <XAxis dataKey="status" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="var(--primary-500)" name="Jumlah Klaim" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--ai-500)" name="Jumlah Klaim" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -265,7 +280,7 @@ export default function DashboardPage() {
                       <XAxis dataKey="branch" />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                      <Bar dataKey="totalPaid" fill="#1de9b6" name="Total Santunan" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="totalPaid" fill="var(--accent-500)" name="Total Santunan" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -287,7 +302,7 @@ export default function DashboardPage() {
                       <YAxis allowDecimals={false} />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="count" stroke="#f44236" name="Jumlah Kecelakaan" strokeWidth={2} />
+                      <Line type="monotone" dataKey="count" stroke="var(--highlight-600)" name="Jumlah Kecelakaan" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 )}

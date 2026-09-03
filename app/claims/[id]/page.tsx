@@ -85,6 +85,15 @@ function formatCurrency(amount: number | null) {
   return `Rp${amount.toLocaleString("id-ID")}`;
 }
 
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="text-secondary-400 block text-xs font-medium tracking-wide uppercase">{label}</span>
+      <span className="mt-0.5 block text-sm text-[#1d2630]">{value}</span>
+    </div>
+  );
+}
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -253,26 +262,30 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
           <div className="space-y-6">
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Data Kecelakaan</h2>
-                <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2">
-                  <p><strong>Tanggal:</strong> {new Date(claim.accidentDate).toLocaleDateString("id-ID")}</p>
-                  <p><strong>Moda transportasi:</strong> {claim.transportMode}</p>
-                  <p><strong>Lokasi:</strong> {claim.accidentLocation}</p>
-                  <p><strong>Klasifikasi kasus:</strong> {claim.caseCategory}</p>
-                  {claim.disabilityPercentage !== null && <p><strong>Persentase cacat:</strong> {claim.disabilityPercentage}%</p>}
-                  {claim.claimedTreatmentCost !== null && <p><strong>Biaya klaim perawatan:</strong> {formatCurrency(claim.claimedTreatmentCost)}</p>}
+                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Data Kecelakaan</h2>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  <Field label="Tanggal" value={new Date(claim.accidentDate).toLocaleDateString("id-ID")} />
+                  <Field label="Moda Transportasi" value={claim.transportMode} />
+                  <Field label="Lokasi" value={claim.accidentLocation} />
+                  <Field label="Klasifikasi Kasus" value={claim.caseCategory} />
+                  {claim.disabilityPercentage !== null && <Field label="Persentase Cacat" value={`${claim.disabilityPercentage}%`} />}
+                  {claim.claimedTreatmentCost !== null && (
+                    <Field label="Biaya Klaim Perawatan" value={formatCurrency(claim.claimedTreatmentCost)} />
+                  )}
                 </div>
-                <p className="mb-0"><strong>Deskripsi:</strong> {claim.accidentDescription}</p>
+                <div className="border-secondary-100 mt-4 border-t pt-4">
+                  <Field label="Deskripsi" value={claim.accidentDescription} />
+                </div>
               </div>
             </div>
 
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Korban / Penerima Santunan</h2>
-                <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-3">
-                  <p><strong>Nama:</strong> {claim.claimant.fullName}</p>
-                  <p><strong>NIK:</strong> {claim.claimant.nik}</p>
-                  <p className="mb-0"><strong>Hubungan:</strong> {claim.claimant.relationshipToVictim}</p>
+                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Korban / Penerima Santunan</h2>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+                  <Field label="Nama" value={claim.claimant.fullName ?? "-"} />
+                  <Field label="NIK" value={claim.claimant.nik ?? "-"} />
+                  <Field label="Hubungan" value={claim.claimant.relationshipToVictim ?? "-"} />
                 </div>
               </div>
             </div>
@@ -402,9 +415,11 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Kalkulasi Santunan (Rules Engine)</h2>
-                <p><strong>Estimasi:</strong> {formatCurrency(claim.estimatedAmount)}</p>
-                <p><strong>Disetujui:</strong> {formatCurrency(claim.approvedAmount)}</p>
+                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Kalkulasi Santunan (Rules Engine)</h2>
+                <div className="bg-primary-50 -mx-1 mb-3 grid grid-cols-2 gap-3 rounded-lg px-4 py-3">
+                  <Field label="Estimasi" value={formatCurrency(claim.estimatedAmount)} />
+                  <Field label="Disetujui" value={formatCurrency(claim.approvedAmount)} />
+                </div>
                 {claim.verification && (
                   <p className="text-secondary-400 text-sm">
                     Diverifikasi: {new Date(claim.verification.verifiedAt).toLocaleString("id-ID")}

@@ -52,6 +52,44 @@
   --color-primary-950: var(--primary-950);
   --color-primary: var(--primary-500);
 
+  /* accent/highlight/ai are admin-configurable (Pengaturan Situs) - see
+     app/layout.tsx for the full derived scale it injects on :root. */
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+  --color-accent-950: var(--accent-950);
+
+  --color-highlight-50: var(--highlight-50);
+  --color-highlight-100: var(--highlight-100);
+  --color-highlight-200: var(--highlight-200);
+  --color-highlight-300: var(--highlight-300);
+  --color-highlight-400: var(--highlight-400);
+  --color-highlight-500: var(--highlight-500);
+  --color-highlight-600: var(--highlight-600);
+  --color-highlight-700: var(--highlight-700);
+  --color-highlight-800: var(--highlight-800);
+  --color-highlight-900: var(--highlight-900);
+  --color-highlight-950: var(--highlight-950);
+
+  --color-ai-50: var(--ai-50);
+  --color-ai-100: var(--ai-100);
+  --color-ai-200: var(--ai-200);
+  --color-ai-300: var(--ai-300);
+  --color-ai-400: var(--ai-400);
+  --color-ai-500: var(--ai-500);
+  --color-ai-600: var(--ai-600);
+  --color-ai-700: var(--ai-700);
+  --color-ai-800: var(--ai-800);
+  --color-ai-900: var(--ai-900);
+  --color-ai-950: var(--ai-950);
+
   --text-sm: 0.75rem;
   --text-base: 0.875rem;
 

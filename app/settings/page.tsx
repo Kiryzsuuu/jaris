@@ -69,6 +69,41 @@ export default function SettingsPage() {
   const [heroImageDataUrl, setHeroImageDataUrl] = useState<string | null>(null);
   const [sectionImageDataUrl, setSectionImageDataUrl] = useState<string | null>(null);
 
+  const [demoCounts, setDemoCounts] = useState<{ claims: number; claimants: number; payments: number; accidentPoints: number } | null>(null);
+  const [deletingDemo, setDeletingDemo] = useState(false);
+  const [demoMessage, setDemoMessage] = useState<string | null>(null);
+
+  const loadDemoCounts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/demo-data").then((r) => r.json());
+      if (res.success) setDemoCounts(res.data);
+    } catch {
+      /* non-critical - just hide the card if this fails */
+    }
+  }, []);
+
+  async function handleDeleteDemoData() {
+    if (!confirm("Hapus semua data contoh (klaim, penerima santunan, pencairan, titik kecelakaan)? Tindakan ini tidak bisa dibatalkan.")) {
+      return;
+    }
+    setDeletingDemo(true);
+    setDemoMessage(null);
+    try {
+      const res = await fetch("/api/demo-data", { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) {
+        setDemoMessage(json.message ?? "Gagal menghapus data contoh");
+        return;
+      }
+      setDemoMessage("Data contoh berhasil dihapus.");
+      loadDemoCounts();
+    } catch {
+      setDemoMessage("Tidak dapat menghubungi server");
+    } finally {
+      setDeletingDemo(false);
+    }
+  }
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -108,7 +143,8 @@ export default function SettingsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount
     loadData();
-  }, [loadData]);
+    loadDemoCounts();
+  }, [loadData, loadDemoCounts]);
 
   async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -331,6 +367,29 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {demoCounts && (demoCounts.claims > 0 || demoCounts.accidentPoints > 0) && (
+        <div className="card mt-4 max-w-[960px]">
+          <div className="card-body">
+            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Data Contoh</h2>
+            <p className="text-secondary-400 mb-3 text-xs">
+              Sistem ini berisi data contoh ({demoCounts.claims} klaim, {demoCounts.accidentPoints} titik
+              kecelakaan) untuk mendemonstrasikan dashboard, peta, dan deteksi anomali. Hapus kapan saja
+              sebelum data klaim sungguhan mulai masuk.
+            </p>
+            <button
+              type="button"
+              className="btn btn-outline-danger btn-sm"
+              disabled={deletingDemo}
+              onClick={handleDeleteDemoData}
+            >
+              <i className="ti ti-trash mr-1" />
+              {deletingDemo ? "Menghapus..." : "Hapus Data Contoh"}
+            </button>
+            {demoMessage && <p className="text-secondary-400 mt-2 mb-0 text-sm">{demoMessage}</p>}
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
