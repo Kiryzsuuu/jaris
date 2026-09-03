@@ -415,7 +415,7 @@ body {
 .landing-hero-slide h3 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ink-900);
+  color: #ffffff;
   margin: 0 0 0.6rem;
   letter-spacing: -0.01em;
 }
@@ -423,7 +423,7 @@ body {
 .landing-hero-slide p {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--ink-500);
+  color: rgba(255, 255, 255, 0.75);
   margin: 0;
   max-width: 52ch;
 }
