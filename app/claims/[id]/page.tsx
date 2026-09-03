@@ -34,6 +34,34 @@ type Me = { id: string; permissions: string[] };
 
 type DamageAnalysis = { severity: string | null; confidence: number | null; description: string | null };
 
+type AuditStep = { step: number; name: string; status: "ok" | "warning" | "skipped"; detail: string };
+type AuditFlag = { severity: "info" | "warning" | "critical"; message: string };
+type AuditResult = {
+  steps: AuditStep[];
+  documentFindings: { documentId: string; fileName: string; severity: string | null; description: string | null }[];
+  flags: AuditFlag[];
+  overallAssessment: string;
+  recommendation: "lanjutkan" | "perlu_klarifikasi" | "tinjau_ulang";
+};
+
+const RECOMMENDATION_LABELS: Record<AuditResult["recommendation"], string> = {
+  lanjutkan: "Lanjutkan",
+  perlu_klarifikasi: "Perlu Klarifikasi",
+  tinjau_ulang: "Tinjau Ulang",
+};
+
+const RECOMMENDATION_CLASSES: Record<AuditResult["recommendation"], string> = {
+  lanjutkan: "bg-success-100 text-success-700",
+  perlu_klarifikasi: "bg-warning-100 text-warning-700",
+  tinjau_ulang: "bg-danger-100 text-danger-700",
+};
+
+const FLAG_CLASSES: Record<AuditFlag["severity"], string> = {
+  info: "text-secondary-500",
+  warning: "text-warning-600",
+  critical: "text-danger-600",
+};
+
 const DOCUMENT_TYPES = [
   { value: "ktp_korban", label: "KTP Korban" },
   { value: "surat_keterangan_kecelakaan", label: "Surat Keterangan Kecelakaan (Kepolisian)" },
@@ -85,6 +113,10 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
   const [damageAnalysis, setDamageAnalysis] = useState<Record<string, DamageAnalysis>>({});
+
+  const [auditRunning, setAuditRunning] = useState(false);
+  const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+  const [auditError, setAuditError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -168,6 +200,24 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
       }));
     } finally {
       setAnalyzingDocId(null);
+    }
+  }
+
+  async function handleRunAudit() {
+    setAuditRunning(true);
+    setAuditError(null);
+    try {
+      const res = await fetch(`/api/claims/${id}/audit`, { method: "POST" });
+      const json = await res.json();
+      if (!json.success) {
+        setAuditError(json.message ?? "Gagal menjalankan audit AI");
+        return;
+      }
+      setAuditResult(json.data);
+    } catch {
+      setAuditError("Tidak dapat menghubungi server");
+    } finally {
+      setAuditRunning(false);
     }
   }
 
@@ -299,6 +349,57 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
           </div>
 
           <div className="space-y-6 self-start lg:sticky lg:top-6">
+            {permissions.includes("claim:verify") && (
+              <div className="card">
+                <div className="card-body">
+                  <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Audit AI (Agentic)</h2>
+                  <p className="text-secondary-400 mb-3 text-xs">
+                    Memeriksa kelengkapan dokumen, menganalisis foto pendukung, lalu menyusun rekomendasi tinjauan.
+                    Hanya saran - tidak pernah mengubah data klaim.
+                  </p>
+
+                  <button type="button" className="btn btn-outline-primary btn-sm" disabled={auditRunning} onClick={handleRunAudit}>
+                    <i className="ti ti-robot mr-1" />
+                    {auditRunning ? "Menjalankan audit..." : "Jalankan Audit AI"}
+                  </button>
+
+                  {auditError && <p className="text-danger-600 mt-2 text-sm">{auditError}</p>}
+
+                  {auditResult && (
+                    <div className="mt-4">
+                      <ol className="space-y-1.5 text-xs">
+                        {auditResult.steps.map((s) => (
+                          <li key={s.step} className="flex items-start gap-2">
+                            <i
+                              className={`ti ${s.status === "ok" ? "ti-circle-check text-success-600" : s.status === "warning" ? "ti-alert-triangle text-warning-600" : "ti-circle-dashed text-secondary-400"} mt-0.5`}
+                            />
+                            <span><strong>{s.name}:</strong> {s.detail}</span>
+                          </li>
+                        ))}
+                      </ol>
+
+                      {auditResult.flags.length > 0 && (
+                        <ul className="mt-3 space-y-1 text-xs">
+                          {auditResult.flags.map((f, i) => (
+                            <li key={i} className={FLAG_CLASSES[f.severity]}>
+                              <i className="ti ti-point-filled mr-1" />
+                              {f.message}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      <p className="mt-3 text-sm">{auditResult.overallAssessment}</p>
+
+                      <span className={`badge mt-2 ${RECOMMENDATION_CLASSES[auditResult.recommendation]}`}>
+                        {RECOMMENDATION_LABELS[auditResult.recommendation]}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="card">
               <div className="card-body">
                 <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Kalkulasi Santunan (Rules Engine)</h2>

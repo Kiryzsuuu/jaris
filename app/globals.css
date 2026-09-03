@@ -503,6 +503,21 @@ body {
   font-size: 1.05rem;
 }
 
+.landing-flow-image {
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--ink-200);
+  max-height: 320px;
+}
+
+.landing-flow-image img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
 /* ---------- Features ---------- */
 
 .landing-features {

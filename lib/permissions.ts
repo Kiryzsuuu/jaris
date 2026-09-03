@@ -13,6 +13,8 @@ export const PERMISSIONS = {
   KB_MANAGE: "kb:manage",
   MAP_VIEW: "map:view",
   SETTINGS_MANAGE: "settings:manage",
+  FRAUD_VIEW: "fraud:view",
+  BROADCAST_MANAGE: "broadcast:manage",
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -32,6 +34,8 @@ export const PERMISSION_DESCRIPTIONS: Record<PermissionKey, string> = {
   [PERMISSIONS.KB_MANAGE]: "Mengelola dokumen knowledge base (ingest/hapus)",
   [PERMISSIONS.MAP_VIEW]: "Melihat peta data kecelakaan",
   [PERMISSIONS.SETTINGS_MANAGE]: "Mengubah pengaturan situs (nama, logo, warna tema)",
+  [PERMISSIONS.FRAUD_VIEW]: "Melihat hasil deteksi anomali/potensi kecurangan klaim",
+  [PERMISSIONS.BROADCAST_MANAGE]: "Mengirim pengumuman broadcast ke pengguna",
 };
 
 export const ROLE_SEEDS = [
@@ -58,6 +62,7 @@ export const ROLE_SEEDS = [
       PERMISSIONS.DASHBOARD_VIEW,
       PERMISSIONS.ASSISTANT_USE,
       PERMISSIONS.MAP_VIEW,
+      PERMISSIONS.FRAUD_VIEW,
     ],
   },
   {
@@ -70,6 +75,8 @@ export const ROLE_SEEDS = [
       PERMISSIONS.AUDIT_VIEW,
       PERMISSIONS.ASSISTANT_USE,
       PERMISSIONS.MAP_VIEW,
+      PERMISSIONS.FRAUD_VIEW,
+      PERMISSIONS.BROADCAST_MANAGE,
     ],
   },
   {

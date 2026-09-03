@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 type Me = { id: string; email: string; roleSlug: string; permissions: string[] };
 type Settings = { siteName: string; logoDataUrl: string | null; footerText: string };
+type BroadcastBanner = { id: string; title: string; message: string; createdAt: string };
 
 type NavItem = {
   href: string;
@@ -32,6 +33,8 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     items: [
       { href: "/users", label: "Manajemen Pengguna", icon: "ti-users", permission: "user:view" },
       { href: "/knowledge-base", label: "Knowledge Base", icon: "ti-database", permission: "kb:manage" },
+      { href: "/broadcast", label: "Broadcast", icon: "ti-speakerphone", permission: "broadcast:manage" },
+      { href: "/fraud-detection", label: "Deteksi Anomali Klaim", icon: "ti-shield-exclamation", permission: "fraud:view" },
       { href: "/settings", label: "Pengaturan Situs", icon: "ti-settings", permission: "settings:manage" },
     ],
   },
@@ -54,6 +57,7 @@ export default function AppShell({
   const [settings, setSettings] = useState<Settings | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [banner, setBanner] = useState<BroadcastBanner | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -68,7 +72,33 @@ export default function AppShell({
         if (json.success) setSettings(json.data);
       })
       .catch(() => {});
+    fetch("/api/broadcasts")
+      .then((r) => r.json())
+      .then((json) => {
+        if (!json.success || !json.data?.[0]) return;
+        const latest = json.data[0];
+        let dismissed: string | null = null;
+        try {
+          dismissed = localStorage.getItem("jaris-dismissed-broadcast");
+        } catch {
+          /* localStorage unavailable - just show the banner every time */
+        }
+        if (dismissed !== latest.id) {
+          setBanner(latest);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  function dismissBanner() {
+    if (!banner) return;
+    try {
+      localStorage.setItem("jaris-dismissed-broadcast", banner.id);
+    } catch {
+      /* ignore */
+    }
+    setBanner(null);
+  }
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -179,6 +209,24 @@ export default function AppShell({
 
       <div className="pc-container">
         <div className="pc-content">
+          {banner && (
+            <div className="bg-primary-50 border-primary-200 mb-5 flex items-start gap-3 rounded-lg border p-4">
+              <i className="ti ti-speakerphone text-primary-700 mt-0.5 text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-[#1d2630]">{banner.title}</p>
+                <p className="text-secondary-500 mt-0.5 text-sm">{banner.message}</p>
+              </div>
+              <button
+                type="button"
+                onClick={dismissBanner}
+                aria-label="Tutup pengumuman"
+                className="text-secondary-400 hover:text-secondary-700"
+              >
+                <i className="ti ti-x" />
+              </button>
+            </div>
+          )}
+
           <div className="page-header flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-semibold text-[#1d2630]">{pageTitle}</h1>

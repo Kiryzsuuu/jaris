@@ -10,6 +10,8 @@ export interface ISiteSettings {
   faviconMimeType: string | null;
   heroImageBase64: string | null;
   heroImageMimeType: string | null;
+  sectionImageBase64: string | null;
+  sectionImageMimeType: string | null;
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
@@ -33,6 +35,11 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     faviconMimeType: { type: String, default: null },
     heroImageBase64: { type: String, default: null },
     heroImageMimeType: { type: String, default: null },
+    // Optional supporting image an admin can upload to fill in the claim-
+    // flow section on the landing page, so it isn't just icons/text on a
+    // fresh install with no other imagery configured.
+    sectionImageBase64: { type: String, default: null },
+    sectionImageMimeType: { type: String, default: null },
     heroHeadline: {
       type: String,
       required: true,
@@ -48,7 +55,7 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     footerText: {
       type: String,
       required: true,
-      default: "PT Jasa Raharja (Persero) - Internal Use Only",
+      default: "PT Nusa Inspira Teknologi",
     },
   },
   { timestamps: { createdAt: false, updatedAt: true } }

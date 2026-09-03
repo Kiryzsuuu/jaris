@@ -7,6 +7,7 @@ type SettingsResponse = {
   siteName: string;
   logoDataUrl: string | null;
   heroImageDataUrl: string | null;
+  sectionImageDataUrl: string | null;
   heroHeadline: string;
   heroSubheadline: string;
   footerText: string;
@@ -210,10 +211,11 @@ const DEFAULTS: SettingsResponse = {
   siteName: "JARIS",
   logoDataUrl: null,
   heroImageDataUrl: null,
+  sectionImageDataUrl: null,
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-  footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
+  footerText: "PT Nusa Inspira Teknologi",
 };
 
 type NewsItem = { title: string; link: string; pubDate: string; image: string | null };
@@ -316,6 +318,13 @@ export default function Home() {
               dapat dilacak dalam satu alur kerja yang sama.
             </p>
           </Reveal>
+
+          {settings.sectionImageDataUrl && (
+            <Reveal className="landing-flow-image">
+              {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings */}
+              <img src={settings.sectionImageDataUrl} alt="" />
+            </Reveal>
+          )}
 
           <div className="landing-flow-grid">
             {CLAIM_FLOW.map((f, i) => (

@@ -25,6 +25,10 @@ export function serializeSiteSettings(settings: Awaited<ReturnType<typeof getSit
       settings.heroImageBase64 && settings.heroImageMimeType
         ? `data:${settings.heroImageMimeType};base64,${settings.heroImageBase64}`
         : null,
+    sectionImageDataUrl:
+      settings.sectionImageBase64 && settings.sectionImageMimeType
+        ? `data:${settings.sectionImageMimeType};base64,${settings.sectionImageBase64}`
+        : null,
     heroHeadline: settings.heroHeadline,
     heroSubheadline: settings.heroSubheadline,
     primaryColor: settings.primaryColor,

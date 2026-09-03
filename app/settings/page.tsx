@@ -9,6 +9,7 @@ type Settings = {
   logoDataUrl: string | null;
   faviconDataUrl: string | null;
   heroImageDataUrl: string | null;
+  sectionImageDataUrl: string | null;
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
@@ -42,6 +43,7 @@ export default function SettingsPage() {
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [faviconDataUrl, setFaviconDataUrl] = useState<string | null>(null);
   const [heroImageDataUrl, setHeroImageDataUrl] = useState<string | null>(null);
+  const [sectionImageDataUrl, setSectionImageDataUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -65,6 +67,7 @@ export default function SettingsPage() {
       setLogoDataUrl(data.logoDataUrl);
       setFaviconDataUrl(data.faviconDataUrl);
       setHeroImageDataUrl(data.heroImageDataUrl);
+      setSectionImageDataUrl(data.sectionImageDataUrl);
     } catch {
       setError("Tidak dapat menghubungi server");
     } finally {
@@ -95,6 +98,12 @@ export default function SettingsPage() {
     setHeroImageDataUrl(await fileToDataUrl(file));
   }
 
+  async function handleSectionImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSectionImageDataUrl(await fileToDataUrl(file));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -108,6 +117,7 @@ export default function SettingsPage() {
           logoDataUrl: logoDataUrl ?? "",
           faviconDataUrl: faviconDataUrl ?? "",
           heroImageDataUrl: heroImageDataUrl ?? "",
+          sectionImageDataUrl: sectionImageDataUrl ?? "",
         }),
       });
       const json = await res.json();
@@ -246,6 +256,25 @@ export default function SettingsPage() {
                 />
               )}
             </div>
+          </div>
+        </div>
+
+        <div className="card md:col-span-2">
+          <div className="card-body">
+            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Bagian Alur Kerja</h2>
+            <p className="text-secondary-400 mb-3 text-xs">
+              Ditampilkan pada bagian &quot;Cara Kerja&quot; di halaman depan supaya tidak kosong hanya berisi ikon.
+              Opsional - bagian ikon akan tetap tampil jika gambar ini tidak diisi.
+            </p>
+            <input type="file" accept="image/*" className="form-control" onChange={handleSectionImageChange} />
+            {sectionImageDataUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize
+              <img
+                src={sectionImageDataUrl}
+                alt="Preview gambar bagian"
+                className="mt-2 block max-h-[180px] rounded-xl"
+              />
+            )}
           </div>
         </div>
 

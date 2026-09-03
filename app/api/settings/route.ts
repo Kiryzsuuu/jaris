@@ -102,6 +102,21 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    if (typeof body.sectionImageDataUrl === "string") {
+      if (body.sectionImageDataUrl === "") {
+        settings.sectionImageBase64 = null;
+        settings.sectionImageMimeType = null;
+      } else {
+        const parsed = parseDataUrl(body.sectionImageDataUrl);
+        if (!parsed) return errorResponse("sectionImageDataUrl harus data URL gambar base64 yang valid", 400);
+        if (parsed.base64.length > MAX_HERO_IMAGE_BASE64_LENGTH) {
+          return errorResponse("Ukuran gambar terlalu besar (maksimum ~4.5MB)", 400);
+        }
+        settings.sectionImageBase64 = parsed.base64;
+        settings.sectionImageMimeType = parsed.mimeType;
+      }
+    }
+
     await settings.save();
     const after = serializeSiteSettings(settings);
 

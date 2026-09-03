@@ -12,6 +12,14 @@ const roboto = Roboto({
   variable: "--font-roboto",
 });
 
+// Site Settings (name/logo/favicon/accent color/footer) are admin-editable
+// at runtime via Pengaturan Situs. Without this, Next.js has no fetch()-
+// based signal to detect that the root layout depends on live data (the
+// mongoose driver is invisible to its static-vs-dynamic analysis), so it
+// silently prerenders this layout once at build time - meaning every saved
+// change here would only ever show up after the next redeploy.
+export const dynamic = "force-dynamic";
+
 async function loadSettings() {
   try {
     await connectToDatabase();
@@ -30,7 +38,7 @@ async function loadSettings() {
       heroSubheadline:
         "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
       primaryColor: "#0A3D91",
-      footerText: "PT Jasa Raharja (Persero) - Internal Use Only",
+      footerText: "PT Nusa Inspira Teknologi",
     };
   }
 }
