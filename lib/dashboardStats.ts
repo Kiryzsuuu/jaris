@@ -1,7 +1,13 @@
 import { Types } from "mongoose";
 import Claim from "@/models/Claim";
 import Payment from "@/models/Payment";
-import { CLAIM_STATUSES } from "@/lib/claimTypes";
+import { CLAIM_STATUSES, CASE_CATEGORIES } from "@/lib/claimTypes";
+
+// Internal service target for claim resolution (submitted -> paid), used to
+// compute an SLA compliance rate. Not admin-configurable yet - a fixed,
+// documented constant is more honest than inventing a per-branch target
+// the org hasn't actually set.
+export const SLA_TARGET_DAYS = 14;
 
 export interface DashboardFilters {
   branch?: string;
@@ -119,15 +125,20 @@ export async function getMonthlyAccidentTrend(
 export interface ResolutionStats {
   avgResolutionDays: number | null;
   sampleSize: number;
+  slaTargetDays: number;
+  withinSlaCount: number;
+  withinSlaPercent: number | null;
 }
 
 /**
  * Tingkat penyelesaian kasus - rata-rata waktu (hari) dari status submitted
  * (Claim.submittedAt) hingga pencairan dicatat (Payment.recordedAt), untuk
- * klaim yang sudah lunas (paid). null jika belum ada sampel yang lengkap.
+ * klaim yang sudah lunas (paid), plus berapa persen yang selesai dalam
+ * target SLA (SLA_TARGET_DAYS). null jika belum ada sampel yang lengkap.
  */
 export async function getAvgResolutionDays(filters: DashboardFilters): Promise<ResolutionStats> {
   const claimMatch = buildClaimMatch(filters);
+  const slaTargetMs = SLA_TARGET_DAYS * 24 * 60 * 60 * 1000;
 
   const results = await Payment.aggregate([
     {
@@ -155,40 +166,111 @@ export async function getAvgResolutionDays(filters: DashboardFilters): Promise<R
         _id: null,
         avgDurationMs: { $avg: "$durationMs" },
         sampleSize: { $sum: 1 },
+        withinSlaCount: { $sum: { $cond: [{ $lte: ["$durationMs", slaTargetMs] }, 1, 0] } },
       },
     },
   ]);
 
   if (results.length === 0) {
-    return { avgResolutionDays: null, sampleSize: 0 };
+    return { avgResolutionDays: null, sampleSize: 0, slaTargetDays: SLA_TARGET_DAYS, withinSlaCount: 0, withinSlaPercent: null };
   }
 
-  const { avgDurationMs, sampleSize } = results[0];
+  const { avgDurationMs, sampleSize, withinSlaCount } = results[0];
   return {
     avgResolutionDays: Math.round((avgDurationMs / (1000 * 60 * 60 * 24)) * 10) / 10,
     sampleSize,
+    slaTargetDays: SLA_TARGET_DAYS,
+    withinSlaCount,
+    withinSlaPercent: sampleSize > 0 ? Math.round((withinSlaCount / sampleSize) * 1000) / 10 : null,
   };
+}
+
+export interface ClaimsByCategory {
+  caseCategory: string;
+  count: number;
+}
+
+/** Jumlah klaim per kategori kasus (meninggal dunia, cacat tetap, perawatan, penguburan). */
+export async function getClaimsByCategory(filters: DashboardFilters): Promise<ClaimsByCategory[]> {
+  const match = buildClaimMatch(filters);
+
+  const results = await Claim.aggregate([
+    { $match: match },
+    { $group: { _id: "$caseCategory", count: { $sum: 1 } } },
+  ]);
+
+  const countByCategory = new Map(results.map((r) => [r._id as string, r.count as number]));
+  return CASE_CATEGORIES.map((caseCategory) => ({ caseCategory, count: countByCategory.get(caseCategory) ?? 0 }));
+}
+
+/**
+ * Simple linear-regression projection of the next `monthsAhead` months from
+ * historical monthly counts - plain math, no AI, clearly a projection (not
+ * a claim about the future) rather than a forecasted "prediction". Needs at
+ * least 2 historical points; returns [] otherwise since a single point
+ * can't support a trend line.
+ */
+export function projectMonthlyTrend(
+  history: MonthlyAccidentTrend[],
+  monthsAhead = 3
+): MonthlyAccidentTrend[] {
+  if (history.length < 2) return [];
+
+  const n = history.length;
+  const xs = history.map((_, i) => i);
+  const ys = history.map((h) => h.count);
+  const xMean = xs.reduce((a, b) => a + b, 0) / n;
+  const yMean = ys.reduce((a, b) => a + b, 0) / n;
+
+  let num = 0;
+  let den = 0;
+  for (let i = 0; i < n; i++) {
+    num += (xs[i] - xMean) * (ys[i] - yMean);
+    den += (xs[i] - xMean) ** 2;
+  }
+  const slope = den === 0 ? 0 : num / den;
+  const intercept = yMean - slope * xMean;
+
+  const last = history[history.length - 1];
+  const projections: MonthlyAccidentTrend[] = [];
+  for (let step = 1; step <= monthsAhead; step++) {
+    const projectedCount = Math.max(0, Math.round(intercept + slope * (n - 1 + step)));
+    let month = last.month + step;
+    let year = last.year;
+    while (month > 12) {
+      month -= 12;
+      year += 1;
+    }
+    projections.push({ year, month, count: projectedCount });
+  }
+  return projections;
 }
 
 export interface DashboardSummary {
   claimsByStatus: ClaimsByStatus[];
   paymentsByBranch: PaymentsByBranch[];
   monthlyAccidentTrend: MonthlyAccidentTrend[];
+  trendProjection: MonthlyAccidentTrend[];
+  claimsByCategory: ClaimsByCategory[];
   resolution: ResolutionStats;
   totalClaims: number;
   totalPaidAmount: number;
 }
 
 export async function getDashboardSummary(filters: DashboardFilters): Promise<DashboardSummary> {
-  const [claimsByStatus, paymentsByBranch, monthlyAccidentTrend, resolution] = await Promise.all([
+  const [claimsByStatus, paymentsByBranch, monthlyAccidentTrend, resolution, claimsByCategory] = await Promise.all([
     getClaimsByStatus(filters),
     getPaymentsByBranch(filters),
     getMonthlyAccidentTrend(filters),
     getAvgResolutionDays(filters),
+    getClaimsByCategory(filters),
   ]);
+  const trendProjection = projectMonthlyTrend(monthlyAccidentTrend);
 
   return {
     claimsByStatus,
+    trendProjection,
+    claimsByCategory,
     paymentsByBranch,
     monthlyAccidentTrend,
     resolution,
