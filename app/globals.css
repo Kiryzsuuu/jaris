@@ -207,26 +207,26 @@ body {
 .card {
   border: 1px solid var(--ink-200) !important;
   box-shadow: none !important;
-  border-radius: 11px !important;
+  border-radius: 4px !important;
 }
 
 .badge {
-  border-radius: 11px !important;
+  border-radius: 4px !important;
 }
 
 .dropdown-menu {
   border: 1px solid var(--ink-200) !important;
   box-shadow: 0 4px 16px -4px rgba(17, 25, 38, 0.12) !important;
-  border-radius: 11px !important;
+  border-radius: 4px !important;
 }
 
 .form-control,
 .form-select {
-  border-radius: 11px !important;
+  border-radius: 4px !important;
 }
 
 .btn {
-  border-radius: 11px !important;
+  border-radius: 4px !important;
 }
 
 /* Cyan-to-blue gradient instead of a flat fill - Tailwind's hover:bg-*
@@ -305,7 +305,7 @@ body {
 .landing-nav-mark {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--primary-700), var(--ai-500));
   display: flex;
   align-items: center;
@@ -356,7 +356,7 @@ body {
 
 .landing-nav-cta {
   padding: 0.5rem 1.2rem;
-  border-radius: 8px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--primary-600), var(--ai-600));
   color: #ffffff;
   font-weight: 600;
@@ -465,7 +465,7 @@ body {
 
 .landing-primary-btn {
   padding: 0.8rem 1.9rem;
-  border-radius: 8px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--primary-600), var(--ai-600));
   color: #ffffff;
   font-weight: 600;
@@ -555,7 +555,7 @@ body {
   overflow: hidden;
   margin: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 5vw, 4rem);
   padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3rem);
-  border-radius: 20px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--primary-600), var(--ai-800, var(--primary-900)));
   text-align: center;
 }
@@ -723,7 +723,7 @@ body {
   position: relative;
   padding: 1.75rem;
   background: var(--ink-100);
-  border-radius: 10px;
+  border-radius: 4px;
   box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
   transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -781,7 +781,7 @@ body {
 .landing-flow-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 5px;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -793,7 +793,7 @@ body {
 
 .landing-flow-image {
   margin-bottom: 1.5rem;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--ink-200);
   max-height: 320px;
@@ -891,7 +891,7 @@ body {
 .landing-feature-card {
   padding: 1.75rem;
   background: var(--ink-100);
-  border-radius: 10px;
+  border-radius: 4px;
   box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
   transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -904,10 +904,25 @@ body {
   background: var(--primary-50);
 }
 
+/* Bento touch: the one card already flagged "highlighted" in the data
+   (lib/landingContent.ts) gets to take up more visual room instead of
+   every capability card reading as the same uniform size. :has() targets
+   the actual grid cell (.reveal wraps each card and is what the grid
+   template applies to, not the card itself). */
+@supports selector(:has(a)) {
+  .landing-feature-grid > .reveal:has(.landing-feature-card.is-highlighted) {
+    grid-column: span 2;
+  }
+
+  .landing-feature-grid > .reveal:has(.landing-feature-card.is-highlighted) .landing-feature-desc {
+    max-width: 46ch;
+  }
+}
+
 .landing-feature-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 5px;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -942,7 +957,7 @@ body {
      against the mostly-blue page instead of blending in. */
   background: #ff6b35;
   padding: 0.18rem 0.5rem;
-  border-radius: 8px;
+  border-radius: 4px;
   margin-top: 0.75rem;
 }
 
@@ -1002,7 +1017,7 @@ body {
   display: block;
   background: var(--ink-100);
   border: 1px solid var(--ink-200);
-  border-radius: 10px;
+  border-radius: 4px;
   box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
   overflow: hidden;
   text-decoration: none;
@@ -1084,7 +1099,7 @@ body {
 
 .landing-map-panel {
   border: 1px solid var(--ink-200);
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   background: #ffffff;
 }
@@ -1099,7 +1114,7 @@ body {
 
 .landing-map-region {
   padding: 0.4rem 0.9rem;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--ink-200);
   background: #ffffff;
   color: var(--ink-700);
@@ -1261,7 +1276,7 @@ body {
 .login-visual-mark {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--ai-500), var(--highlight-500));
   display: flex;
   align-items: center;
@@ -1315,7 +1330,7 @@ body {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
@@ -1407,7 +1422,7 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 24px 64px -16px rgba(10, 20, 40, 0.35);
 }
 
@@ -1418,7 +1433,7 @@ body {
   z-index: 1;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: none;
   background: rgba(255, 255, 255, 0.9);
   color: var(--ink-700);
@@ -1446,7 +1461,7 @@ body {
 .landing-modal-icon {
   width: 52px;
   height: 52px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--ai-500), var(--highlight-600));
   color: #ffffff;
   display: flex;
