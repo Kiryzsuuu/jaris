@@ -20,6 +20,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [siteName, setSiteName] = useState("JARIS");
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [loginImageDataUrl, setLoginImageDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -28,6 +29,7 @@ function LoginForm() {
         if (json.success) {
           setSiteName(json.data.siteName);
           setLogoDataUrl(json.data.logoDataUrl);
+          setLoginImageDataUrl(json.data.loginImageDataUrl);
         }
       })
       .catch(() => {});
@@ -63,7 +65,14 @@ function LoginForm() {
 
   return (
     <div className="login-shell">
-      <div className="login-visual">
+      <div className={`login-visual ${loginImageDataUrl ? "has-image" : ""}`}>
+        {loginImageDataUrl && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings */}
+            <img src={loginImageDataUrl} alt="" className="login-visual-image" />
+            <div className="login-visual-image-overlay" />
+          </>
+        )}
         <div className="login-visual-brand">
           {logoDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings

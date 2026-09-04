@@ -506,24 +506,14 @@ body {
   border-left: none;
 }
 
+/* Yellow (not alternating blue/yellow) - these numbers sit on a dark blue
+   gradient background, so blue text would barely show against it. */
 .landing-stat-value {
   font-size: clamp(1.7rem, 3vw, 2.3rem);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.01em;
-}
-
-.landing-stat:nth-child(1) .landing-stat-value {
-  color: #ff6b35;
-}
-.landing-stat:nth-child(2) .landing-stat-value {
-  color: #00b67a;
-}
-.landing-stat:nth-child(3) .landing-stat-value {
-  color: #7c4dff;
-}
-.landing-stat:nth-child(4) .landing-stat-value {
-  color: #ff4785;
+  color: #ffc107;
 }
 
 .landing-stat-label {
@@ -621,46 +611,28 @@ body {
   }
 }
 
-/* Fixed vivid palette (not tenant-configurable) - blue/orange/green/purple/
-   pink/teal - cycled per card via nth-child below so each flow/capability
-   icon gets its own color, tiket.com-style, instead of every card reading
-   as the same flat neutral chip. No JSX/content changes needed to add or
-   reorder cards.
+/* Fixed 2-color palette (not tenant-configurable) - blue/yellow only, per
+   feedback that the earlier 6-color rotation read as too busy - alternated
+   per card via nth-child so cards aren't all one flat neutral chip, without
+   turning into a rainbow. No JSX/content changes needed to add or reorder
+   cards.
 
    Each card is a <button> wrapped in a .reveal div (for the scroll-in
    animation), and .reveal is the actual direct child of the grid - so the
    nth-child count has to run on .reveal, not on .landing-flow-card, which
    is always its own parent's only/first child. */
-.landing-flow-grid > .reveal:nth-child(4n + 1) .landing-flow-icon {
+.landing-flow-grid > .reveal:nth-child(odd) .landing-flow-icon {
   background: #0064d2;
 }
-.landing-flow-grid > .reveal:nth-child(4n + 2) .landing-flow-icon {
-  background: #ff6b35;
-}
-.landing-flow-grid > .reveal:nth-child(4n + 3) .landing-flow-icon {
-  background: #00b67a;
-}
-.landing-flow-grid > .reveal:nth-child(4n + 4) .landing-flow-icon {
-  background: #7c4dff;
+.landing-flow-grid > .reveal:nth-child(even) .landing-flow-icon {
+  background: #ffc107;
 }
 
-.landing-feature-grid > .reveal:nth-child(6n + 1) .landing-feature-icon {
+.landing-feature-grid > .reveal:nth-child(odd) .landing-feature-icon {
   background: #0064d2;
 }
-.landing-feature-grid > .reveal:nth-child(6n + 2) .landing-feature-icon {
-  background: #ff6b35;
-}
-.landing-feature-grid > .reveal:nth-child(6n + 3) .landing-feature-icon {
-  background: #00b67a;
-}
-.landing-feature-grid > .reveal:nth-child(6n + 4) .landing-feature-icon {
-  background: #7c4dff;
-}
-.landing-feature-grid > .reveal:nth-child(6n + 5) .landing-feature-icon {
-  background: #ff4785;
-}
-.landing-feature-grid > .reveal:nth-child(6n + 6) .landing-feature-icon {
-  background: #00bcd4;
+.landing-feature-grid > .reveal:nth-child(even) .landing-feature-icon {
+  background: #ffc107;
 }
 
 /* ---------- Claim flow (how it works) ---------- */
@@ -700,7 +672,7 @@ body {
   max-width: 340px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 107, 53, 0.12), transparent 70%);
+  background: radial-gradient(closest-side, rgba(255, 193, 7, 0.14), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -824,7 +796,7 @@ body {
   max-width: 420px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(124, 77, 255, 0.12), transparent 70%);
+  background: radial-gradient(closest-side, rgba(0, 100, 210, 0.12), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -839,7 +811,7 @@ body {
   max-width: 380px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0, 182, 122, 0.12), transparent 70%);
+  background: radial-gradient(closest-side, rgba(255, 193, 7, 0.14), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -952,10 +924,11 @@ body {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #ffffff;
-  /* Deliberately not a brand blue - a bright contrasting orange pops
-     against the mostly-blue page instead of blending in. */
-  background: #ff6b35;
+  /* Yellow, not blue - a badge in the same blue as everything else
+     wouldn't stand out. Dark text (not white) - white-on-yellow is barely
+     readable. */
+  color: var(--ink-900);
+  background: #ffc107;
   padding: 0.18rem 0.5rem;
   border-radius: 4px;
   margin-top: 0.75rem;
@@ -1254,6 +1227,39 @@ body {
   border-radius: 50%;
   background: radial-gradient(closest-side, var(--highlight-500) 0%, transparent 70%);
   opacity: 0.18;
+  pointer-events: none;
+}
+
+/* When an admin-uploaded image is set, it replaces the plain gradient as
+   the visual - the dot-pattern/glow decorations were designed for the flat
+   gradient and would look messy layered on top of a real photo. */
+.login-visual.has-image::before,
+.login-visual.has-image::after {
+  display: none;
+}
+
+.login-visual-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark wash over the image so the brand/heading/list text on top stays
+   readable regardless of what the uploaded photo looks like - same
+   left-to-right-ish idea as the (now removed) landing hero overlay. */
+.login-visual-image-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(10, 42, 92, 0.88) 0%,
+    rgba(13, 58, 74, 0.82) 60%,
+    rgba(20, 87, 111, 0.8) 100%
+  );
   pointer-events: none;
 }
 

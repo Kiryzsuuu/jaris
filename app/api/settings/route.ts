@@ -137,6 +137,21 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    if (typeof body.loginImageDataUrl === "string") {
+      if (body.loginImageDataUrl === "") {
+        settings.loginImageBase64 = null;
+        settings.loginImageMimeType = null;
+      } else {
+        const parsed = parseDataUrl(body.loginImageDataUrl);
+        if (!parsed) return errorResponse("loginImageDataUrl harus data URL gambar base64 yang valid", 400);
+        if (parsed.base64.length > MAX_HERO_IMAGE_BASE64_LENGTH) {
+          return errorResponse("Ukuran gambar login terlalu besar (maksimum ~4.5MB)", 400);
+        }
+        settings.loginImageBase64 = parsed.base64;
+        settings.loginImageMimeType = parsed.mimeType;
+      }
+    }
+
     if (body.cardImages && typeof body.cardImages === "object") {
       const validSlugs = new Set(ALL_LANDING_CARDS.map((c) => c.slug));
       for (const [slug, dataUrl] of Object.entries(body.cardImages as Record<string, unknown>)) {

@@ -12,6 +12,7 @@ type Settings = {
   faviconDataUrl: string | null;
   heroImageDataUrls: string[];
   sectionImageDataUrl: string | null;
+  loginImageDataUrl: string | null;
   cardImages: Record<string, string>;
   heroHeadline: string;
   heroSubheadline: string;
@@ -76,6 +77,7 @@ export default function SettingsPage() {
   const [faviconDataUrl, setFaviconDataUrl] = useState<string | null>(null);
   const [heroImageDataUrls, setHeroImageDataUrls] = useState<string[]>([]);
   const [sectionImageDataUrl, setSectionImageDataUrl] = useState<string | null>(null);
+  const [loginImageDataUrl, setLoginImageDataUrl] = useState<string | null>(null);
   const [cardImages, setCardImages] = useState<Record<string, string>>({});
 
   const [demoCounts, setDemoCounts] = useState<{ claims: number; claimants: number; payments: number; accidentPoints: number } | null>(null);
@@ -142,6 +144,7 @@ export default function SettingsPage() {
       setFaviconDataUrl(data.faviconDataUrl);
       setHeroImageDataUrls(data.heroImageDataUrls);
       setSectionImageDataUrl(data.sectionImageDataUrl);
+      setLoginImageDataUrl(data.loginImageDataUrl);
       setCardImages(data.cardImages ?? {});
     } catch {
       setError("Tidak dapat menghubungi server");
@@ -196,6 +199,12 @@ export default function SettingsPage() {
     setSectionImageDataUrl(await fileToDataUrl(file));
   }
 
+  async function handleLoginImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLoginImageDataUrl(await fileToDataUrl(file));
+  }
+
   async function handleCardImageChange(slug: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -221,6 +230,7 @@ export default function SettingsPage() {
           faviconDataUrl: faviconDataUrl ?? "",
           heroImageDataUrls,
           sectionImageDataUrl: sectionImageDataUrl ?? "",
+          loginImageDataUrl: loginImageDataUrl ?? "",
           cardImages,
         }),
       });
@@ -443,6 +453,25 @@ export default function SettingsPage() {
               <img
                 src={sectionImageDataUrl}
                 alt="Preview gambar bagian"
+                className="mt-2 block max-h-[180px] rounded-xl"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="card md:col-span-2">
+          <div className="card-body">
+            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Halaman Login</h2>
+            <p className="text-secondary-400 mb-3 text-xs">
+              Latar panel kiri di halaman login (di belakang gradasi gelap, jadi teks di atasnya tetap
+              terbaca). Opsional - gradasi polos akan tetap tampil jika gambar ini tidak diisi.
+            </p>
+            <input type="file" accept="image/*" className="form-control" onChange={handleLoginImageChange} />
+            {loginImageDataUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize
+              <img
+                src={loginImageDataUrl}
+                alt="Preview gambar login"
                 className="mt-2 block max-h-[180px] rounded-xl"
               />
             )}

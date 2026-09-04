@@ -13,6 +13,8 @@ export interface ISiteSettings {
   heroImages: { base64: string; mimeType: string }[];
   sectionImageBase64: string | null;
   sectionImageMimeType: string | null;
+  loginImageBase64: string | null;
+  loginImageMimeType: string | null;
   heroHeadline: string;
   heroSubheadline: string;
   primaryColor: string;
@@ -53,6 +55,10 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     // fresh install with no other imagery configured.
     sectionImageBase64: { type: String, default: null },
     sectionImageMimeType: { type: String, default: null },
+    // Optional background image for the login page's left visual panel
+    // (behind the dark gradient overlay so the text stays readable).
+    loginImageBase64: { type: String, default: null },
+    loginImageMimeType: { type: String, default: null },
     heroHeadline: {
       type: String,
       required: true,

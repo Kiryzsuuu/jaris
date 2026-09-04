@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // auto-logout after 5 minutes of no activity
+const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "wheel"] as const;
 
 type Me = { id: string; email: string; roleSlug: string; permissions: string[] };
 type Settings = { siteName: string; logoDataUrl: string | null; footerText: string };
@@ -100,11 +103,31 @@ export default function AppShell({
     setBanner(null);
   }
 
-  async function handleLogout() {
+  const handleLogout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
-  }
+  }, [router]);
+
+  // Auto-logout after 5 minutes with no mouse/keyboard/touch/scroll activity
+  // - resets on every activity event rather than polling, so it costs
+  // nothing while the user is actually idle.
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    function resetIdleTimer() {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(handleLogout, IDLE_TIMEOUT_MS);
+    }
+
+    resetIdleTimer();
+    ACTIVITY_EVENTS.forEach((event) => window.addEventListener(event, resetIdleTimer, { passive: true }));
+
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, resetIdleTimer));
+    };
+  }, [handleLogout]);
 
   const siteName = settings?.siteName ?? "JARIS";
 
