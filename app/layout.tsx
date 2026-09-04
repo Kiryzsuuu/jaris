@@ -30,13 +30,13 @@ const FALLBACK_SETTINGS = {
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-  primaryColor: "#0B2A55",
-  secondaryColor: "#155C9B",
-  aiColor: "#1B85C9",
-  highlightColor: "#29B6E8",
-  accentColor: "#16A3AE",
+  primaryColor: "#F0302A",
+  secondaryColor: "#B22831",
+  aiColor: "#181842",
+  highlightColor: "#FF3029",
+  accentColor: "#FF5A50",
   backgroundColor: "#F5F6F7",
-  sidebarColor: "#0B2A55",
+  sidebarColor: "#181842",
   footerText: "PT Nusa Inspira Teknologi",
 };
 

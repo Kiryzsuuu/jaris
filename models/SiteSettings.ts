@@ -69,15 +69,15 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     // backgrounds intentionally stay pure white (not admin-configurable) -
     // making that editable risks an admin picking a color that makes card
     // content unreadable against itself.
-    // Sampled from the NIIIS logo's navy-to-cyan gradient mark.
-    primaryColor: { type: String, required: true, default: "#0B2A55" }, // Deep Navy - buttons/links/headings accent
-    secondaryColor: { type: String, required: true, default: "#155C9B" }, // Corporate Blue - secondary elements
-    aiColor: { type: String, required: true, default: "#1B85C9" }, // AI Blue - gradient midpoint
-    highlightColor: { type: String, required: true, default: "#29B6E8" }, // Digital Cyan - AI highlight touches
-    accentColor: { type: String, required: true, default: "#16A3AE" }, // Intelligent Teal - general accent
+    // Sampled from the JARIS promo banner (navy + red, jaris.png).
+    primaryColor: { type: String, required: true, default: "#F0302A" }, // Brand Red - buttons/links/headings accent
+    secondaryColor: { type: String, required: true, default: "#B22831" }, // Deep Red - secondary elements
+    aiColor: { type: String, required: true, default: "#181842" }, // Navy - gradient midpoint (pairs with red)
+    highlightColor: { type: String, required: true, default: "#FF3029" }, // Vivid Red - highlight touches/badges
+    accentColor: { type: String, required: true, default: "#FF5A50" }, // Coral Red - general accent
     backgroundColor: { type: String, required: true, default: "#F5F6F7" }, // Soft Light Gray - page canvas
     // Solid background color for the admin app's sidebar/nav.
-    sidebarColor: { type: String, required: true, default: "#0B2A55" },
+    sidebarColor: { type: String, required: true, default: "#181842" },
     footerText: {
       type: String,
       required: true,

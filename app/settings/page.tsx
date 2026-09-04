@@ -26,13 +26,17 @@ type Settings = {
 };
 
 const COLOR_FIELDS = [
-  { key: "primaryColor", label: "Deep Navy (Utama)", desc: "Warna utama - tombol, tautan, aksen judul" },
-  { key: "secondaryColor", label: "Corporate Blue (Sekunder)", desc: "Elemen sekunder" },
-  { key: "aiColor", label: "AI Blue", desc: "Gradient pada elemen berbau AI (mis. hero carousel)" },
-  { key: "highlightColor", label: "Digital Cyan (Highlight)", desc: "Highlight fitur AI (mis. badge \"Baru\")" },
-  { key: "accentColor", label: "Intelligent Teal (Aksen)", desc: "Aksen umum (mis. titik eyebrow landing page)" },
-  { key: "backgroundColor", label: "Soft Light Gray (Background)", desc: "Warna latar halaman" },
-  { key: "sidebarColor", label: "Warna Sidebar", desc: "Latar sidebar navigasi aplikasi" },
+  { key: "primaryColor", label: "Merah Utama", desc: "Warna utama - tombol, tautan, aksen judul" },
+  { key: "secondaryColor", label: "Merah Tua (Sekunder)", desc: "Elemen sekunder" },
+  { key: "aiColor", label: "Navy (Gradient)", desc: "Dipadukan dengan warna utama pada gradient tombol & ikon" },
+  { key: "highlightColor", label: "Merah Terang (Highlight)", desc: "Highlight fitur, mis. badge pada kartu kapabilitas" },
+  { key: "accentColor", label: "Coral (Aksen)", desc: "Aksen umum, mis. titik indikator \"Live\" di berita" },
+  { key: "backgroundColor", label: "Abu Muda (Background)", desc: "Warna latar halaman" },
+  {
+    key: "sidebarColor",
+    label: "Warna Sidebar",
+    desc: "Tidak lagi terlihat - sidebar admin sekarang selalu terang mengikuti tema Mazer",
+  },
 ] as const;
 
 const MAX_HERO_IMAGES = 6;
@@ -58,13 +62,13 @@ export default function SettingsPage() {
     siteName: "",
     tagline: "",
     footerText: "",
-    primaryColor: "#0B2A55",
-    secondaryColor: "#155C9B",
-    aiColor: "#1B85C9",
-    highlightColor: "#29B6E8",
-    accentColor: "#16A3AE",
+    primaryColor: "#F0302A",
+    secondaryColor: "#B22831",
+    aiColor: "#181842",
+    highlightColor: "#FF3029",
+    accentColor: "#FF5A50",
     backgroundColor: "#F5F6F7",
-    sidebarColor: "#0B2A55",
+    sidebarColor: "#181842",
     heroHeadline: "",
     heroSubheadline: "",
   });

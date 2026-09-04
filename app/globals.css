@@ -215,7 +215,7 @@ body {
   border-radius: 11px !important;
 }
 
-/* Gradient echoes the NIIIS logo's navy-to-cyan mark instead of a flat
+/* Gradient echoes the JARIS brand mark (red to navy) instead of a flat
    fill - Tailwind's hover:bg-* utility can't win against the !important
    background here, so hover/active feedback comes from a brightness filter
    instead. */
@@ -234,8 +234,9 @@ body {
   filter: brightness(0.94);
 }
 
-/* Thin navy-to-cyan glow at the top of the sidebar, echoing the logo's
-   gradient mark without needing a second admin-configurable color. */
+/* Thin decorative glow at the top of the sidebar, using the .mazer-admin
+   -scoped ai/highlight tones (see the Mazer palette block above) rather
+   than a third admin-configurable color. */
 .pc-sidebar .navbar-wrapper {
   position: relative;
 }
