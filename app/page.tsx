@@ -15,29 +15,6 @@ type SettingsResponse = {
   cardImages: Record<string, string>;
 };
 
-const HERO_SLIDES = [
-  {
-    icon: "ti-gauge",
-    title: "Dashboard Analitik Real-Time",
-    desc: "Jumlah klaim, realisasi santunan, dan tren kecelakaan langsung dari agregasi database - bukan laporan statis.",
-  },
-  {
-    icon: "ti-map-pin",
-    title: "Peta Titik Rawan Kecelakaan",
-    desc: "Klaster kecelakaan terdeteksi otomatis di peta geospasial sebagai sinyal peringatan dini bagi manajemen.",
-  },
-  {
-    icon: "ti-message-chatbot",
-    title: "AI Asisten Berbasis Knowledge Base",
-    desc: "Jawaban internal yang selalu bersumber dari dokumen resmi (RAG) - lengkap dengan rujukan sumbernya.",
-  },
-  {
-    icon: "ti-camera",
-    title: "Analisis Foto Kerusakan (AI)",
-    desc: "Foto kerusakan yang diunggah petugas dianalisis AI untuk saran tingkat keparahan, langsung di form klaim.",
-  },
-];
-
 function Reveal({
   children,
   className = "",
@@ -69,69 +46,6 @@ function Reveal({
   return (
     <div ref={ref} className={`reveal ${visible ? "is-visible" : ""} ${className}`} style={style}>
       {children}
-    </div>
-  );
-}
-
-function HeroCarousel() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    if (paused) return;
-    const timer = setInterval(() => {
-      setActive((i) => (i + 1) % HERO_SLIDES.length);
-    }, 4200);
-    return () => clearInterval(timer);
-  }, [paused]);
-
-  return (
-    <div
-      className="landing-hero-carousel"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {HERO_SLIDES.map((slide, i) => (
-        <div key={slide.title} className={`landing-hero-slide ${i === active ? "is-active" : ""}`}>
-          <div className="landing-hero-slide-icon">
-            <i className={`ti ${slide.icon}`} />
-          </div>
-          <div className="landing-hero-slide-text">
-            <h3>{slide.title}</h3>
-            <p>{slide.desc}</p>
-          </div>
-        </div>
-      ))}
-
-      <div className="landing-hero-carousel-controls">
-        <button
-          type="button"
-          aria-label="Sebelumnya"
-          className="landing-hero-arrow"
-          onClick={() => setActive((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-        >
-          <i className="ti ti-chevron-left" />
-        </button>
-        <div className="landing-hero-dots">
-          {HERO_SLIDES.map((slide, i) => (
-            <button
-              key={slide.title}
-              type="button"
-              aria-label={`Slide ${i + 1}`}
-              className={`landing-hero-dot ${i === active ? "is-active" : ""}`}
-              onClick={() => setActive(i)}
-            />
-          ))}
-        </div>
-        <button
-          type="button"
-          aria-label="Berikutnya"
-          className="landing-hero-arrow"
-          onClick={() => setActive((i) => (i + 1) % HERO_SLIDES.length)}
-        >
-          <i className="ti ti-chevron-right" />
-        </button>
-      </div>
     </div>
   );
 }
@@ -255,34 +169,12 @@ export default function Home() {
       </nav>
 
       <header className="landing-hero">
-        <div className="landing-hero-visual">
-          {settings.heroImageDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+        {settings.heroImageDataUrl && (
+          <div className="landing-hero-visual">
+            {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings */}
             <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
-          ) : (
-            <HeroCarousel />
-          )}
-        </div>
-
-        <div className="landing-hero-overlay" />
-
-        <div className="landing-hero-text">
-          <span className="landing-eyebrow">
-            <span className="landing-eyebrow-dot" />
-            PT Jasa Raharja (Persero)
-          </span>
-          <h1 className="landing-headline">{settings.heroHeadline}</h1>
-          <p className="landing-subheadline">{settings.heroSubheadline}</p>
-
-          <div className="landing-hero-actions">
-            <Link href="/login" className="landing-primary-btn">
-              Masuk ke Sistem
-            </Link>
-            <a href="#kapabilitas" className="landing-secondary-link">
-              Lihat kapabilitas
-            </a>
           </div>
-        </div>
+        )}
       </header>
 
       <section id="alur-klaim" className="landing-flow">
