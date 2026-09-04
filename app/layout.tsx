@@ -55,7 +55,10 @@ async function loadSettings() {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await loadSettings();
   return {
-    title: settings.siteName,
+    title: {
+      default: `${settings.siteName} — ${settings.tagline}`,
+      template: `%s · ${settings.siteName}`,
+    },
     description: "AI-Powered Digital Ecosystem - PT Jasa Raharja (Persero)",
     icons: settings.faviconDataUrl ? { icon: settings.faviconDataUrl } : undefined,
   };
