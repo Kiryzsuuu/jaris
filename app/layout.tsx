@@ -83,17 +83,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const primary = deriveColorScale(sanitizeBrandColor(settings.primaryColor, FALLBACK_SETTINGS.primaryColor));
   const secondary = deriveColorScale(sanitizeBrandColor(settings.secondaryColor, FALLBACK_SETTINGS.secondaryColor));
   const ai = deriveColorScale(sanitizeBrandColor(settings.aiColor, FALLBACK_SETTINGS.aiColor));
-  const highlight = deriveColorScale(sanitizeBrandColor(settings.highlightColor, FALLBACK_SETTINGS.highlightColor));
-  const accent = deriveColorScale(sanitizeBrandColor(settings.accentColor, FALLBACK_SETTINGS.accentColor));
   const sidebarColor = sanitizeBrandColor(settings.sidebarColor, FALLBACK_SETTINGS.sidebarColor);
 
+  // Gold (--accent-*/--highlight-*) is deliberately NOT injected from Site
+  // Settings: the redesign treats it as a fixed brand color used in small
+  // doses (badges, active markers, key figures), and it's the one color
+  // where a wrong choice breaks legibility - every gold surface in the app
+  // pairs it with navy text. It lives in app/globals.css :root instead.
   const cssVars = [
     ...Object.entries(primary).map(([stop, value]) => `--primary-${stop}:${value};`),
     ...Object.entries(secondary).map(([stop, value]) => `--color-secondary-${stop}:${value};`),
     `--color-secondary:${secondary[500]};`,
     ...Object.entries(ai).map(([stop, value]) => `--ai-${stop}:${value};`),
-    ...Object.entries(highlight).map(([stop, value]) => `--highlight-${stop}:${value};`),
-    ...Object.entries(accent).map(([stop, value]) => `--accent-${stop}:${value};`),
     // Page canvas is meant to be near-white, so it skips the guard above.
     `--color-theme-bodybg:${settings.backgroundColor};`,
     `--brand-bg:${settings.backgroundColor};`,

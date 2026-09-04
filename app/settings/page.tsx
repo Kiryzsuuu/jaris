@@ -26,12 +26,13 @@ type Settings = {
   footerText: string;
 };
 
+// Gold (accentColor/highlightColor) is intentionally absent: it's a fixed
+// brand color in app/globals.css, since every gold surface in the app is
+// paired with navy text and an arbitrary color there breaks legibility.
 const COLOR_FIELDS = [
   { key: "primaryColor", label: "Navy (Utama)", desc: "Warna utama - tombol, tautan, header, hero" },
   { key: "secondaryColor", label: "Biru (Sekunder)", desc: "Elemen sekunder" },
-  { key: "aiColor", label: "Biru (Gradient/Aktif)", desc: "Pasangan gradient & status aktif" },
-  { key: "highlightColor", label: "Gold (Highlight)", desc: "Highlight kecil - badge, penanda menu aktif" },
-  { key: "accentColor", label: "Gold (Aksen)", desc: "Aksen kecil, mis. angka statistik & titik indikator" },
+  { key: "aiColor", label: "Biru (Aktif/Aksen)", desc: "Status aktif, ikon, dan aksen biru" },
   { key: "backgroundColor", label: "Abu Muda (Background)", desc: "Warna latar halaman" },
   { key: "sidebarColor", label: "Warna Sidebar", desc: "Latar sidebar navigasi aplikasi" },
 ] as const;
