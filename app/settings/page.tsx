@@ -10,7 +10,7 @@ type Settings = {
   tagline: string;
   logoDataUrl: string | null;
   faviconDataUrl: string | null;
-  heroImageDataUrl: string | null;
+  heroImageDataUrls: string[];
   sectionImageDataUrl: string | null;
   cardImages: Record<string, string>;
   heroHeadline: string;
@@ -34,6 +34,8 @@ const COLOR_FIELDS = [
   { key: "backgroundColor", label: "Soft Light Gray (Background)", desc: "Warna latar halaman" },
   { key: "sidebarColor", label: "Warna Sidebar", desc: "Latar sidebar navigasi aplikasi" },
 ] as const;
+
+const MAX_HERO_IMAGES = 6;
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -68,7 +70,7 @@ export default function SettingsPage() {
   });
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [faviconDataUrl, setFaviconDataUrl] = useState<string | null>(null);
-  const [heroImageDataUrl, setHeroImageDataUrl] = useState<string | null>(null);
+  const [heroImageDataUrls, setHeroImageDataUrls] = useState<string[]>([]);
   const [sectionImageDataUrl, setSectionImageDataUrl] = useState<string | null>(null);
   const [cardImages, setCardImages] = useState<Record<string, string>>({});
 
@@ -134,7 +136,7 @@ export default function SettingsPage() {
       });
       setLogoDataUrl(data.logoDataUrl);
       setFaviconDataUrl(data.faviconDataUrl);
-      setHeroImageDataUrl(data.heroImageDataUrl);
+      setHeroImageDataUrls(data.heroImageDataUrls);
       setSectionImageDataUrl(data.sectionImageDataUrl);
       setCardImages(data.cardImages ?? {});
     } catch {
@@ -162,10 +164,26 @@ export default function SettingsPage() {
     setFaviconDataUrl(await fileToDataUrl(file));
   }
 
-  async function handleHeroImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setHeroImageDataUrl(await fileToDataUrl(file));
+  async function handleHeroImagesAdd(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    const newDataUrls = await Promise.all(files.map(fileToDataUrl));
+    setHeroImageDataUrls((prev) => [...prev, ...newDataUrls].slice(0, MAX_HERO_IMAGES));
+    e.target.value = "";
+  }
+
+  function handleHeroImageRemove(index: number) {
+    setHeroImageDataUrls((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleHeroImageMove(index: number, direction: -1 | 1) {
+    setHeroImageDataUrls((prev) => {
+      const next = [...prev];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   async function handleSectionImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -197,7 +215,7 @@ export default function SettingsPage() {
           ...form,
           logoDataUrl: logoDataUrl ?? "",
           faviconDataUrl: faviconDataUrl ?? "",
-          heroImageDataUrl: heroImageDataUrl ?? "",
+          heroImageDataUrls,
           sectionImageDataUrl: sectionImageDataUrl ?? "",
           cardImages,
         }),
@@ -343,15 +361,66 @@ export default function SettingsPage() {
             </div>
 
             <div className="mb-1">
-              <label className="form-label">Gambar Hero (base64 di database, disarankan rasio landscape)</label>
-              <input type="file" accept="image/*" className="form-control" onChange={handleHeroImageChange} />
-              {heroImageDataUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize
-                <img
-                  src={heroImageDataUrl}
-                  alt="Hero preview"
-                  className="mt-2 block max-h-[180px] rounded-xl"
-                />
+              <label className="form-label">
+                Gambar Hero - slideshow (base64 di database, disarankan rasio landscape, maks. {MAX_HERO_IMAGES} gambar)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="form-control"
+                onChange={handleHeroImagesAdd}
+                disabled={heroImageDataUrls.length >= MAX_HERO_IMAGES}
+              />
+              <p className="text-secondary-400 mt-1 text-xs">
+                Beberapa gambar akan tampil bergantian (slideshow) di halaman depan. Tanpa teks - teks (kalau perlu)
+                sebaiknya sudah ada di dalam gambarnya. Urutan tampil mengikuti urutan di bawah ini.
+              </p>
+
+              {heroImageDataUrls.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {heroImageDataUrls.map((dataUrl, i) => (
+                    <div key={i} className="relative w-40">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL, not a static asset Next/Image can optimize */}
+                      <img
+                        src={dataUrl}
+                        alt={`Hero slide ${i + 1}`}
+                        className="border-ink-200 block h-24 w-40 rounded-lg border object-cover"
+                      />
+                      <div className="mt-1 flex items-center justify-between gap-1">
+                        <span className="text-secondary-400 text-xs">#{i + 1}</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            disabled={i === 0}
+                            onClick={() => handleHeroImageMove(i, -1)}
+                            aria-label="Pindah ke kiri"
+                          >
+                            <i className="ti ti-chevron-left" />
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            disabled={i === heroImageDataUrls.length - 1}
+                            onClick={() => handleHeroImageMove(i, 1)}
+                            aria-label="Pindah ke kanan"
+                          >
+                            <i className="ti ti-chevron-right" />
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleHeroImageRemove(i)}
+                            aria-label="Hapus gambar"
+                          >
+                            <i className="ti ti-trash" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>

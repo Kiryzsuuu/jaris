@@ -8,8 +8,9 @@ export interface ISiteSettings {
   logoMimeType: string | null;
   faviconBase64: string | null;
   faviconMimeType: string | null;
-  heroImageBase64: string | null;
-  heroImageMimeType: string | null;
+  // Ordered list of hero banner images shown as an auto-rotating
+  // slideshow on the landing page. Empty array = plain background.
+  heroImages: { base64: string; mimeType: string }[];
   sectionImageBase64: string | null;
   sectionImageMimeType: string | null;
   heroHeadline: string;
@@ -43,8 +44,10 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     logoMimeType: { type: String, default: null },
     faviconBase64: { type: String, default: null },
     faviconMimeType: { type: String, default: null },
-    heroImageBase64: { type: String, default: null },
-    heroImageMimeType: { type: String, default: null },
+    heroImages: {
+      type: [new Schema({ base64: String, mimeType: String }, { _id: false })],
+      default: () => [],
+    },
     // Optional supporting image an admin can upload to fill in the claim-
     // flow section on the landing page, so it isn't just icons/text on a
     // fresh install with no other imagery configured.

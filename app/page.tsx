@@ -7,7 +7,7 @@ import { CLAIM_FLOW, CAPABILITIES, type LandingCard } from "@/lib/landingContent
 type SettingsResponse = {
   siteName: string;
   logoDataUrl: string | null;
-  heroImageDataUrl: string | null;
+  heroImageDataUrls: string[];
   sectionImageDataUrl: string | null;
   heroHeadline: string;
   heroSubheadline: string;
@@ -50,6 +50,74 @@ function Reveal({
   );
 }
 
+// Pure-image hero slideshow - no overlaid copy. Any text belongs baked
+// into the images themselves. A single image just renders statically;
+// dots/arrows only appear once there's more than one slide.
+function HeroSlideshow({ images, alt }: { images: string[]; alt: string }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || images.length < 2) return;
+    const timer = setInterval(() => {
+      setActive((i) => (i + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [paused, images.length]);
+
+  if (images.length === 0) return null;
+
+  return (
+    <div
+      className="landing-hero-slideshow"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {images.map((src, i) => (
+        // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+        <img
+          key={i}
+          src={src}
+          alt={alt}
+          className={`landing-hero-slide-img ${i === active ? "is-active" : ""}`}
+        />
+      ))}
+
+      {images.length > 1 && (
+        <div className="landing-hero-carousel-controls">
+          <button
+            type="button"
+            aria-label="Sebelumnya"
+            className="landing-hero-arrow"
+            onClick={() => setActive((i) => (i - 1 + images.length) % images.length)}
+          >
+            <i className="ti ti-chevron-left" />
+          </button>
+          <div className="landing-hero-dots">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Slide ${i + 1}`}
+                className={`landing-hero-dot ${i === active ? "is-active" : ""}`}
+                onClick={() => setActive(i)}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-label="Berikutnya"
+            className="landing-hero-arrow"
+            onClick={() => setActive((i) => (i + 1) % images.length)}
+          >
+            <i className="ti ti-chevron-right" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const MAP_REGIONS = [
   { name: "Jakarta", query: "Jasa Raharja Jakarta Pusat, Indonesia" },
   { name: "Surabaya", query: "Jasa Raharja Surabaya, Indonesia" },
@@ -61,7 +129,7 @@ const MAP_REGIONS = [
 const DEFAULTS: SettingsResponse = {
   siteName: "JARIS",
   logoDataUrl: null,
-  heroImageDataUrl: null,
+  heroImageDataUrls: [],
   sectionImageDataUrl: null,
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:
@@ -169,10 +237,9 @@ export default function Home() {
       </nav>
 
       <header className="landing-hero">
-        {settings.heroImageDataUrl && (
+        {settings.heroImageDataUrls.length > 0 && (
           <div className="landing-hero-visual">
-            {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings */}
-            <img src={settings.heroImageDataUrl} alt={settings.heroHeadline} />
+            <HeroSlideshow images={settings.heroImageDataUrls} alt={settings.heroHeadline} />
           </div>
         )}
       </header>

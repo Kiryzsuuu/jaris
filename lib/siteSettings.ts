@@ -21,10 +21,9 @@ export function serializeSiteSettings(settings: Awaited<ReturnType<typeof getSit
       settings.faviconBase64 && settings.faviconMimeType
         ? `data:${settings.faviconMimeType};base64,${settings.faviconBase64}`
         : null,
-    heroImageDataUrl:
-      settings.heroImageBase64 && settings.heroImageMimeType
-        ? `data:${settings.heroImageMimeType};base64,${settings.heroImageBase64}`
-        : null,
+    heroImageDataUrls: (settings.heroImages ?? []).map(
+      (img) => `data:${img.mimeType};base64,${img.base64}`
+    ),
     sectionImageDataUrl:
       settings.sectionImageBase64 && settings.sectionImageMimeType
         ? `data:${settings.sectionImageMimeType};base64,${settings.sectionImageBase64}`

@@ -25,7 +25,7 @@ const FALLBACK_SETTINGS = {
   tagline: "Jasa Raharja Integrated Intelligence System",
   logoDataUrl: null,
   faviconDataUrl: null,
-  heroImageDataUrl: null,
+  heroImageDataUrls: [] as string[],
   sectionImageDataUrl: null,
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:

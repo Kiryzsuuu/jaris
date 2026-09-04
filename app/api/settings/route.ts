@@ -23,6 +23,11 @@ export async function GET() {
 // client - never as raw file uploads or external URLs.
 const MAX_IMAGE_BASE64_LENGTH = 2_000_000; // ~1.5MB raw image
 const MAX_HERO_IMAGE_BASE64_LENGTH = 6_000_000; // ~4.5MB raw image
+// Hero images are now an array (slideshow) stored in one document, so each
+// slide is capped at the regular image size and the count is capped too -
+// otherwise a handful of max-size slides could approach MongoDB's 16MB
+// per-document limit.
+const MAX_HERO_IMAGES = 6;
 
 function parseDataUrl(dataUrl: string): { mimeType: string; base64: string } | null {
   const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/.exec(dataUrl);
@@ -100,19 +105,21 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    if (typeof body.heroImageDataUrl === "string") {
-      if (body.heroImageDataUrl === "") {
-        settings.heroImageBase64 = null;
-        settings.heroImageMimeType = null;
-      } else {
-        const parsed = parseDataUrl(body.heroImageDataUrl);
-        if (!parsed) return errorResponse("heroImageDataUrl harus data URL gambar base64 yang valid", 400);
-        if (parsed.base64.length > MAX_HERO_IMAGE_BASE64_LENGTH) {
-          return errorResponse("Ukuran gambar hero terlalu besar (maksimum ~4.5MB)", 400);
-        }
-        settings.heroImageBase64 = parsed.base64;
-        settings.heroImageMimeType = parsed.mimeType;
+    if (Array.isArray(body.heroImageDataUrls)) {
+      if (body.heroImageDataUrls.length > MAX_HERO_IMAGES) {
+        return errorResponse(`Maksimum ${MAX_HERO_IMAGES} gambar hero`, 400);
       }
+      const parsedImages: { base64: string; mimeType: string }[] = [];
+      for (const dataUrl of body.heroImageDataUrls) {
+        if (typeof dataUrl !== "string") return errorResponse("heroImageDataUrls harus berisi data URL gambar", 400);
+        const parsed = parseDataUrl(dataUrl);
+        if (!parsed) return errorResponse("Setiap gambar hero harus data URL gambar base64 yang valid", 400);
+        if (parsed.base64.length > MAX_IMAGE_BASE64_LENGTH) {
+          return errorResponse("Ukuran salah satu gambar hero terlalu besar (maksimum ~1.5MB per gambar)", 400);
+        }
+        parsedImages.push(parsed);
+      }
+      settings.heroImages = parsedImages;
     }
 
     if (typeof body.sectionImageDataUrl === "string") {
@@ -160,12 +167,12 @@ export async function PATCH(request: NextRequest) {
       before: {
         ...before,
         logoDataUrl: before.logoDataUrl ? "(image)" : null,
-        heroImageDataUrl: before.heroImageDataUrl ? "(image)" : null,
+        heroImageDataUrls: `(${before.heroImageDataUrls.length} image(s))`,
       },
       after: {
         ...after,
         logoDataUrl: after.logoDataUrl ? "(image)" : null,
-        heroImageDataUrl: after.heroImageDataUrl ? "(image)" : null,
+        heroImageDataUrls: `(${after.heroImageDataUrls.length} image(s))`,
       },
     });
 
