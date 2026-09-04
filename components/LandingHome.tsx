@@ -93,7 +93,7 @@ function HeroSlideshow({ images, alt }: { images: string[]; alt: string }) {
           >
             <i className="ti ti-chevron-left" />
           </button>
-          <div className="landing-hero-dots">
+          <div className="landing-hero-dots-nav">
             {images.map((_, i) => (
               <button
                 key={i}
@@ -127,6 +127,14 @@ const MAP_REGIONS = [
 ];
 
 type NewsItem = { title: string; link: string; pubDate: string; image: string | null };
+
+/** Aggregate-only figures from /api/public-stats - no PII, safe pre-login. */
+type PublicStats = {
+  totalClaims: number;
+  totalPaidAmount: number;
+  totalAccidentPoints: number;
+  totalActiveUsers: number;
+};
 
 function CardModal({ card, image, onClose }: { card: LandingCard; image: string | null; onClose: () => void }) {
   useEffect(() => {
@@ -180,6 +188,7 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
   const [settings] = useState<SettingsResponse>(initialSettings);
   const [activeRegion, setActiveRegion] = useState(MAP_REGIONS[0]);
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [publicStats, setPublicStats] = useState<PublicStats | null>(null);
   const [activeCard, setActiveCard] = useState<LandingCard | null>(null);
 
   useEffect(() => {
@@ -187,6 +196,14 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
       .then((r) => r.json())
       .then((json) => {
         if (json.success) setNews(json.data);
+      })
+      .catch(() => {});
+    // Drives the hero preview card with real aggregates rather than
+    // hardcoded sample figures. Card stays hidden if this fails.
+    fetch("/api/public-stats")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setPublicStats(json.data);
       })
       .catch(() => {});
   }, []);
@@ -219,33 +236,94 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
       </nav>
 
       <header className="landing-hero">
-        {settings.heroImageDataUrls.length > 0 && (
-          <div className="landing-hero-visual">
-            <HeroSlideshow images={settings.heroImageDataUrls} alt={settings.heroHeadline} />
-          </div>
-        )}
-      </header>
+        {/* Diamond motif echoing the brand mark, kept subtle behind content. */}
+        <svg className="landing-hero-diamond" viewBox="0 0 200 200" aria-hidden="true">
+          <rect x="40" y="40" width="120" height="120" rx="16" transform="rotate(45 100 100)" fill="none" stroke="currentColor" strokeWidth="2" />
+          <rect x="65" y="65" width="70" height="70" rx="10" transform="rotate(45 100 100)" fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
+        <span className="landing-hero-blob landing-hero-blob-blue" aria-hidden="true" />
+        <span className="landing-hero-blob landing-hero-blob-gold" aria-hidden="true" />
+        <span className="landing-hero-dots" aria-hidden="true" />
 
-      <section className="landing-stats">
-        <div className="landing-stats-inner">
-          <div className="landing-stat">
-            <div className="landing-stat-value">{CLAIM_FLOW.length}</div>
-            <div className="landing-stat-label">Tahap Alur Klaim Terpadu</div>
+        <div className="landing-hero-inner">
+          <div className="landing-hero-copy">
+            <span className="landing-eyebrow">
+              <span className="landing-eyebrow-dot" />
+              PT Jasa Raharja (Persero)
+            </span>
+            <h1 className="landing-headline">{settings.heroHeadline}</h1>
+            <p className="landing-subheadline">{settings.heroSubheadline}</p>
+
+            <div className="landing-hero-actions">
+              <Link href="/login" className="landing-btn-gold">
+                Masuk ke sistem
+              </Link>
+              <a href="#alur-klaim" className="landing-btn-ghost">
+                Pelajari alur klaim
+              </a>
+            </div>
+
+            <div className="landing-hero-stats">
+              <div className="landing-stat">
+                <div className="landing-stat-value">{CLAIM_FLOW.length}</div>
+                <div className="landing-stat-label">Tahap klaim</div>
+              </div>
+              <div className="landing-stat">
+                <div className="landing-stat-value">{CAPABILITIES.length}</div>
+                <div className="landing-stat-label">Kemampuan AI</div>
+              </div>
+              <div className="landing-stat">
+                <div className="landing-stat-value">{MAP_REGIONS.length}</div>
+                <div className="landing-stat-label">Kota cabang</div>
+              </div>
+              <div className="landing-stat">
+                <div className="landing-stat-value">24/7</div>
+                <div className="landing-stat-label">Akses sistem</div>
+              </div>
+            </div>
           </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">{CAPABILITIES.length}</div>
-            <div className="landing-stat-label">Kemampuan AI Terintegrasi</div>
-          </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">{MAP_REGIONS.length}</div>
-            <div className="landing-stat-label">Kota Cabang Termonitor</div>
-          </div>
-          <div className="landing-stat">
-            <div className="landing-stat-value">24/7</div>
-            <div className="landing-stat-label">Akses Sistem Real-Time</div>
+
+          <div className="landing-hero-visual">
+            {settings.heroImageDataUrls.length > 0 ? (
+              <div className="landing-hero-visual-frame">
+                <HeroSlideshow images={settings.heroImageDataUrls} alt={settings.heroHeadline} />
+              </div>
+            ) : (
+              publicStats && (
+                <>
+                  <div className="landing-hero-preview">
+                    <div className="landing-hero-preview-dots">
+                      <span /><span /><span />
+                    </div>
+                    <div className="landing-hero-preview-label">Total realisasi santunan</div>
+                    <div className="landing-hero-preview-value">
+                      Rp{publicStats.totalPaidAmount.toLocaleString("id-ID")}
+                    </div>
+                    <div className="landing-hero-preview-grid">
+                      <div>
+                        <div className="landing-hero-preview-num">{publicStats.totalClaims}</div>
+                        <div className="landing-hero-preview-sub">klaim tercatat</div>
+                      </div>
+                      <div>
+                        <div className="landing-hero-preview-num">{publicStats.totalAccidentPoints}</div>
+                        <div className="landing-hero-preview-sub">titik kecelakaan</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="landing-hero-preview-badge">
+                    <div className="landing-hero-preview-badge-top">
+                      <i className="ti ti-users" />
+                      <span>Pengguna aktif</span>
+                    </div>
+                    <div className="landing-hero-preview-badge-value">{publicStats.totalActiveUsers}</div>
+                    <div className="landing-hero-preview-sub">petugas terdaftar</div>
+                  </div>
+                </>
+              )
+            )}
           </div>
         </div>
-      </section>
+      </header>
 
       <section id="alur-klaim" className="landing-flow">
         <div className="landing-flow-inner">
@@ -400,16 +478,16 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
         </div>
       </section>
 
-      <Reveal className="landing-cta-banner">
+      <section className="landing-cta-banner">
         <h2>Siap mempercepat proses klaim Anda?</h2>
         <p>
           Masuk ke sistem untuk mengelola klaim, memantau dashboard analitik, dan menggunakan
           asisten AI - semua dalam satu ekosistem terpadu.
         </p>
-        <Link href="/login" className="landing-primary-btn">
-          Masuk ke Sistem
+        <Link href="/login" className="landing-btn-gold">
+          Masuk ke sistem
         </Link>
-      </Reveal>
+      </section>
 
       <footer className="landing-footer">
         <p className="m-0">{settings.footerText}</p>

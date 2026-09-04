@@ -53,6 +53,24 @@ function relativeLuminance([r, g, b]: [number, number, number]): number {
   return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
 }
 
+/**
+ * Brand accent colors (buttons, links, active states, sidebar) always get
+ * white or near-white text on top, so a near-white accent makes that text
+ * invisible. This guards against exactly that: anything lighter than
+ * `MAX_BRAND_LUMINANCE` - or missing/malformed - falls back to the code
+ * default instead of shipping an unreadable UI.
+ *
+ * Deliberately NOT applied to `backgroundColor`, which is *supposed* to be
+ * near-white (it's the page canvas, with dark text on top).
+ */
+const MAX_BRAND_LUMINANCE = 0.75;
+
+export function sanitizeBrandColor(hex: string | undefined | null, fallback: string): string {
+  const rgb = hex ? hexToRgb(hex) : null;
+  if (!rgb) return fallback;
+  return relativeLuminance(rgb) > MAX_BRAND_LUMINANCE ? fallback : hex!;
+}
+
 const DEFAULT_SCALE: TailwindColorScale = {
   50: "#eef2ff",
   100: "#e0e7ff",

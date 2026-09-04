@@ -101,7 +101,7 @@ export default function UsersPage() {
     <AppShell pageTitle="Manajemen Pengguna" pageSubtitle="Akun, peran, dan wilayah penempatan pegawai">
       <div className="card mb-6">
         <div className="card-body">
-          <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Tambah Pengguna</h2>
+          <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Tambah Pengguna</h2>
           <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3" autoComplete="off">
             <div>
               <label className="form-label">Nama</label>

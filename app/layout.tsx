@@ -3,10 +3,9 @@ import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSiteSettings, serializeSiteSettings } from "@/lib/siteSettings";
-import { deriveColorScale } from "@/lib/colorUtils";
+import { deriveColorScale, sanitizeBrandColor } from "@/lib/colorUtils";
 
-// Matches the Mazer admin template's default theme font. Used for the
-// authenticated app (AppShell/.mazer-admin) - the admin restyle's font.
+// Font for the authenticated app (everything inside AppShell).
 const nunito = Nunito({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700", "800"],
@@ -40,13 +39,13 @@ const FALLBACK_SETTINGS = {
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-  primaryColor: "#29B6E8",
-  secondaryColor: "#0A2A5C",
-  aiColor: "#1668C4",
-  highlightColor: "#1668C4",
-  accentColor: "#29B6E8",
-  backgroundColor: "#F7F8FA",
-  sidebarColor: "#0A2A5C",
+  primaryColor: "#0B2D6B",
+  secondaryColor: "#1B4FA0",
+  aiColor: "#1B4FA0",
+  highlightColor: "#F2A900",
+  accentColor: "#F2A900",
+  backgroundColor: "#F8FAFC",
+  sidebarColor: "#0B2D6B",
   footerText: "PT Nusa Inspira Teknologi",
 };
 
@@ -77,11 +76,16 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const settings = await loadSettings();
 
-  const primary = deriveColorScale(settings.primaryColor);
-  const secondary = deriveColorScale(settings.secondaryColor);
-  const ai = deriveColorScale(settings.aiColor);
-  const highlight = deriveColorScale(settings.highlightColor);
-  const accent = deriveColorScale(settings.accentColor);
+  // Accent colors run through sanitizeBrandColor first: a stored value too
+  // light to carry white text (a real state this database has been in -
+  // several accents saved as #f5f6f7, which rendered buttons invisible)
+  // falls back to the palette default rather than shipping unreadable UI.
+  const primary = deriveColorScale(sanitizeBrandColor(settings.primaryColor, FALLBACK_SETTINGS.primaryColor));
+  const secondary = deriveColorScale(sanitizeBrandColor(settings.secondaryColor, FALLBACK_SETTINGS.secondaryColor));
+  const ai = deriveColorScale(sanitizeBrandColor(settings.aiColor, FALLBACK_SETTINGS.aiColor));
+  const highlight = deriveColorScale(sanitizeBrandColor(settings.highlightColor, FALLBACK_SETTINGS.highlightColor));
+  const accent = deriveColorScale(sanitizeBrandColor(settings.accentColor, FALLBACK_SETTINGS.accentColor));
+  const sidebarColor = sanitizeBrandColor(settings.sidebarColor, FALLBACK_SETTINGS.sidebarColor);
 
   const cssVars = [
     ...Object.entries(primary).map(([stop, value]) => `--primary-${stop}:${value};`),
@@ -90,9 +94,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     ...Object.entries(ai).map(([stop, value]) => `--ai-${stop}:${value};`),
     ...Object.entries(highlight).map(([stop, value]) => `--highlight-${stop}:${value};`),
     ...Object.entries(accent).map(([stop, value]) => `--accent-${stop}:${value};`),
+    // Page canvas is meant to be near-white, so it skips the guard above.
     `--color-theme-bodybg:${settings.backgroundColor};`,
     `--brand-bg:${settings.backgroundColor};`,
-    `--color-theme-sidebarbg:${settings.sidebarColor};`,
+    `--color-theme-sidebarbg:${sidebarColor};`,
   ].join("");
 
   return (

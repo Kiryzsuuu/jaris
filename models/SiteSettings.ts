@@ -75,17 +75,17 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     // backgrounds intentionally stay pure white (not admin-configurable) -
     // making that editable risks an admin picking a color that makes card
     // content unreadable against itself.
-    // Minimalist navy + cyan palette, spec'd directly (not sampled from a
-    // logo/banner): cyan CTA with a medium-blue hover/gradient partner,
-    // navy for headings/secondary elements, soft off-white page canvas.
-    primaryColor: { type: String, required: true, default: "#29B6E8" }, // Cyan - buttons/links/CTA
-    secondaryColor: { type: String, required: true, default: "#0A2A5C" }, // Navy - secondary elements
-    aiColor: { type: String, required: true, default: "#1668C4" }, // Medium Blue - CTA hover / gradient partner
-    highlightColor: { type: String, required: true, default: "#1668C4" }, // Medium Blue - highlight touches/badges
-    accentColor: { type: String, required: true, default: "#29B6E8" }, // Cyan - general accent
-    backgroundColor: { type: String, required: true, default: "#F7F8FA" }, // Off-White - page canvas
+    // Jasa Raharja palette from the approved redesign mockup: navy as the
+    // dominant brand color, blue for accents/active states, gold reserved
+    // for small highlights (badges, active markers, key figures).
+    primaryColor: { type: String, required: true, default: "#0B2D6B" }, // Navy - buttons/links/header/hero
+    secondaryColor: { type: String, required: true, default: "#1B4FA0" }, // Blue - secondary elements
+    aiColor: { type: String, required: true, default: "#1B4FA0" }, // Blue - gradient partner / active states
+    highlightColor: { type: String, required: true, default: "#F2A900" }, // Gold - highlights/badges
+    accentColor: { type: String, required: true, default: "#F2A900" }, // Gold - small accents
+    backgroundColor: { type: String, required: true, default: "#F8FAFC" }, // Slate-50 - page canvas
     // Solid background color for the admin app's sidebar/nav.
-    sidebarColor: { type: String, required: true, default: "#0A2A5C" },
+    sidebarColor: { type: String, required: true, default: "#0B2D6B" },
     footerText: {
       type: String,
       required: true,

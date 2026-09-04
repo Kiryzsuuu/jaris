@@ -122,7 +122,7 @@ export default function AssistantPage() {
               key={c.conversationId}
               onClick={() => openConversation(c.conversationId)}
               className={`mb-1 block w-full truncate rounded-lg px-2 py-1.5 text-left text-sm ${
-                c.conversationId === conversationId ? "bg-primary-50 text-primary-700" : "text-[#1d2630]"
+                c.conversationId === conversationId ? "bg-primary-50 text-primary-700" : "text-[#1e293b]"
               }`}
             >
               {c.lastMessage}
@@ -139,7 +139,7 @@ export default function AssistantPage() {
               <div
                 key={i}
                 className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
-                  m.role === "user" ? "bg-primary-600 self-end text-white" : "bg-primary-50 self-start text-[#1d2630]"
+                  m.role === "user" ? "bg-primary-600 self-end text-white" : "bg-primary-50 self-start text-[#1e293b]"
                 }`}
               >
                 {m.content}

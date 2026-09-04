@@ -20,7 +20,7 @@ body {
 
 body {
   min-height: 100%;
-  /* Matches the Mazer admin template's default theme font. */
+  /* Font for the authenticated app (everything inside AppShell). */
   font-family: var(--font-nunito), Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
     sans-serif;
 }
@@ -41,215 +41,169 @@ body {
 --------------------------------------------------------------------- */
 
 :root {
-  /* Neutral palette for the public landing/login pages - heading and body
-     text are distinct navy/slate tones (not near-black), borders/section
-     backgrounds are deliberately a hair off pure white so nothing reads as
-     stark white-on-black. --brand-bg further down is the main page canvas
-     (F7F8FA); --ink-100 doubles as the slightly-darker "section/card" tone
-     (F0F2F5) cards sit on top of it. */
-  --ink-900: #0a2a5c;
-  --ink-700: #1b2e4b;
-  --ink-500: #2c3440;
-  --ink-300: #8a96a8;
-  --ink-200: #e3e6ea;
-  --ink-100: #f0f2f5;
-  --ink-50: #f7f8fa;
+  /* Neutral (slate) scale for surfaces and text on the public pages, per
+     the redesign mockup. Brand color lives in the primary (navy) and
+     highlight/accent (gold) scales instead - these stay neutral so the
+     navy/gold accents actually read as accents. */
+  --ink-900: #1e293b;
+  --ink-700: #334155;
+  --ink-500: #64748b;
+  --ink-300: #94a3b8;
+  --ink-200: #e2e8f0;
+  --ink-100: #f1f5f9;
+  --ink-50: #f8fafc;
 
   /* accent, highlight, ai, and brand-bg tokens default to sensible values
      here, but app/layout.tsx always overrides the full 50-950 scale from
      Site Settings (Pengaturan Situs), computed server-side - these are
      just the fallback if that injection somehow didn't run. */
-  --accent-50: #f2fbfe;
-  --accent-100: #dff4fc;
-  --accent-200: #bfe9f8;
-  --accent-300: #94dbf4;
-  --accent-400: #5fc8ee;
-  --accent-500: #29b6e8;
-  --accent-600: #2295be;
-  --accent-700: #1b7697;
-  --accent-800: #14576f;
-  --accent-900: #0d3a4a;
-  --accent-950: #07212a;
+  /* Gold - small accents/highlights only */
+  --accent-50: #fefaf0;
+  --accent-100: #fdf2d9;
+  --accent-200: #fbe5b3;
+  --accent-300: #f9d480;
+  --accent-400: #f5bf40;
+  --accent-500: #f2a900;
+  --accent-600: #c68b00;
+  --accent-700: #9d6e00;
+  --accent-800: #745100;
+  --accent-900: #4d3600;
+  --accent-950: #2c1e00;
 
-  --highlight-50: #f1f6fb;
-  --highlight-100: #dce8f6;
-  --highlight-200: #b9d2ed;
-  --highlight-300: #8bb4e2;
-  --highlight-400: #508ed3;
-  --highlight-500: #1668c4;
-  --highlight-600: #1255a1;
-  --highlight-700: #0e447f;
-  --highlight-800: #0b325e;
-  --highlight-900: #07213f;
-  --highlight-950: #041323;
+  --highlight-50: #fefaf0;
+  --highlight-100: #fdf2d9;
+  --highlight-200: #fbe5b3;
+  --highlight-300: #f9d480;
+  --highlight-400: #f5bf40;
+  --highlight-500: #f2a900;
+  --highlight-600: #c68b00;
+  --highlight-700: #9d6e00;
+  --highlight-800: #745100;
+  --highlight-900: #4d3600;
+  --highlight-950: #2c1e00;
 
-  --ai-50: #f1f6fb;
-  --ai-100: #dce8f6;
-  --ai-200: #b9d2ed;
-  --ai-300: #8bb4e2;
-  --ai-400: #508ed3;
-  --ai-500: #1668c4;
-  --ai-600: #1255a1;
-  --ai-700: #0e447f;
-  --ai-800: #0b325e;
-  --ai-900: #07213f;
-  --ai-950: #041323;
+  /* Blue - accents, links, active states */
+  --ai-50: #f1f4f9;
+  --ai-100: #dde5f1;
+  --ai-200: #bbcae3;
+  --ai-300: #8da7d0;
+  --ai-400: #547bb8;
+  --ai-500: #1b4fa0;
+  --ai-600: #164183;
+  --ai-700: #123368;
+  --ai-800: #0d264d;
+  --ai-900: #091933;
+  --ai-950: #050e1d;
 
-  --brand-bg: #f7f8fa;
+  /* Navy - primary. Normally injected from Site Settings by app/layout.tsx;
+     this is the fallback if that injection didn't run. */
+  --primary-50: #f0f2f6;
+  --primary-100: #dae0e9;
+  --primary-200: #b6c0d3;
+  --primary-300: #8596b5;
+  --primary-400: #486290;
+  --primary-500: #0b2d6b;
+  --primary-600: #092558;
+  --primary-700: #071d46;
+  --primary-800: #051633;
+  --primary-900: #040e22;
+  --primary-950: #020813;
+
+  --brand-bg: #f8fafc;
 }
 
 /* ---------------------------------------------------------------------
-   Admin restyle - Mazer template palette (public/vendor/mazer-1.0.0),
-   scoped to the AppShell subtree only. The tenant brand scale above
-   (primary, ai, highlight, accent, color-secondary custom properties)
-   is shared with the public landing page, so Mazer's blue-purple
-   identity is applied by shadowing those same custom properties inside
-   .mazer-admin rather than changing the shared defaults - the landing
-   page keeps the NIIIS navy/cyan brand untouched. Scales derived with
-   the same lighten/darken math as lib/colorUtils.ts::deriveColorScale,
-   from Mazer's own compiled CSS: primary/link/active accent #435ebe,
-   stat-card pastels purple #9694ff, sky #57caeb, mint #5ddab4.
+   Stat-card icon chips (dashboard). Per the redesign mockup these are a
+   small 32px rounded square sitting top-right of the card, in one of
+   four tones - navy/gold/blue/slate - rather than a large pastel block.
+   The admin no longer shadows the brand palette: dashboard and landing
+   now share the one navy/blue/gold scale from Site Settings.
 --------------------------------------------------------------------- */
 
-.mazer-admin {
-  --primary-50: #f4f5fb;
-  --primary-100: #e3e7f5;
-  --primary-200: #c7cfec;
-  --primary-300: #a1afdf;
-  --primary-400: #7286ce;
-  --primary-500: #435ebe;
-  --primary-600: #374d9c;
-  --primary-700: #2c3d7c;
-  --primary-800: #202d5b;
-  --primary-900: #151e3d;
-  --primary-950: #0c1122;
-
-  --color-secondary-50: #f5f6f7;
-  --color-secondary-100: #e7eaec;
-  --color-secondary-200: #cfd4d9;
-  --color-secondary-300: #b0b8c0;
-  --color-secondary-400: #8894a0;
-  --color-secondary-500: #607080;
-  --color-secondary-600: #4f5c69;
-  --color-secondary-700: #3e4953;
-  --color-secondary-800: #2e363d;
-  --color-secondary-900: #1f2429;
-  --color-secondary-950: #111417;
-  --color-secondary: #607080;
-
-  --ai-50: #f9f9ff;
-  --ai-100: #efefff;
-  --ai-200: #e0dfff;
-  --ai-300: #cbcaff;
-  --ai-400: #b0afff;
-  --ai-500: #9694ff;
-  --ai-600: #7b79d1;
-  --ai-700: #6260a6;
-  --ai-800: #48477a;
-  --ai-900: #302f52;
-  --ai-950: #1b1b2e;
-
-  --highlight-50: #f5fdfb;
-  --highlight-100: #e7f9f4;
-  --highlight-200: #cef4e9;
-  --highlight-300: #aeedda;
-  --highlight-400: #86e3c7;
-  --highlight-500: #5ddab4;
-  --highlight-600: #4cb394;
-  --highlight-700: #3c8e75;
-  --highlight-800: #2d6956;
-  --highlight-900: #1e463a;
-  --highlight-950: #112720;
-
-  --accent-50: #f5fcfe;
-  --accent-100: #e6f7fc;
-  --accent-200: #cdeff9;
-  --accent-300: #abe5f5;
-  --accent-400: #81d7f0;
-  --accent-500: #57caeb;
-  --accent-600: #47a6c1;
-  --accent-700: #398399;
-  --accent-800: #2a6171;
-  --accent-900: #1c414b;
-  --accent-950: #10242a;
-}
-
-/* Mazer's stat-card icon chips: solid pastel square (not circular),
-   white icon - purple/sky/mint/red rotation, admin-only. */
 .stats-icon {
   display: flex;
-  height: 48px;
-  width: 48px;
+  height: 32px;
+  width: 32px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font-size: 1.15rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
 }
 
-.stats-icon-purple {
-  background-color: #9694ff;
+.stats-icon-navy {
+  background-color: var(--primary-500);
+  color: #ffffff;
+}
+
+/* Dark text on gold - white on gold is barely readable. */
+.stats-icon-gold {
+  background-color: var(--accent-500);
+  color: var(--primary-500);
 }
 
 .stats-icon-blue {
-  background-color: #57caeb;
+  background-color: var(--ai-500);
+  color: #ffffff;
 }
 
-.stats-icon-green {
-  background-color: #5ddab4;
+.stats-icon-slate {
+  background-color: var(--ink-700);
+  color: #ffffff;
 }
 
-.stats-icon-red {
-  background-color: #ff7976;
-}
-
+/* Card chrome per the mockup: soft rounded corners, hairline slate border,
+   and a light shadow that lifts slightly on hover. */
 .card {
-  border: 1px solid var(--ink-200) !important;
-  box-shadow: none !important;
-  border-radius: 4px !important;
+  border: 1px solid var(--ink-100) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  border-radius: 12px !important;
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08) !important;
 }
 
 .badge {
-  border-radius: 4px !important;
+  border-radius: 6px !important;
 }
 
 .dropdown-menu {
   border: 1px solid var(--ink-200) !important;
-  box-shadow: 0 4px 16px -4px rgba(17, 25, 38, 0.12) !important;
-  border-radius: 4px !important;
+  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.12) !important;
+  border-radius: 10px !important;
 }
 
 .form-control,
 .form-select {
-  border-radius: 4px !important;
+  border-radius: 8px !important;
 }
 
 .btn {
-  border-radius: 4px !important;
+  border-radius: 8px !important;
 }
 
-/* Cyan-to-blue gradient instead of a flat fill - Tailwind's hover:bg-*
-   utility can't win against the !important background here, so
+/* Solid navy, not a gradient - the mockup uses flat brand fills. Tailwind's
+   hover:bg-* utility can't win against the !important background here, so
    hover/active feedback comes from a brightness filter instead. */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-600), var(--ai-600)) !important;
+  background: var(--primary-500) !important;
   border: none !important;
   transition: filter 0.15s ease;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-  filter: brightness(1.08);
+  filter: brightness(1.15);
 }
 
 .btn-primary:active {
   filter: brightness(0.94);
 }
 
-/* Thin decorative glow at the top of the sidebar, using the .mazer-admin
-   -scoped ai/highlight tones (see the Mazer palette block above) rather
-   than a third admin-configurable color. */
+/* Thin gold rule along the top of the navy sidebar - the one place gold
+   appears in the app chrome, echoing the mockup's gold accent line. */
 .pc-sidebar .navbar-wrapper {
   position: relative;
 }
@@ -261,8 +215,24 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--ai-500), var(--highlight-500));
+  background: var(--accent-500);
   z-index: 1;
+}
+
+/* Navy sidebar with a gold left-marker on the active item (mockup):
+   replaces the template's own primary-colored bar + dark tint. */
+.pc-sidebar .pc-navbar > .pc-item.active,
+.pc-sidebar .pc-navbar > .pc-item.pc-trigger {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pc-sidebar .pc-navbar > .pc-item.active::before,
+.pc-sidebar .pc-navbar > .pc-item.pc-trigger::before {
+  background: var(--accent-500);
+}
+
+.pc-sidebar .pc-navbar > .pc-item.active > .pc-link {
+  color: #ffffff;
 }
 
 /* ---------------------------------------------------------------------
@@ -306,7 +276,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 4px;
-  background: linear-gradient(135deg, var(--primary-700), var(--ai-500));
+  background: var(--primary-500);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -357,7 +327,7 @@ body {
 .landing-nav-cta {
   padding: 0.5rem 1.2rem;
   border-radius: 4px;
-  background: linear-gradient(135deg, var(--primary-600), var(--ai-600));
+  background: var(--primary-500);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.85rem;
@@ -371,29 +341,201 @@ body {
   color: #ffffff;
 }
 
+/* ---------- Hero ---------- */
+
 .landing-hero {
   position: relative;
-  min-height: clamp(420px, 62vw, 640px);
-  display: flex;
-  align-items: center;
   overflow: hidden;
-  background: var(--ink-900);
+  padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 5vw, 4rem);
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-400) 55%, var(--ai-500) 100%);
+  color: #ffffff;
 }
 
-/* Visual (custom hero image(s), uploaded via settings) fills the entire
-   hero as a full-bleed background - edge to edge, no box/border/rounding.
-   Text is expected to be baked into the image itself; nothing is overlaid,
-   only slideshow dots/arrows when there's more than one image. */
-.landing-hero-visual {
+/* Decorations: diamond outline, two blurred blobs, a fine dot grid. All
+   aria-hidden and non-interactive - texture only, never over the text. */
+.landing-hero-diamond {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(520px, 55vw);
+  height: min(520px, 55vw);
+  color: var(--accent-500);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.landing-hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.landing-hero-blob-blue {
+  top: -6rem;
+  right: -6rem;
+  width: 24rem;
+  height: 24rem;
+  background: rgba(27, 79, 160, 0.4);
+}
+
+.landing-hero-blob-gold {
+  bottom: -4rem;
+  left: 33%;
+  width: 18rem;
+  height: 18rem;
+  background: rgba(242, 169, 0, 0.12);
+}
+
+.landing-hero-dots {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  opacity: 0.04;
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+.landing-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.landing-hero-copy {
+  max-width: 36rem;
+}
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-500);
+  margin-bottom: 1rem;
+}
+
+.landing-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-500);
+}
+
+.landing-headline {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 0 0 1.25rem;
+}
+
+.landing-subheadline {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(219, 234, 254, 0.8);
+  margin: 0 0 2rem;
+  max-width: 32rem;
+}
+
+.landing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+/* Gold CTA carries navy text, never white - white on gold is unreadable. */
+.landing-btn-gold {
+  display: inline-block;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  background: var(--accent-500);
+  color: var(--primary-500);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.45);
+  transition: filter 0.15s ease;
+}
+
+.landing-btn-gold:hover {
+  filter: brightness(1.08);
+  color: var(--primary-500);
+}
+
+.landing-btn-ghost {
+  display: inline-block;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.landing-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.landing-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 32rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.landing-stat-value {
+  font-size: clamp(1.4rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent-500);
+}
+
+.landing-stat-label {
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(191, 219, 254, 0.7);
+}
+
+/* Right column: either the uploaded hero image(s), or a preview card built
+   from real /api/public-stats aggregates (never sample figures). */
+.landing-hero-visual {
+  position: relative;
+  min-height: 260px;
+}
+
+.landing-hero-visual-frame {
+  position: relative;
+  height: 100%;
+  min-height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
 }
 
 .landing-hero-slideshow {
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: 260px;
 }
 
 .landing-hero-slide-img {
@@ -413,9 +555,9 @@ body {
 
 .landing-hero-carousel-controls {
   position: absolute;
-  left: 2.25rem;
-  right: 2.25rem;
-  bottom: 1.75rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 2;
   display: flex;
   align-items: center;
@@ -423,7 +565,7 @@ body {
   gap: 0.75rem;
 }
 
-.landing-hero-dots {
+.landing-hero-dots-nav {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -441,7 +583,7 @@ body {
 }
 
 .landing-hero-dot.is-active {
-  background: #ffffff;
+  background: var(--accent-500);
 }
 
 .landing-hero-arrow {
@@ -449,27 +591,134 @@ body {
   height: 30px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(6, 14, 28, 0.35);
+  background: rgba(11, 45, 107, 0.45);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
 .landing-hero-arrow:hover {
-  background: rgba(6, 14, 28, 0.55);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(11, 45, 107, 0.7);
+}
+
+.landing-hero-preview {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  transform: rotate(2deg);
+}
+
+.landing-hero-preview-dots {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.landing-hero-preview-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.landing-hero-preview-dots span:nth-child(2) {
+  background: rgba(242, 169, 0, 0.7);
+}
+
+.landing-hero-preview-label {
+  font-size: 0.72rem;
+  color: rgba(219, 234, 254, 0.7);
+  margin-bottom: 0.35rem;
+}
+
+.landing-hero-preview-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.landing-hero-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 1rem;
+}
+
+.landing-hero-preview-num {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-500);
+}
+
+.landing-hero-preview-sub {
+  font-size: 0.68rem;
+  color: rgba(219, 234, 254, 0.6);
+  margin-top: 0.15rem;
+}
+
+.landing-hero-preview-badge {
+  position: absolute;
+  bottom: -1.5rem;
+  left: -1rem;
+  width: 11rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  transform: rotate(-3deg);
+}
+
+.landing-hero-preview-badge-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-700);
+  margin-bottom: 0.25rem;
+}
+
+.landing-hero-preview-badge-value {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--primary-500);
+}
+
+.landing-hero-preview-badge .landing-hero-preview-sub {
+  color: var(--ink-300);
+}
+
+@media (max-width: 900px) {
+  .landing-hero-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-hero-visual {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-hero-stats {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1.25rem;
+  }
 }
 
 .landing-primary-btn {
-  padding: 0.8rem 1.9rem;
-  border-radius: 4px;
-  background: linear-gradient(135deg, var(--primary-600), var(--ai-600));
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  background: var(--primary-500);
   color: #ffffff;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   text-decoration: none;
   border: none;
   transition: filter 0.15s ease;
@@ -477,117 +726,30 @@ body {
 }
 
 .landing-primary-btn:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.15);
   color: #ffffff;
-}
-
-/* ---------- Stats strip ---------- */
-
-.landing-stats {
-  background: linear-gradient(120deg, var(--ink-900) 0%, var(--primary-800, var(--ink-900)) 100%);
-  padding: 2.25rem clamp(1.25rem, 5vw, 4rem);
-}
-
-.landing-stats-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-
-.landing-stat {
-  text-align: center;
-  padding: 0 0.5rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.landing-stat:first-child {
-  border-left: none;
-}
-
-/* Yellow (not alternating blue/yellow) - these numbers sit on a dark blue
-   gradient background, so blue text would barely show against it. */
-.landing-stat-value {
-  font-size: clamp(1.7rem, 3vw, 2.3rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: #ffc107;
-}
-
-.landing-stat-label {
-  margin-top: 0.4rem;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.72);
-  line-height: 1.4;
-}
-
-@media (max-width: 640px) {
-  .landing-stats-inner {
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: 1.75rem;
-  }
-
-  .landing-stat:nth-child(2) {
-    border-left: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .landing-stat:nth-child(odd) {
-    border-left: none;
-  }
 }
 
 /* ---------- CTA banner ---------- */
 
 .landing-cta-banner {
-  position: relative;
-  overflow: hidden;
-  margin: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 5vw, 4rem);
-  padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3rem);
-  border-radius: 4px;
-  background: linear-gradient(135deg, var(--primary-600), var(--ai-800, var(--primary-900)));
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
+  background: var(--primary-500);
+  color: #ffffff;
   text-align: center;
 }
 
-.landing-cta-banner::before {
-  content: "";
-  position: absolute;
-  top: -30%;
-  right: -10%;
-  width: 40%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.16), transparent 70%);
-  pointer-events: none;
-}
-
 .landing-cta-banner h2 {
-  position: relative;
-  color: #ffffff;
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  letter-spacing: -0.01em;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  margin: 0 0 0.6rem;
 }
 
 .landing-cta-banner p {
-  position: relative;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 480px;
+  color: rgba(219, 234, 254, 0.75);
+  font-size: 0.95rem;
+  max-width: 34rem;
   margin: 0 auto 1.75rem;
-  font-size: 0.98rem;
-  line-height: 1.6;
-}
-
-.landing-cta-banner .landing-primary-btn {
-  position: relative;
-  background: #ffffff !important;
-  color: var(--primary-700) !important;
-}
-
-.landing-cta-banner .landing-primary-btn:hover {
-  filter: brightness(0.97);
 }
 
 /* ---------- Scroll reveal ---------- */
@@ -611,28 +773,33 @@ body {
   }
 }
 
-/* Fixed 2-color palette (not tenant-configurable) - blue/yellow only, per
-   feedback that the earlier 6-color rotation read as too busy - alternated
-   per card via nth-child so cards aren't all one flat neutral chip, without
-   turning into a rainbow. No JSX/content changes needed to add or reorder
-   cards.
+/* Icon chips, per the redesign mockup. Claim-flow steps are uniform (navy
+   chip, gold glyph) because they read as one sequence; capability cards
+   rotate navy/blue/gold so the grid isn't monotonous.
 
    Each card is a <button> wrapped in a .reveal div (for the scroll-in
    animation), and .reveal is the actual direct child of the grid - so the
    nth-child count has to run on .reveal, not on .landing-flow-card, which
    is always its own parent's only/first child. */
-.landing-flow-grid > .reveal:nth-child(odd) .landing-flow-icon {
-  background: #0064d2;
-}
-.landing-flow-grid > .reveal:nth-child(even) .landing-flow-icon {
-  background: #ffc107;
+.landing-flow-icon {
+  background: var(--primary-500);
+  color: var(--accent-500);
 }
 
-.landing-feature-grid > .reveal:nth-child(odd) .landing-feature-icon {
-  background: #0064d2;
+.landing-feature-grid > .reveal:nth-child(3n + 1) .landing-feature-icon {
+  background: var(--ai-500);
+  color: #ffffff;
 }
-.landing-feature-grid > .reveal:nth-child(even) .landing-feature-icon {
-  background: #ffc107;
+
+.landing-feature-grid > .reveal:nth-child(3n + 2) .landing-feature-icon {
+  background: var(--primary-500);
+  color: #ffffff;
+}
+
+/* Navy glyph on the gold chip - a white glyph on gold is unreadable. */
+.landing-feature-grid > .reveal:nth-child(3n + 3) .landing-feature-icon {
+  background: var(--accent-500);
+  color: var(--primary-500);
 }
 
 /* ---------- Claim flow (how it works) ---------- */
@@ -640,9 +807,8 @@ body {
 .landing-flow {
   position: relative;
   overflow: hidden;
-  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: var(--brand-bg);
-  border-bottom: 1px solid var(--ink-100);
+  padding: clamp(3rem, 6vw, 5rem) clamp(1.25rem, 5vw, 4rem);
+  background: #ffffff;
 }
 
 /* Soft, blurred color blobs sitting behind the content - purely decorative
@@ -657,7 +823,7 @@ body {
   max-width: 460px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0, 100, 210, 0.14), transparent 70%);
+  background: radial-gradient(closest-side, rgba(27, 79, 160, 0.14), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -672,7 +838,7 @@ body {
   max-width: 340px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 193, 7, 0.14), transparent 70%);
+  background: radial-gradient(closest-side, rgba(242, 169, 0, 0.14), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -693,15 +859,12 @@ body {
 
 .landing-flow-card {
   position: relative;
-  padding: 1.75rem;
-  background: var(--ink-100);
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.landing-flow-card:hover {
+  padding: 1.5rem;
   background: #ffffff;
+  border: 1px solid var(--ink-100);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.15s ease;
 }
 
 /* Cards render as <button> so they're keyboard/click accessible - reset
@@ -741,26 +904,30 @@ body {
   outline-offset: -2px;
 }
 
+/* Big faint step number watermarked in the card's top-right corner. Sits
+   behind the content (the card's own children are given z-index above it),
+   so it never competes with the title/description for legibility. */
 .landing-flow-step {
-  display: block;
-  font-size: 0.75rem;
+  position: absolute;
+  top: 0.9rem;
+  right: 1.1rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink-300);
-  margin-bottom: 1rem;
+  line-height: 1;
+  color: var(--ink-100);
+  pointer-events: none;
 }
 
 .landing-flow-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 5px;
-  color: #ffffff;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.15rem;
-  font-size: 1.35rem;
-  box-shadow: 0 4px 10px -4px rgba(10, 42, 92, 0.35);
+  font-size: 1.15rem;
 }
 
 .landing-flow-image {
@@ -783,8 +950,8 @@ body {
 .landing-features {
   position: relative;
   overflow: hidden;
-  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: var(--brand-bg);
+  padding: clamp(3rem, 6vw, 5rem) clamp(1.25rem, 5vw, 4rem);
+  background: linear-gradient(to bottom, var(--ink-50), #ffffff);
 }
 
 .landing-features::before {
@@ -796,7 +963,7 @@ body {
   max-width: 420px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0, 100, 210, 0.12), transparent 70%);
+  background: radial-gradient(closest-side, rgba(27, 79, 160, 0.12), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -811,7 +978,7 @@ body {
   max-width: 380px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 193, 7, 0.14), transparent 70%);
+  background: radial-gradient(closest-side, rgba(242, 169, 0, 0.14), transparent 70%);
   filter: blur(10px);
   pointer-events: none;
   z-index: 0;
@@ -834,7 +1001,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-500);
+  color: var(--ai-500);
   margin-bottom: 0.75rem;
   display: block;
 }
@@ -861,15 +1028,12 @@ body {
 }
 
 .landing-feature-card {
-  padding: 1.75rem;
-  background: var(--ink-100);
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.landing-feature-card:hover {
+  padding: 1.5rem;
   background: #ffffff;
+  border: 1px solid var(--ink-200);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.15s ease;
 }
 
 .landing-feature-card.is-highlighted {
@@ -892,16 +1056,14 @@ body {
 }
 
 .landing-feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 5px;
-  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.15rem;
-  font-size: 1.35rem;
-  box-shadow: 0 4px 10px -4px rgba(10, 42, 92, 0.35);
+  font-size: 1.15rem;
 }
 
 .landing-feature-title {
@@ -1203,7 +1365,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   padding: 2.5rem clamp(2rem, 4vw, 4rem);
-  background: linear-gradient(160deg, var(--ink-900) 0%, var(--primary-900, var(--ink-900)) 60%, var(--primary-800, var(--ink-900)) 100%);
+  background: var(--primary-500);
   color: #ffffff;
   overflow: hidden;
 }
@@ -1225,7 +1387,7 @@ body {
   width: 60%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, var(--highlight-500) 0%, transparent 70%);
+  background: radial-gradient(closest-side, var(--ai-500) 0%, transparent 70%);
   opacity: 0.18;
   pointer-events: none;
 }
@@ -1283,7 +1445,8 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 4px;
-  background: linear-gradient(135deg, var(--ai-500), var(--highlight-500));
+  background: var(--accent-500);
+  color: var(--primary-500);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1303,7 +1466,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--accent-500);
   margin-bottom: 1rem;
 }
 

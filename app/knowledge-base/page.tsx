@@ -124,7 +124,7 @@ export default function KnowledgeBasePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.3fr]">
         <div className="card self-start">
           <div className="card-body">
-            <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Tambah Dokumen</h2>
+            <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Tambah Dokumen</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
@@ -194,7 +194,7 @@ export default function KnowledgeBasePage() {
 
         <div className="card self-start">
           <div className="card-body">
-            <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Dokumen Tersimpan</h2>
+            <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Dokumen Tersimpan</h2>
 
             {loading && <p>Memuat...</p>}
             {error && <p className="text-danger-600">{error}</p>}

@@ -89,7 +89,7 @@ export default function BroadcastPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.3fr]">
         <div className="card self-start">
           <div className="card-body">
-            <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Buat Broadcast</h2>
+            <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Buat Broadcast</h2>
 
             <form onSubmit={handleSend}>
               <div className="mb-3">
@@ -136,7 +136,7 @@ export default function BroadcastPage() {
 
         <div className="card self-start">
           <div className="card-body">
-            <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Riwayat Broadcast</h2>
+            <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Riwayat Broadcast</h2>
 
             {loading && <p>Memuat...</p>}
             {error && <p className="text-danger-600">{error}</p>}

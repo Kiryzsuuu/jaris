@@ -137,7 +137,7 @@ export default function NewClaimPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="card self-start">
             <div className="card-body">
-              <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Data Kecelakaan</h2>
+              <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Data Kecelakaan</h2>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -267,7 +267,7 @@ export default function NewClaimPage() {
 
           <div className="card self-start">
             <div className="card-body">
-              <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Data Korban / Penerima Santunan</h2>
+              <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Data Korban / Penerima Santunan</h2>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>

@@ -27,17 +27,13 @@ type Settings = {
 };
 
 const COLOR_FIELDS = [
-  { key: "primaryColor", label: "Cyan Utama (CTA)", desc: "Warna utama - tombol, tautan, aksen judul" },
-  { key: "secondaryColor", label: "Navy (Sekunder)", desc: "Elemen sekunder" },
-  { key: "aiColor", label: "Biru Medium (Hover/Gradient)", desc: "Warna hover tombol CTA & pasangan gradient" },
-  { key: "highlightColor", label: "Biru Medium (Highlight)", desc: "Highlight fitur, mis. badge pada kartu kapabilitas" },
-  { key: "accentColor", label: "Cyan (Aksen)", desc: "Aksen umum, mis. titik indikator \"Live\" di berita" },
+  { key: "primaryColor", label: "Navy (Utama)", desc: "Warna utama - tombol, tautan, header, hero" },
+  { key: "secondaryColor", label: "Biru (Sekunder)", desc: "Elemen sekunder" },
+  { key: "aiColor", label: "Biru (Gradient/Aktif)", desc: "Pasangan gradient & status aktif" },
+  { key: "highlightColor", label: "Gold (Highlight)", desc: "Highlight kecil - badge, penanda menu aktif" },
+  { key: "accentColor", label: "Gold (Aksen)", desc: "Aksen kecil, mis. angka statistik & titik indikator" },
   { key: "backgroundColor", label: "Abu Muda (Background)", desc: "Warna latar halaman" },
-  {
-    key: "sidebarColor",
-    label: "Warna Sidebar",
-    desc: "Tidak lagi terlihat - sidebar admin sekarang selalu terang mengikuti tema Mazer",
-  },
+  { key: "sidebarColor", label: "Warna Sidebar", desc: "Latar sidebar navigasi aplikasi" },
 ] as const;
 
 const MAX_HERO_IMAGES = 6;
@@ -63,13 +59,13 @@ export default function SettingsPage() {
     siteName: "",
     tagline: "",
     footerText: "",
-    primaryColor: "#29B6E8",
-    secondaryColor: "#0A2A5C",
-    aiColor: "#1668C4",
-    highlightColor: "#1668C4",
-    accentColor: "#29B6E8",
-    backgroundColor: "#F7F8FA",
-    sidebarColor: "#0A2A5C",
+    primaryColor: "#0B2D6B",
+    secondaryColor: "#1B4FA0",
+    aiColor: "#1B4FA0",
+    highlightColor: "#F2A900",
+    accentColor: "#F2A900",
+    backgroundColor: "#F8FAFC",
+    sidebarColor: "#0B2D6B",
     heroHeadline: "",
     heroSubheadline: "",
   });
@@ -268,7 +264,7 @@ export default function SettingsPage() {
       <form onSubmit={handleSave} className="grid max-w-[960px] grid-cols-1 gap-4 md:grid-cols-2">
         <div className="card">
           <div className="card-body">
-            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Identitas Situs</h2>
+            <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Identitas Situs</h2>
 
             <div className="mb-3">
               <label className="form-label">Nama Situs</label>
@@ -303,7 +299,7 @@ export default function SettingsPage() {
 
         <div className="card md:col-span-2">
           <div className="card-body">
-            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Palet Warna</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Palet Warna</h2>
             <p className="text-secondary-400 mb-4 text-xs">
               Setiap warna mengendalikan bagian berbeda dari tampilan. Latar kartu/input tetap putih dan tidak
               bisa diubah, supaya isi kartu selalu terbaca jelas apa pun warna yang dipilih.
@@ -327,7 +323,7 @@ export default function SettingsPage() {
 
         <div className="card">
           <div className="card-body">
-            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Logo &amp; Favicon</h2>
+            <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Logo &amp; Favicon</h2>
 
             <div className="mb-3">
               <label className="form-label">Logo (base64 di database)</label>
@@ -351,7 +347,7 @@ export default function SettingsPage() {
 
         <div className="card md:col-span-2">
           <div className="card-body">
-            <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Halaman Depan (Landing Page)</h2>
+            <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Halaman Depan (Landing Page)</h2>
 
             <div className="mb-3">
               <label className="form-label">Judul Hero</label>
@@ -442,7 +438,7 @@ export default function SettingsPage() {
 
         <div className="card md:col-span-2">
           <div className="card-body">
-            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Bagian Alur Kerja</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Gambar Bagian Alur Kerja</h2>
             <p className="text-secondary-400 mb-3 text-xs">
               Ditampilkan pada bagian &quot;Cara Kerja&quot; di halaman depan supaya tidak kosong hanya berisi ikon.
               Opsional - bagian ikon akan tetap tampil jika gambar ini tidak diisi.
@@ -461,7 +457,7 @@ export default function SettingsPage() {
 
         <div className="card md:col-span-2">
           <div className="card-body">
-            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Halaman Login</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Gambar Halaman Login</h2>
             <p className="text-secondary-400 mb-3 text-xs">
               Latar panel kiri di halaman login (di belakang gradasi gelap, jadi teks di atasnya tetap
               terbaca). Opsional - gradasi polos akan tetap tampil jika gambar ini tidak diisi.
@@ -480,7 +476,7 @@ export default function SettingsPage() {
 
         <div className="card md:col-span-2">
           <div className="card-body">
-            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Gambar Kartu Landing Page</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Gambar Kartu Landing Page</h2>
             <p className="text-secondary-400 mb-4 text-xs">
               Setiap kartu &quot;Cara Kerja&quot; dan &quot;Kapabilitas&quot; di halaman depan bisa diklik untuk membuka
               detail. Unggah gambar opsional untuk kartu tertentu - akan tampil di bagian atas jendela detailnya.
@@ -488,7 +484,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {ALL_LANDING_CARDS.map((c) => (
                 <div key={c.slug} className="border-secondary-100 rounded-lg border p-3">
-                  <p className="mb-2 text-sm font-medium text-[#1d2630]">
+                  <p className="mb-2 text-sm font-medium text-[#1e293b]">
                     <i className={`ti ${c.icon} text-primary-600 mr-1.5`} />
                     {c.title}
                   </p>
@@ -529,7 +525,7 @@ export default function SettingsPage() {
       {demoCounts && (demoCounts.claims > 0 || demoCounts.accidentPoints > 0) && (
         <div className="card mt-4 max-w-[960px]">
           <div className="card-body">
-            <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Data Contoh</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Data Contoh</h2>
             <p className="text-secondary-400 mb-3 text-xs">
               Sistem ini berisi data contoh ({demoCounts.claims} klaim, {demoCounts.accidentPoints} titik
               kecelakaan) untuk mendemonstrasikan dashboard, peta, dan deteksi anomali. Hapus kapan saja

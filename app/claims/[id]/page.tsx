@@ -89,7 +89,7 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <span className="text-secondary-400 block text-xs font-medium tracking-wide uppercase">{label}</span>
-      <span className="mt-0.5 block text-sm text-[#1d2630]">{value}</span>
+      <span className="mt-0.5 block text-sm text-[#1e293b]">{value}</span>
     </div>
   );
 }
@@ -262,7 +262,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
           <div className="space-y-6">
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Data Kecelakaan</h2>
+                <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Data Kecelakaan</h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                   <Field label="Tanggal" value={new Date(claim.accidentDate).toLocaleDateString("id-ID")} />
                   <Field label="Moda Transportasi" value={claim.transportMode} />
@@ -281,7 +281,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Korban / Penerima Santunan</h2>
+                <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Korban / Penerima Santunan</h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
                   <Field label="Nama" value={claim.claimant.fullName ?? "-"} />
                   <Field label="NIK" value={claim.claimant.nik ?? "-"} />
@@ -292,7 +292,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Dokumen Pendukung</h2>
+                <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Dokumen Pendukung</h2>
                 <ul className="space-y-2 text-sm">
                   {claim.documents.map((d) => {
                     const isImage = d.mimeType.startsWith("image/");
@@ -365,7 +365,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
             {permissions.includes("claim:verify") && (
               <div className="card">
                 <div className="card-body">
-                  <h2 className="mb-1 text-base font-semibold text-[#1d2630]">Audit AI (Agentic)</h2>
+                  <h2 className="mb-1 text-base font-semibold text-[#1e293b]">Audit AI (Agentic)</h2>
                   <p className="text-secondary-400 mb-3 text-xs">
                     Memeriksa kelengkapan dokumen, menganalisis foto pendukung, lalu menyusun rekomendasi tinjauan.
                     Hanya saran - tidak pernah mengubah data klaim.
@@ -415,7 +415,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
 
             <div className="card">
               <div className="card-body">
-                <h2 className="mb-4 text-base font-semibold text-[#1d2630]">Kalkulasi Santunan (Rules Engine)</h2>
+                <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Kalkulasi Santunan (Rules Engine)</h2>
                 <div className="bg-primary-50 -mx-1 mb-3 grid grid-cols-2 gap-3 rounded-lg px-4 py-3">
                   <Field label="Estimasi" value={formatCurrency(claim.estimatedAmount)} />
                   <Field label="Disetujui" value={formatCurrency(claim.approvedAmount)} />
@@ -443,7 +443,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
             {(canSubmit || canVerify || canApprove || canPay) && (
               <div className="card">
                 <div className="card-body">
-                  <h2 className="mb-3 text-base font-semibold text-[#1d2630]">Aksi</h2>
+                  <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Aksi</h2>
 
                   {canSubmit && (
                     <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/submit`, {})} className="btn btn-primary mr-2 mb-2">

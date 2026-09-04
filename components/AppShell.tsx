@@ -132,7 +132,7 @@ export default function AppShell({
   const siteName = settings?.siteName ?? "JARIS";
 
   return (
-    <div className="mazer-admin" data-pc-sidebar_theme="true">
+    <div className="app-shell">
       {mobileOpen && (
         <div className="pc-menu-overlay lg:hidden" onClick={() => setMobileOpen(false)} />
       )}
@@ -238,7 +238,7 @@ export default function AppShell({
             <div className="bg-primary-50 border-primary-200 mb-5 flex items-start gap-3 rounded-lg border p-4">
               <i className="ti ti-speakerphone text-primary-700 mt-0.5 text-lg" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[#1d2630]">{banner.title}</p>
+                <p className="text-sm font-semibold text-[#1e293b]">{banner.title}</p>
                 <p className="text-secondary-500 mt-0.5 text-sm">{banner.message}</p>
               </div>
               <button
@@ -254,7 +254,7 @@ export default function AppShell({
 
           <div className="page-header flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-[#1d2630]">{pageTitle}</h1>
+              <h1 className="text-2xl font-semibold text-[#1e293b]">{pageTitle}</h1>
               {pageSubtitle && <p className="text-secondary-400 mt-1 text-sm">{pageSubtitle}</p>}
             </div>
             {headerActions}

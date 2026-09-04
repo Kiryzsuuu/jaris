@@ -53,6 +53,36 @@ const MONTH_NAMES = [
   "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
 ];
 
+/** Label top-left, tone-colored icon chip top-right, big figure below. */
+function StatCard({
+  label,
+  value,
+  sub,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  icon: string;
+  tone: "navy" | "gold" | "blue" | "slate";
+}) {
+  return (
+    <div className="card">
+      <div className="card-body">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className="text-secondary-400 text-xs">{label}</span>
+          <span className={`stats-icon stats-icon-${tone}`}>
+            <i className={`ti ${icon}`} />
+          </span>
+        </div>
+        <div className="text-2xl font-semibold text-[#1e293b]">{value}</div>
+        {sub && <div className="text-secondary-400 mt-1 text-xs">{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
 function formatCurrency(amount: number) {
   return `Rp${amount.toLocaleString("id-ID")}`;
 }
@@ -212,16 +242,16 @@ export default function DashboardPage() {
       <form onSubmit={applyFilters} className="card">
         <div className="card-body flex flex-wrap items-end gap-4">
           <label className="text-sm" style={{ minWidth: 160 }}>
-            <span className="mb-1 block font-medium text-[#1d2630]">Dari tanggal</span>
+            <span className="mb-1 block font-medium text-[#1e293b]">Dari tanggal</span>
             <input type="date" className="form-control" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </label>
           <label className="text-sm" style={{ minWidth: 160 }}>
-            <span className="mb-1 block font-medium text-[#1d2630]">Sampai tanggal</span>
+            <span className="mb-1 block font-medium text-[#1e293b]">Sampai tanggal</span>
             <input type="date" className="form-control" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </label>
           {branches.length > 0 && (
             <label className="text-sm" style={{ minWidth: 200 }}>
-              <span className="mb-1 block font-medium text-[#1d2630]">Cabang</span>
+              <span className="mb-1 block font-medium text-[#1e293b]">Cabang</span>
               <select className="form-select" value={branch} onChange={(e) => setBranch(e.target.value)}>
                 <option value="">Semua cabang</option>
                 {branches.map((b) => (
@@ -240,72 +270,49 @@ export default function DashboardPage() {
       {!loading && !error && summary && (
         <>
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div className="card">
-              <div className="card-body flex items-start gap-4">
-                <span className="stats-icon stats-icon-purple">
-                  <i className="ti ti-file-text" />
-                </span>
-                <div>
-                  <span className="text-secondary-400 text-xs font-medium">Total Klaim</span>
-                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">{summary.totalClaims}</div>
-                </div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body flex items-start gap-4">
-                <span className="stats-icon stats-icon-blue">
-                  <i className="ti ti-wallet" />
-                </span>
-                <div>
-                  <span className="text-secondary-400 text-xs font-medium">Total Realisasi Santunan</span>
-                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">{formatCurrency(summary.totalPaidAmount)}</div>
-                </div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body flex items-start gap-4">
-                <span className="stats-icon stats-icon-green">
-                  <i className="ti ti-clock-check" />
-                </span>
-                <div>
-                  <span className="text-secondary-400 text-xs font-medium">Rata-rata Penyelesaian</span>
-                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">
-                    {summary.resolution.avgResolutionDays !== null ? `${summary.resolution.avgResolutionDays} hari` : "N/A"}
-                  </div>
-                  <div className="text-secondary-400 mt-1 text-xs">dari {summary.resolution.sampleSize} klaim lunas</div>
-                </div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body flex items-start gap-4">
-                <span className="stats-icon stats-icon-red">
-                  <i className="ti ti-target-arrow" />
-                </span>
-                <div>
-                  <span className="text-secondary-400 text-xs font-medium">SLA ({summary.resolution.slaTargetDays} hari)</span>
-                  <div className="mt-1 text-2xl font-bold text-[#1d2630]">
-                    {summary.resolution.withinSlaPercent !== null ? `${summary.resolution.withinSlaPercent}%` : "N/A"}
-                  </div>
-                  <div className="text-secondary-400 mt-1 text-xs">
-                    {summary.resolution.withinSlaCount} dari {summary.resolution.sampleSize} klaim lunas tepat waktu
-                  </div>
-                </div>
-              </div>
-            </div>
+            <StatCard label="Total klaim" value={String(summary.totalClaims)} icon="ti-file-text" tone="navy" />
+            <StatCard
+              label="Total realisasi santunan"
+              value={formatCurrency(summary.totalPaidAmount)}
+              icon="ti-wallet"
+              tone="gold"
+            />
+            <StatCard
+              label="Rata-rata penyelesaian"
+              value={
+                summary.resolution.avgResolutionDays !== null
+                  ? `${summary.resolution.avgResolutionDays} hari`
+                  : "N/A"
+              }
+              sub={`dari ${summary.resolution.sampleSize} klaim lunas`}
+              icon="ti-clock-check"
+              tone="blue"
+            />
+            <StatCard
+              label={`SLA (${summary.resolution.slaTargetDays} hari)`}
+              value={
+                summary.resolution.withinSlaPercent !== null
+                  ? `${summary.resolution.withinSlaPercent}%`
+                  : "N/A"
+              }
+              sub={`${summary.resolution.withinSlaCount} dari ${summary.resolution.sampleSize} tepat waktu`}
+              icon="ti-target-arrow"
+              tone="slate"
+            />
           </div>
 
           {clusterWarnings.length > 0 && (
-            <div className="card border-danger-500 mt-6 border-l-4">
-              <div className="card-body">
-                <h2 className="text-danger-600 flex items-center gap-2 text-base font-semibold">
+            <div className="border-accent-200 bg-accent-50 mt-6 rounded-xl border p-5">
+              <div>
+                <h2 className="text-accent-800 flex items-center gap-2 text-base font-semibold">
                   <i className="ti ti-alert-triangle" />
                   Sinyal Peringatan - Titik Rawan Kecelakaan
                 </h2>
-                <p className="text-secondary-400 mt-2 text-sm">
+                <p className="text-accent-700 mt-2 text-sm">
                   Terdeteksi {clusterWarnings.length} klaster kecelakaan berulang dalam radius dekat
                   (analisis pola dari data peta kecelakaan).
                 </p>
-                <ul className="mt-2 list-disc pl-5 text-sm">
+                <ul className="text-accent-800 mt-2 list-disc pl-5 text-sm">
                   {clusterWarnings.slice(0, 8).map((c, i) => (
                     <li key={i}>
                       {c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan

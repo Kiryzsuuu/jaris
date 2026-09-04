@@ -108,7 +108,7 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} noValidate>
             <div className="mb-3">
-              <label className="mb-1 block text-sm font-medium text-[#1d2630]">Email</label>
+              <label className="mb-1 block text-sm font-medium text-[#1e293b]">Email</label>
               <input
                 type="email"
                 required
@@ -120,7 +120,7 @@ function LoginForm() {
             </div>
 
             <div className="mb-4">
-              <label className="mb-1 block text-sm font-medium text-[#1d2630]">Password</label>
+              <label className="mb-1 block text-sm font-medium text-[#1e293b]">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
