@@ -59,6 +59,7 @@ export const CAPABILITIES: LandingCard[] = [
     desc: "AI membaca dan merangkum data operasional secara otomatis, dari laporan klaim hingga dokumen internal.",
     detail:
       "AI Asisten internal menjawab pertanyaan berbasis dokumen resmi yang diunggah ke Knowledge Base (RAG - Retrieval Augmented Generation), lengkap dengan rujukan sumbernya. Jawaban selalu berbasis dokumen yang benar-benar ada, bukan mengarang informasi.",
+    badge: "AI",
     linkHref: "/login",
     linkLabel: "Coba AI Asisten",
   },
@@ -97,6 +98,7 @@ export const CAPABILITIES: LandingCard[] = [
     desc: "AI memberi saran klasifikasi kasus dan ringkasan eksekutif - keputusan akhir tetap di tangan Anda.",
     detail:
       "Saat membuat laporan klaim, petugas bisa meminta AI menyarankan klasifikasi kasus berdasarkan deskripsi kejadian, lengkap dengan tingkat keyakinan dan alasannya. Ini hanya SARAN - petugas tetap wajib mengonfirmasi kategori final secara manual.",
+    badge: "AI",
   },
   {
     slug: "cap-insight-realtime",
@@ -113,6 +115,7 @@ export const CAPABILITIES: LandingCard[] = [
     desc: "Foto kerusakan yang diunggah petugas dianalisis AI untuk saran tingkat keparahan - langsung di form klaim.",
     detail:
       "Foto kerusakan/lokasi kecelakaan yang diunggah sebagai dokumen pendukung bisa dianalisis oleh AI vision untuk mendapatkan saran tingkat keparahan dan deskripsi singkat. Hasil ini murni saran (isSuggestionOnly) - keputusan akhir tetap di tangan petugas yang meninjau klaim.",
+    badge: "AI",
     highlighted: true,
   },
 ];

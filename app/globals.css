@@ -502,10 +502,52 @@ body {
   }
 }
 
+/* Fixed vivid palette (not tenant-configurable) - blue/orange/green/purple/
+   pink/teal - cycled per card via nth-child below so each flow/capability
+   icon gets its own color, tiket.com-style, instead of every card reading
+   as the same flat neutral chip. No JSX/content changes needed to add or
+   reorder cards.
+
+   Each card is a <button> wrapped in a .reveal div (for the scroll-in
+   animation), and .reveal is the actual direct child of the grid - so the
+   nth-child count has to run on .reveal, not on .landing-flow-card, which
+   is always its own parent's only/first child. */
+.landing-flow-grid > .reveal:nth-child(4n + 1) .landing-flow-icon {
+  background: #0064d2;
+}
+.landing-flow-grid > .reveal:nth-child(4n + 2) .landing-flow-icon {
+  background: #ff6b35;
+}
+.landing-flow-grid > .reveal:nth-child(4n + 3) .landing-flow-icon {
+  background: #00b67a;
+}
+.landing-flow-grid > .reveal:nth-child(4n + 4) .landing-flow-icon {
+  background: #7c4dff;
+}
+
+.landing-feature-grid > .reveal:nth-child(6n + 1) .landing-feature-icon {
+  background: #0064d2;
+}
+.landing-feature-grid > .reveal:nth-child(6n + 2) .landing-feature-icon {
+  background: #ff6b35;
+}
+.landing-feature-grid > .reveal:nth-child(6n + 3) .landing-feature-icon {
+  background: #00b67a;
+}
+.landing-feature-grid > .reveal:nth-child(6n + 4) .landing-feature-icon {
+  background: #7c4dff;
+}
+.landing-feature-grid > .reveal:nth-child(6n + 5) .landing-feature-icon {
+  background: #ff4785;
+}
+.landing-feature-grid > .reveal:nth-child(6n + 6) .landing-feature-icon {
+  background: #00bcd4;
+}
+
 /* ---------- Claim flow (how it works) ---------- */
 
 .landing-flow {
-  padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-100);
 }
@@ -581,16 +623,16 @@ body {
 }
 
 .landing-flow-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--primary-100);
-  color: var(--primary-700);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.15rem;
-  font-size: 1.05rem;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 10px -4px rgba(10, 42, 92, 0.35);
 }
 
 .landing-flow-image {
@@ -611,7 +653,7 @@ body {
 /* ---------- Features ---------- */
 
 .landing-features {
-  padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
 }
 
@@ -622,7 +664,7 @@ body {
 
 .landing-features-header {
   max-width: 640px;
-  margin: 0 0 3rem;
+  margin: 0 0 2.25rem;
 }
 
 .landing-features-eyebrow {
@@ -673,23 +715,16 @@ body {
 }
 
 .landing-feature-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  /* White, not --ink-100 - the card itself now uses --ink-100 as its
-     background, so a chip in that same tone would be invisible. */
-  background: #ffffff;
-  color: var(--ink-700);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.15rem;
-  font-size: 1.05rem;
-}
-
-.landing-feature-card.is-highlighted .landing-feature-icon {
-  background: var(--primary-100);
-  color: var(--primary-700);
+  font-size: 1.35rem;
+  box-shadow: 0 4px 10px -4px rgba(10, 42, 92, 0.35);
 }
 
 .landing-feature-title {
@@ -713,7 +748,9 @@ body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #ffffff;
-  background: var(--highlight-600);
+  /* Deliberately not a brand blue - a bright contrasting orange pops
+     against the mostly-blue page instead of blending in. */
+  background: #ff6b35;
   padding: 0.18rem 0.5rem;
   border-radius: 8px;
   margin-top: 0.75rem;
@@ -722,7 +759,7 @@ body {
 /* ---------- Live news ---------- */
 
 .landing-news {
-  padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-100);
 }
@@ -845,7 +882,7 @@ body {
 /* ---------- Interactive map ---------- */
 
 .landing-map {
-  padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-100);
 }
