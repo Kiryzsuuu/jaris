@@ -50,6 +50,8 @@ type ClusterWarning = {
   count: number;
   branch: string | null;
   city: string | null;
+  peakHourRange?: string | null;
+  recommendation?: string | null;
 };
 
 export default function DashboardPage() {
@@ -238,7 +240,11 @@ export default function DashboardPage() {
                 </p>
                 <ul className="mt-2 list-disc pl-5 text-sm">
                   {clusterWarnings.slice(0, 8).map((c, i) => (
-                    <li key={i}>{c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan</li>
+                    <li key={i}>
+                      {c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan
+                      {c.peakHourRange && `, jam rawan ${c.peakHourRange}`}
+                      {c.recommendation && <> — {c.recommendation}</>}
+                    </li>
                   ))}
                 </ul>
                 <Link href="/accident-map" className="text-primary-600 mt-2 inline-block text-sm font-semibold">

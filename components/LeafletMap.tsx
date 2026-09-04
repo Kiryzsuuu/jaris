@@ -23,6 +23,9 @@ export type ClusterMarker = {
   radiusMeters: number;
   branch: string | null;
   city: string | null;
+  peakHourRange?: string | null;
+  peakHourCount?: number | null;
+  recommendation?: string | null;
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -50,6 +53,20 @@ export default function LeafletMap({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
+      {/* Poor-man's heatmap: many overlapping, low-opacity, large-radius
+          circles under the real markers - dense areas visually accumulate
+          into a warm blob without a separate heatmap library/dependency.
+          Capped so a very large result set doesn't overwhelm the browser. */}
+      {points.slice(0, 1500).map((p) => (
+        <Circle
+          key={`heat-${p.id}`}
+          center={[p.lat, p.lng]}
+          radius={1200}
+          pathOptions={{ color: "transparent", fillColor: "#ef4444", fillOpacity: 0.045, stroke: false }}
+          interactive={false}
+        />
+      ))}
+
       {clusters.map((c, i) => (
         <Circle
           key={`cluster-${i}`}
@@ -63,6 +80,18 @@ export default function LeafletMap({
             {c.city ?? "-"} ({c.branch ?? "-"})
             <br />
             {c.count} kecelakaan dalam radius {c.radiusMeters}m
+            {c.peakHourRange && (
+              <>
+                <br />
+                Jam rawan: {c.peakHourRange} ({c.peakHourCount} kejadian)
+              </>
+            )}
+            {c.recommendation && (
+              <>
+                <br />
+                <em>{c.recommendation}</em>
+              </>
+            )}
           </Popup>
         </Circle>
       ))}

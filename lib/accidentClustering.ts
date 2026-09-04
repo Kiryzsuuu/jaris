@@ -99,3 +99,44 @@ export function detectClusters(
   clusters.sort((a, b) => b.count - a.count);
   return clusters;
 }
+
+export interface PeakHourWindow {
+  startHour: number;
+  endHour: number; // exclusive, wraps past 24 (e.g. 22 -> 26 means 22:00-02:00)
+  count: number; // how many of the input dates fall in this window
+}
+
+/**
+ * Finds the 3-hour window (by local hour-of-day, wrapping past midnight)
+ * containing the most accidents, from real timestamps only. Pure function -
+ * no DB access, no AI - the "which hours are riskiest" signal an AI
+ * narrative step can safely phrase into a recommendation afterward.
+ */
+export function computePeakHourWindow(dates: Date[], windowHours = 3): PeakHourWindow | null {
+  if (dates.length === 0) return null;
+
+  const histogram = new Array(24).fill(0);
+  for (const d of dates) {
+    histogram[d.getHours()] += 1;
+  }
+
+  let bestStart = 0;
+  let bestCount = -1;
+  for (let start = 0; start < 24; start++) {
+    let count = 0;
+    for (let offset = 0; offset < windowHours; offset++) {
+      count += histogram[(start + offset) % 24];
+    }
+    if (count > bestCount) {
+      bestCount = count;
+      bestStart = start;
+    }
+  }
+
+  return { startHour: bestStart, endHour: bestStart + windowHours, count: bestCount };
+}
+
+export function formatHourRange(window: PeakHourWindow): string {
+  const fmt = (h: number) => `${String(h % 24).padStart(2, "0")}:00`;
+  return `${fmt(window.startHour)}–${fmt(window.endHour)}`;
+}

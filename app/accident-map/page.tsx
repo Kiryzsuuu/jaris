@@ -277,9 +277,18 @@ export default function AccidentMapPage() {
 
           {clusters.length > 0 && (
             <div className="mt-2 text-sm">
-              <strong>Sinyal titik rawan:</strong>{" "}
-              {clusters.slice(0, 5).map((c) => `${c.city ?? "?"} (${c.count} kejadian)`).join(", ")}
-              {clusters.length > 5 && ` +${clusters.length - 5} lainnya`}
+              <strong>Sinyal titik rawan:</strong>
+              <ul className="text-secondary-500 mt-1 mb-0 list-disc pl-5">
+                {clusters.slice(0, 5).map((c, i) => (
+                  <li key={i}>
+                    {c.city ?? "?"} ({c.count} kejadian)
+                    {c.recommendation && <> — {c.recommendation}</>}
+                  </li>
+                ))}
+              </ul>
+              {clusters.length > 5 && (
+                <p className="text-secondary-400 mt-1 mb-0 text-xs">+{clusters.length - 5} titik rawan lainnya</p>
+              )}
             </div>
           )}
         </div>
