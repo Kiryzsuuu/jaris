@@ -25,6 +25,14 @@ body {
     sans-serif;
 }
 
+/* Public landing/login pages use Inter instead of the admin's Nunito -
+   a more neutral, professional sans-serif for the marketing-facing UI. */
+.landing-page,
+.login-shell {
+  font-family: var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+}
+
 /* ---------------------------------------------------------------------
    Design overrides - flat, plain, Berry-admin-inspired neutral palette.
    Datta's own components (.card/.btn/.badge/etc.) already ship with
@@ -33,55 +41,61 @@ body {
 --------------------------------------------------------------------- */
 
 :root {
-  --ink-900: #111926;
-  --ink-700: #364152;
-  --ink-500: #697586;
-  --ink-300: #cdd5df;
-  --ink-200: #e3e8ef;
-  --ink-100: #eef2f6;
-  --ink-50: #f8fafc;
+  /* Neutral palette for the public landing/login pages - heading and body
+     text are distinct navy/slate tones (not near-black), borders/section
+     backgrounds are deliberately a hair off pure white so nothing reads as
+     stark white-on-black. --brand-bg further down is the main page canvas
+     (F7F8FA); --ink-100 doubles as the slightly-darker "section/card" tone
+     (F0F2F5) cards sit on top of it. */
+  --ink-900: #0a2a5c;
+  --ink-700: #1b2e4b;
+  --ink-500: #2c3440;
+  --ink-300: #8a96a8;
+  --ink-200: #e3e6ea;
+  --ink-100: #f0f2f5;
+  --ink-50: #f7f8fa;
 
   /* accent, highlight, ai, and brand-bg tokens default to sensible values
      here, but app/layout.tsx always overrides the full 50-950 scale from
      Site Settings (Pengaturan Situs), computed server-side - these are
      just the fallback if that injection somehow didn't run. */
-  --accent-50: #f2fbfb;
-  --accent-100: #d7f0f1;
-  --accent-200: #b0e1e4;
-  --accent-300: #7dcbd0;
-  --accent-400: #40b1b8;
-  --accent-500: #16a3ae;
-  --accent-600: #12868f;
-  --accent-700: #0e6a71;
-  --accent-800: #0a4e53;
-  --accent-900: #063236;
-  --accent-950: #031a1c;
+  --accent-50: #f2fbfe;
+  --accent-100: #dff4fc;
+  --accent-200: #bfe9f8;
+  --accent-300: #94dbf4;
+  --accent-400: #5fc8ee;
+  --accent-500: #29b6e8;
+  --accent-600: #2295be;
+  --accent-700: #1b7697;
+  --accent-800: #14576f;
+  --accent-900: #0d3a4a;
+  --accent-950: #07212a;
 
-  --highlight-50: #f0fbfd;
-  --highlight-100: #d3f3f7;
-  --highlight-200: #a3e6ef;
-  --highlight-300: #6ad6e6;
-  --highlight-400: #3fc6dc;
-  --highlight-500: #29b6e8;
-  --highlight-600: #2296bf;
-  --highlight-700: #1a7595;
-  --highlight-800: #12546b;
-  --highlight-900: #0a3340;
-  --highlight-950: #051c24;
+  --highlight-50: #f1f6fb;
+  --highlight-100: #dce8f6;
+  --highlight-200: #b9d2ed;
+  --highlight-300: #8bb4e2;
+  --highlight-400: #508ed3;
+  --highlight-500: #1668c4;
+  --highlight-600: #1255a1;
+  --highlight-700: #0e447f;
+  --highlight-800: #0b325e;
+  --highlight-900: #07213f;
+  --highlight-950: #041323;
 
-  --ai-50: #eef7fc;
-  --ai-100: #d6ecf6;
-  --ai-200: #a9d8ed;
-  --ai-300: #74c0e3;
-  --ai-400: #439fcf;
-  --ai-500: #1b85c9;
-  --ai-600: #166ea7;
-  --ai-700: #125782;
-  --ai-800: #0d405e;
-  --ai-900: #08293c;
-  --ai-950: #04161f;
+  --ai-50: #f1f6fb;
+  --ai-100: #dce8f6;
+  --ai-200: #b9d2ed;
+  --ai-300: #8bb4e2;
+  --ai-400: #508ed3;
+  --ai-500: #1668c4;
+  --ai-600: #1255a1;
+  --ai-700: #0e447f;
+  --ai-800: #0b325e;
+  --ai-900: #07213f;
+  --ai-950: #041323;
 
-  --brand-bg: #f5f6f7;
+  --brand-bg: #f7f8fa;
 }
 
 /* ---------------------------------------------------------------------
@@ -215,10 +229,9 @@ body {
   border-radius: 11px !important;
 }
 
-/* Gradient echoes the JARIS brand mark (red to navy) instead of a flat
-   fill - Tailwind's hover:bg-* utility can't win against the !important
-   background here, so hover/active feedback comes from a brightness filter
-   instead. */
+/* Cyan-to-blue gradient instead of a flat fill - Tailwind's hover:bg-*
+   utility can't win against the !important background here, so
+   hover/active feedback comes from a brightness filter instead. */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-600), var(--ai-600)) !important;
   border: none !important;
@@ -261,7 +274,7 @@ body {
 --------------------------------------------------------------------- */
 
 .landing-page {
-  background: #ffffff;
+  background: var(--brand-bg);
   color: var(--ink-900);
   min-height: 100vh;
 }
@@ -274,7 +287,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.1rem clamp(1.25rem, 5vw, 4rem);
-  background: #ffffff;
+  background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-200);
 }
 
@@ -505,28 +518,25 @@ body {
 .landing-flow-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--ink-200);
-  border: 1px solid var(--ink-200);
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 1.25rem;
 }
 
 .landing-flow-card {
   position: relative;
   padding: 1.75rem;
-  background: #ffffff;
-  transition: background-color 0.15s ease;
+  background: var(--ink-100);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .landing-flow-card:hover {
-  background: var(--brand-bg);
+  background: #ffffff;
 }
 
 /* Cards render as <button> so they're keyboard/click accessible - reset
    the browser's default button chrome back to plain block styling. */
-/* The grid uses the gap:1px/background hairline-divider trick, so its
-   direct children (the Reveal wrappers) must stretch to fill the row and
+/* Direct children (the Reveal wrappers) must stretch to fill the row and
    flex so the clickable button inside also fills the full cell - otherwise
    shorter cards leave dead, unclickable space below their content. */
 .landing-flow-grid > .reveal,
@@ -602,7 +612,7 @@ body {
 
 .landing-features {
   padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: #ffffff;
+  background: var(--brand-bg);
 }
 
 .landing-features-inner {
@@ -643,21 +653,19 @@ body {
 .landing-feature-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--ink-200);
-  border: 1px solid var(--ink-200);
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 1.25rem;
 }
 
 .landing-feature-card {
   padding: 1.75rem;
-  background: #ffffff;
-  transition: background-color 0.15s ease;
+  background: var(--ink-100);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .landing-feature-card:hover {
-  background: var(--ink-50);
+  background: #ffffff;
 }
 
 .landing-feature-card.is-highlighted {
@@ -668,7 +676,9 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--ink-100);
+  /* White, not --ink-100 - the card itself now uses --ink-100 as its
+     background, so a chip in that same tone would be invisible. */
+  background: #ffffff;
   color: var(--ink-700);
   display: flex;
   align-items: center;
@@ -713,7 +723,7 @@ body {
 
 .landing-news {
   padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
-  background: #ffffff;
+  background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-100);
 }
 
@@ -763,16 +773,19 @@ body {
 
 .landing-news-card {
   display: block;
+  background: var(--ink-100);
   border: 1px solid var(--ink-200);
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(10, 42, 92, 0.05);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   height: 100%;
 }
 
 .landing-news-card:hover {
+  background: #ffffff;
   border-color: var(--ink-300);
   box-shadow: 0 8px 20px -12px rgba(17, 25, 38, 0.18);
 }

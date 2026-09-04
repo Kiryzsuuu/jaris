@@ -1,15 +1,25 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSiteSettings, serializeSiteSettings } from "@/lib/siteSettings";
 import { deriveColorScale } from "@/lib/colorUtils";
 
-// Matches the Mazer admin template's default theme font.
+// Matches the Mazer admin template's default theme font. Used for the
+// authenticated app (AppShell/.mazer-admin) - the admin restyle's font.
 const nunito = Nunito({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700", "800"],
   variable: "--font-nunito",
+});
+
+// The public landing/login pages use a separate, more neutral typeface
+// (globals.css scopes this to .landing-page/.login-shell) rather than the
+// admin's Nunito.
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-inter",
 });
 
 // Site Settings (name/logo/favicon/accent color/footer) are admin-editable
@@ -30,13 +40,13 @@ const FALLBACK_SETTINGS = {
   heroHeadline: "Satu sistem, seluruh kecerdasan operasional Jasa Raharja",
   heroSubheadline:
     "JARIS menyatukan klaim, santunan, asisten AI, analitik, dan peta risiko kecelakaan dalam satu ekosistem cerdas.",
-  primaryColor: "#F0302A",
-  secondaryColor: "#B22831",
-  aiColor: "#181842",
-  highlightColor: "#FF3029",
-  accentColor: "#FF5A50",
-  backgroundColor: "#F5F6F7",
-  sidebarColor: "#181842",
+  primaryColor: "#29B6E8",
+  secondaryColor: "#0A2A5C",
+  aiColor: "#1668C4",
+  highlightColor: "#1668C4",
+  accentColor: "#29B6E8",
+  backgroundColor: "#F7F8FA",
+  sidebarColor: "#0A2A5C",
   footerText: "PT Nusa Inspira Teknologi",
 };
 
@@ -86,7 +96,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   ].join("");
 
   return (
-    <html lang="id" className={nunito.variable}>
+    <html lang="id" className={`${nunito.variable} ${inter.variable}`}>
       <head>
         {/* Full brand palette (Pengaturan Situs) - overrides the template's
             default color scales, computed server-side so there's no flash

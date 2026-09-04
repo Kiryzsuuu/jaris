@@ -69,15 +69,17 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     // backgrounds intentionally stay pure white (not admin-configurable) -
     // making that editable risks an admin picking a color that makes card
     // content unreadable against itself.
-    // Sampled from the JARIS promo banner (navy + red, jaris.png).
-    primaryColor: { type: String, required: true, default: "#F0302A" }, // Brand Red - buttons/links/headings accent
-    secondaryColor: { type: String, required: true, default: "#B22831" }, // Deep Red - secondary elements
-    aiColor: { type: String, required: true, default: "#181842" }, // Navy - gradient midpoint (pairs with red)
-    highlightColor: { type: String, required: true, default: "#FF3029" }, // Vivid Red - highlight touches/badges
-    accentColor: { type: String, required: true, default: "#FF5A50" }, // Coral Red - general accent
-    backgroundColor: { type: String, required: true, default: "#F5F6F7" }, // Soft Light Gray - page canvas
+    // Minimalist navy + cyan palette, spec'd directly (not sampled from a
+    // logo/banner): cyan CTA with a medium-blue hover/gradient partner,
+    // navy for headings/secondary elements, soft off-white page canvas.
+    primaryColor: { type: String, required: true, default: "#29B6E8" }, // Cyan - buttons/links/CTA
+    secondaryColor: { type: String, required: true, default: "#0A2A5C" }, // Navy - secondary elements
+    aiColor: { type: String, required: true, default: "#1668C4" }, // Medium Blue - CTA hover / gradient partner
+    highlightColor: { type: String, required: true, default: "#1668C4" }, // Medium Blue - highlight touches/badges
+    accentColor: { type: String, required: true, default: "#29B6E8" }, // Cyan - general accent
+    backgroundColor: { type: String, required: true, default: "#F7F8FA" }, // Off-White - page canvas
     // Solid background color for the admin app's sidebar/nav.
-    sidebarColor: { type: String, required: true, default: "#181842" },
+    sidebarColor: { type: String, required: true, default: "#0A2A5C" },
     footerText: {
       type: String,
       required: true,

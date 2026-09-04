@@ -26,11 +26,11 @@ type Settings = {
 };
 
 const COLOR_FIELDS = [
-  { key: "primaryColor", label: "Merah Utama", desc: "Warna utama - tombol, tautan, aksen judul" },
-  { key: "secondaryColor", label: "Merah Tua (Sekunder)", desc: "Elemen sekunder" },
-  { key: "aiColor", label: "Navy (Gradient)", desc: "Dipadukan dengan warna utama pada gradient tombol & ikon" },
-  { key: "highlightColor", label: "Merah Terang (Highlight)", desc: "Highlight fitur, mis. badge pada kartu kapabilitas" },
-  { key: "accentColor", label: "Coral (Aksen)", desc: "Aksen umum, mis. titik indikator \"Live\" di berita" },
+  { key: "primaryColor", label: "Cyan Utama (CTA)", desc: "Warna utama - tombol, tautan, aksen judul" },
+  { key: "secondaryColor", label: "Navy (Sekunder)", desc: "Elemen sekunder" },
+  { key: "aiColor", label: "Biru Medium (Hover/Gradient)", desc: "Warna hover tombol CTA & pasangan gradient" },
+  { key: "highlightColor", label: "Biru Medium (Highlight)", desc: "Highlight fitur, mis. badge pada kartu kapabilitas" },
+  { key: "accentColor", label: "Cyan (Aksen)", desc: "Aksen umum, mis. titik indikator \"Live\" di berita" },
   { key: "backgroundColor", label: "Abu Muda (Background)", desc: "Warna latar halaman" },
   {
     key: "sidebarColor",
@@ -62,13 +62,13 @@ export default function SettingsPage() {
     siteName: "",
     tagline: "",
     footerText: "",
-    primaryColor: "#F0302A",
-    secondaryColor: "#B22831",
-    aiColor: "#181842",
-    highlightColor: "#FF3029",
-    accentColor: "#FF5A50",
-    backgroundColor: "#F5F6F7",
-    sidebarColor: "#181842",
+    primaryColor: "#29B6E8",
+    secondaryColor: "#0A2A5C",
+    aiColor: "#1668C4",
+    highlightColor: "#1668C4",
+    accentColor: "#29B6E8",
+    backgroundColor: "#F7F8FA",
+    sidebarColor: "#0A2A5C",
     heroHeadline: "",
     heroSubheadline: "",
   });
