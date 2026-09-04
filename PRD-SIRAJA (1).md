@@ -1,24 +1,25 @@
 # Product Requirements Document (PRD)
-## SIRAJA — AI-Powered Digital Ecosystem for PT Jasa Raharja (Persero)
+## JARIS — AI-Powered Digital Ecosystem for PT Jasa Raharja (Persero)
 
-**Versi:** 1.0
-**Tanggal:** 3 September 2026
-**Status:** Draft untuk eksekusi bertahap
-**Tagline:** *Where Intelligence Drives Every Decision*
+**Versi:** 2.0 (update dari draft awal — mencerminkan kondisi aplikasi saat ini)
+**Tanggal:** 4 September 2026
+**Status:** Sudah dibangun dan live di produksi (`https://jaris.inspiratekno.com`) — dokumen ini sekarang berfungsi sebagai *system snapshot* untuk brainstorming perombakan UI, bukan lagi rencana eksekusi dari nol.
+**Nama produk:** JARIS (Jasa Raharja Integrated Intelligence System) — sebelumnya bernama SIRAJA di draft awal.
+**Copyright/pengembang:** Nusa Inspira Teknologi (RFS)
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-SIRAJA adalah aplikasi web internal untuk PT Jasa Raharja (Persero) yang mengintegrasikan seluruh proses operasional — manajemen klaim & santunan, asisten AI internal, analitik, pemetaan data kecelakaan, dan manajemen pegawai — dalam satu ekosistem yang didukung kecerdasan buatan (AI) sebagai *intelligence engine*, bukan sekadar alat bantu tambahan.
+JARIS adalah aplikasi web internal untuk PT Jasa Raharja (Persero) yang mengintegrasikan manajemen klaim & santunan, asisten AI internal, analitik, pemetaan data kecelakaan, deteksi anomali klaim, broadcast pengumuman, dan manajemen pegawai dalam satu ekosistem. Seluruh modul di roadmap awal (Fase 0–5) **sudah dibangun dan berjalan di produksi**, ditambah beberapa modul baru yang tidak ada di draft awal (deteksi fraud, broadcast, prediksi risiko kecelakaan, agen audit klaim berbasis AI, data contoh yang bisa dihapus admin).
 
-Target pengguna: **pegawai internal Jasa Raharja** (petugas lapangan, verifikator klaim, kepala cabang, direksi/manajemen).
+Target pengguna tetap sama: pegawai internal Jasa Raharja (petugas lapangan, verifikator klaim, kepala cabang, direksi/manajemen), plus Super Admin untuk konfigurasi sistem.
 
-Proyek dibangun secara **bertahap (phased)** agar setiap modul matang sebelum lanjut ke modul berikutnya, dan agar setiap fase bisa langsung dieksekusi sebagai satu unit kerja di Claude Code.
+**Tujuan dokumen versi ini:** memberi konteks lengkap dan akurat tentang kondisi aplikasi *saat ini* — fitur, struktur data, dan terutama sistem desain/UI — supaya bisa dipakai sebagai titik awal diskusi perombakan UI di sesi Claude yang baru, tanpa perlu menjelaskan ulang dari nol.
 
 ---
 
-## 2. Tujuan Produk
+## 2. Tujuan Produk (tidak berubah dari draft awal)
 
 | Tujuan | Metrik Keberhasilan (indikatif) |
 |---|---|
@@ -28,135 +29,130 @@ Proyek dibangun secara **bertahap (phased)** agar setiap modul matang sebelum la
 | Meningkatkan visibilitas manajemen atas kondisi operasional | Dashboard real-time menggantikan laporan manual berkala |
 | Deteksi dini titik rawan kecelakaan | Sinyal peringatan otomatis dari pola data geospasial |
 | Menjaga keamanan & akuntabilitas data | RBAC granular + audit log penuh |
+| *(baru)* Deteksi potensi kecurangan klaim | Sinyal statistik over-claim/over-charge untuk investigasi manual |
 
 ---
 
-## 3. Prinsip Desain & Batasan Penting
+## 3. Prinsip Desain & Batasan Penting (tetap berlaku, sudah diimplementasikan)
 
-Beberapa keputusan arsitektur mendasar yang mengikat seluruh fase pembangunan:
-
-1. **AI membantu, manusia memutuskan.** AI tidak pernah menjadi otoritas final atas pencairan dana. Setiap output AI (estimasi santunan, klasifikasi kasus, rekomendasi) berstatus *draft/rekomendasi* yang wajib direview dan disetujui pegawai berwenang sebelum berdampak pada data resmi.
-2. **Kalkulasi tarif santunan bersifat deterministik, bukan generatif.** Nilai santunan dihitung oleh *rules engine* berbasis tabel tarif resmi Jasa Raharja yang tersimpan di database — bukan dihasilkan oleh LLM. Model AI (Groq) hanya digunakan untuk: (a) klasifikasi jenis kasus dari deskripsi/dokumen, (b) menjawab pertanyaan dari knowledge base (RAG), (c) menyusun ringkasan/narasi laporan.
-3. **AI Asisten menjawab berdasarkan knowledge base internal (RAG), bukan pengetahuan umum model.** Ini mencegah halusinasi terhadap angka tarif atau ketentuan resmi. Jawaban wajib menyertakan rujukan sumber dokumen internal.
-4. **RBAC granular sejak awal.** Struktur peran & permission didefinisikan di Fase 1 dan menjadi fondasi seluruh modul berikutnya — bukan ditambahkan belakangan.
-5. **Data eksternal (Korlantas Polri) menggunakan data mock/dummy terlebih dahulu.** Struktur skema dirancang siap-integrasi, tapi pengisian data real menunggu kerja sama data resmi antar-instansi.
-6. **Audit trail wajib di semua modul yang mengubah data.** Setiap create/update/delete/approve pada data klaim, santunan, dan pengguna harus tercatat: siapa, kapan, apa yang berubah.
+1. **AI membantu, manusia memutuskan.** Setiap output AI (estimasi santunan, klasifikasi kasus, rekomendasi, hasil audit, deteksi fraud) berstatus saran/draft — tidak pernah otomatis mengubah data resmi. Diterapkan konsisten di semua fitur AI: `isSuggestionOnly: true` pada respons API klasifikasi kasus, analisis foto kerusakan, agen audit klaim, dan deteksi fraud.
+2. **Kalkulasi tarif santunan deterministik, bukan generatif.** Dihitung oleh rules engine (`lib/tariffEngine.ts`) dari tabel tarif resmi di database — LLM (Groq) tidak pernah menghitung nominal santunan.
+3. **AI Asisten menjawab dari knowledge base internal (RAG), bukan pengetahuan umum model**, lengkap rujukan sumber; jika dokumen relevan tidak ditemukan, AI menyatakan tidak tahu.
+4. **RBAC granular** — sekarang 16 permission berbeda (lihat §7), termasuk permission baru untuk fraud detection dan broadcast.
+5. **Data eksternal (Korlantas Polri) masih mock/dummy** — peta kecelakaan diberi label eksplisit "data mock/dummy" di UI; struktur data siap-integrasi untuk kerja sama data resmi nanti.
+6. **Audit trail wajib** — `models/AuditLog.ts` mencatat semua perubahan data penting, termasuk aksi baru (jalankan audit AI, hapus data contoh, kirim broadcast).
 
 ---
 
-## 4. Tech Stack
+## 4. Tech Stack Aktual (berbeda dari sebagian rencana awal)
 
 | Layer | Teknologi | Catatan |
 |---|---|---|
-| Aplikasi | **Next.js (React)** — monorepo, full-stack dalam satu codebase | Frontend (pages/components) dan backend (API routes/route handlers) menyatu dalam satu project, TIDAK dipisah menjadi dua repo/project berbeda |
-| Database | **MongoDB Atlas** | Cloud-hosted, connection string disediakan terpisah oleh user |
-| AI Engine | Groq API | LLM inference cepat (700+ token/detik), dipanggil dari API routes Next.js |
-| Vector Store (RAG) | MongoDB Atlas Vector Search | Memakai cluster yang sama — tidak perlu vector DB terpisah |
-| Deployment | Docker | Single container untuk seluruh aplikasi (bukan container terpisah frontend/backend) |
-| Auth | JWT + bcrypt (atau setara), atau NextAuth | Dikombinasikan dengan RBAC middleware di API routes |
-
-> **Perubahan dari draft sebelumnya:** semula direncanakan React+Vite (frontend) terpisah dari Node.js+Express (backend). Berdasarkan keputusan untuk monorepo tanpa pemisahan frontend/backend, arsitektur diubah menjadi **satu aplikasi Next.js** yang menangani UI dan API dalam satu codebase, satu proses build, dan satu deployment.
-
-> **Catatan teknis MongoDB Atlas:** Karena database bersifat dokumen (bukan relasional), skema di dokumen ini disusun sebagai *collection design*, bukan ERD relasional kaku. Atlas Vector Search dipakai untuk RAG di Modul AI Asisten, sehingga tidak perlu infrastruktur vector DB tambahan (Qdrant/Chroma/Pinecone).
+| Aplikasi | **Next.js 16 (App Router)**, TypeScript | Satu codebase, UI + API routes menyatu, sesuai rencana awal |
+| Database | **MongoDB Atlas** | Sesuai rencana |
+| AI Engine | **Groq API** — model teks (`llama-3.3-70b-versatile`) + model vision (`meta-llama/llama-4-scout-17b-16e-instruct`) | Dipakai untuk RAG, klasifikasi kasus, analisis foto kerusakan, agen audit klaim, narasi deteksi fraud, ringkasan eksekutif dashboard |
+| Vector Store (RAG) | MongoDB koleksi `kb_embeddings` (bukan Atlas Vector Search asli — retrieval disederhanakan) | |
+| Cuaca (fitur prediksi risiko) | Open-Meteo API | Data cuaca real untuk faktor prediksi risiko kecelakaan |
+| Email | Nodemailer + Gmail App Password | Notifikasi status klaim & broadcast pengumuman |
+| **Deployment** | **Bukan Docker** — PM2 process manager + Nginx reverse proxy di VPS Biznet Gio Cloud, deploy manual via `redeploy-jaris` (git pull + build + restart) | Berbeda dari rencana awal (Docker single container) |
+| Auth | JWT (access + refresh token) di httpOnly cookie + bcrypt | Sesuai rencana, tanpa NextAuth |
+| Styling | Tailwind CSS v4, berbasis template admin **Datta Able** yang di-vendor & dikustom flat/minimalis | Tidak ada di rencana awal — keputusan desain di tengah jalan |
 
 ---
 
-## 5. Modul Produk (Ringkasan)
+## 5. Modul Produk — Status Saat Ini
 
-| # | Modul | Fungsi Inti |
+| # | Modul | Status | Halaman |
+|---|---|---|---|
+| 1 | Manajemen Klaim & Santunan | ✅ Selesai, sesuai rencana | `/claims`, `/claims/new`, `/claims/[id]` |
+| 2 | AI Asisten Internal (Groq + RAG) | ✅ Selesai | `/assistant` |
+| 3 | Dashboard Analitik & Pelaporan | ✅ Selesai + diperluas (SLA, tren proyeksi, breakdown korban, rekomendasi AI gabungan) | `/dashboard` |
+| 4 | Peta Data Kecelakaan | ✅ Selesai + tab Prediksi Risiko baru | `/accident-map` |
+| 5 | Manajemen Pegawai & RBAC | ✅ Selesai | `/users` |
+| 6 | *(baru)* Deteksi Anomali/Fraud Klaim | ✅ Baru — scan statistik (z-score biaya, NIK ganda, rekening bersama, dokumen minim, persetujuan tercepat) + narasi AI | `/fraud-detection` |
+| 7 | *(baru)* Broadcast Pengumuman | ✅ Baru — banner in-app + email ke semua/peran tertentu | `/broadcast` |
+| 8 | *(baru)* Knowledge Base Admin | ✅ Baru — UI untuk ingest dokumen teks/markdown/PDF (dengan OCR via AI vision untuk PDF hasil scan) yang menjadi sumber RAG | `/knowledge-base` |
+| 9 | *(baru)* Agen Audit Klaim (AI) | ✅ Baru — multi-step: cek kelengkapan dokumen → analisis foto AI → sintesis rekomendasi, dipicu manual di halaman detail klaim | Bagian dari `/claims/[id]` |
+| 10 | *(baru)* Pengaturan Situs | ✅ Baru — admin bisa ubah nama situs, logo, favicon, warna tema (7 warna terpisah), gambar hero/section/login, gambar per-kartu landing page, dan hapus data contoh | `/settings` |
+| 11 | *(baru)* Landing Page Publik | ✅ Baru — halaman depan sebelum login: hero, alur kerja, kapabilitas (kartu bisa diklik untuk detail), berita nasional live (RSS), peta wilayah kerja interaktif | `/` |
+
+---
+
+## 6. Struktur Data (Collection MongoDB) — kondisi saat ini
+
+Tambahan dari daftar awal (§7 draft v1):
+
+- **broadcasts** — pengumuman terkirim (judul, pesan, audiens, jumlah penerima/email terkirim)
+- **site_settings** — dokumen singleton: identitas situs, 7 field warna tema, gambar (logo/favicon/hero — bisa banyak gambar hero sebagai slideshow/section/login/per-kartu landing), footer
+- Field `isDemo` ditambahkan ke `claims`, `claimants`, `payments` — menandai data contoh yang bisa dihapus admin dalam satu klik tanpa menyentuh data asli
+- `accident_points` memakai field `source: "mock" | "korlantas_polri"` untuk tujuan yang sama (data dummy vs. data resmi nanti)
+
+---
+
+## 7. RBAC — Permission Saat Ini (16 total)
+
+`user:manage`, `user:view`, `role:manage`, `role:view`, `claim:create`, `claim:verify`, `claim:approve`, `claim:view`, `dashboard:view`, `audit:view`, `assistant:use`, `kb:manage`, `map:view`, `settings:manage`, `fraud:view` *(baru)*, `broadcast:manage` *(baru)*.
+
+Peran (roles) tidak berubah dari draft awal: **Petugas Lapangan**, **Verifikator/Kepala Cabang**, **Direksi/Manajemen**, **Super Admin**.
+
+---
+
+## 8. Sistem Desain Saat Ini — konteks utama untuk brainstorming UI
+
+Ini bagian paling relevan untuk sesi brainstorming perombakan UI berikutnya.
+
+### 8.1 Basis desain
+Dibangun di atas template admin **Datta Able** (Tailwind CSS v4) yang di-vendor ke dalam project (`public/assets/scss`), lalu dikustomisasi berkali-kali menjadi lebih flat/minimalis (border tipis, radius kecil, nyaris tanpa shadow/pill shape berlebih). Landing page & login page memakai layout kustom terpisah dari shell admin.
+
+### 8.2 Palet warna (admin-configurable, disimpan di `SiteSettings`, di-inject sebagai CSS variable server-side)
+| Token | Default (hex) | Kegunaan |
 |---|---|---|
-| 1 | Manajemen Klaim & Santunan | Siklus hidup klaim: laporan → verifikasi → kalkulasi → approval → pencairan |
-| 2 | AI Asisten Internal (Groq + RAG) | Tanya-jawab knowledge base internal berbahasa Indonesia |
-| 3 | Dashboard Analitik & Pelaporan | Metrik real-time + ekspor laporan PDF/Excel + ringkasan AI |
-| 4 | Peta Data Kecelakaan | Visualisasi geospasial + deteksi pola titik rawan |
-| 5 | Manajemen Pegawai & RBAC | User management, roles, permission, audit log |
+| `primaryColor` | `#0B2D6B` (Navy) | Tombol utama, tautan, header, hero, sidebar |
+| `secondaryColor` | `#1B4FA0` (Biru) | Elemen sekunder |
+| `aiColor` | `#1B4FA0` (Biru) | Status aktif, aksen gradient |
+| `highlightColor` / `accentColor` | `#F2A900` (Gold) | **Fixed di kode**, bukan lagi field Site Settings — dipakai untuk badge & aksen kecil, sengaja dikunci supaya kontras teks navy-di-atas-gold tetap terjaga |
+| `backgroundColor` | `#F8FAFC` (Slate-50) | Latar halaman |
+| `sidebarColor` | `#0B2D6B` | Latar sidebar navigasi |
+
+Skala penuh 50–950 untuk tiap warna di-derive otomatis dari satu hex (`lib/colorUtils.ts`) dan diterapkan lewat CSS var yang di-override di `app/layout.tsx` — root layout memakai `export const dynamic = "force-dynamic"` supaya perubahan warna di Pengaturan Situs langsung berlaku tanpa perlu redeploy.
+
+Latar kartu & input **sengaja dikunci putih**, tidak admin-configurable — supaya admin tidak bisa memilih warna yang membuat isi kartu tidak terbaca.
+
+### 8.3 Tipografi
+- Aplikasi admin (setelah login): font **Nunito**
+- Landing page & login (publik): font **Inter**
+(Kedua font dimuat via `next/font/google`.)
+
+### 8.4 Layout & komponen
+- `components/AppShell.tsx` — shell bersama semua halaman admin: sidebar navigasi (dikelompokkan per section: Menu, Operasional, Administrasi), header dengan avatar/dropdown profil, banner broadcast yang bisa ditutup, auto-logout 5 menit idle, footer copyright.
+- Pola `.card > .card-header/.card-body` dipakai konsisten di semua halaman untuk blok konten.
+- Landing page (`app/page.tsx`) punya hero full-bleed (gambar/carousel AI sebagai background, headline putih di atasnya dengan gradient overlay untuk kontras), section alur kerja & kapabilitas dengan kartu yang bisa diklik (membuka modal detail + gambar opsional per-kartu), section berita nasional live, dan peta wilayah kerja interaktif (embed Google Maps tanpa API key).
+- Login page: layout dua kolom — panel kiri gelap (gambar/gradient + highlight fitur), form di kanan.
+
+### 8.5 Data contoh (demo data)
+Karena database sempat kosong dan membuat Dashboard/Peta/Fraud Detection terlihat "rusak" (semua nol), ada `scripts/seedDemoData.ts` yang mengisi klaim, penerima santunan, pencairan, dan titik kecelakaan contoh yang realistis (ditandai `isDemo`/`source:"mock"`), bisa dihapus kapan saja lewat tombol di Pengaturan Situs.
+
+### 8.6 Hal yang perlu diperhatikan saat brainstorming UI baru
+- Sistem palet warna admin-configurable (7 token, skala 50–950 auto-derive) sudah cukup matang — perombakan UI sebaiknya tetap kompatibel dengan mekanisme ini, bukan hardcode warna baru.
+- Root layout `force-dynamic` penting untuk Pengaturan Situs — jangan sampai perombakan UI membuat halaman jadi statically-rendered lagi (bug yang pernah terjadi: perubahan warna/logo/favicon tidak berlaku sampai redeploy).
+- Landing page sudah ada sistem "kartu bisa diklik + modal detail + gambar per-kartu dari Site Settings" — kalau desain baru mengubah struktur kartu, sistem gambar-per-slug ini (`lib/landingContent.ts`, `SiteSettings.cardImages`) perlu diikutkan.
 
 ---
 
-## 6. Roadmap Bertahap (Fase Eksekusi untuk Claude Code)
+## 9. Hal yang Sudah Tidak Perlu Diklarifikasi (sudah diputuskan selama pembangunan)
 
-Proyek dipecah menjadi 5 fase. **Setiap fase adalah satu sesi kerja mandiri** — tidak lanjut ke fase berikutnya sebelum fase sebelumnya stabil.
+- ~~Daftar peran & permission matrix~~ — final, 4 peran + 16 permission (§7)
+- ~~Tabel tarif santunan~~ — sudah di-seed (`lib/tariffRuleSeeds.ts`)
+- ~~Alur approval berjenjang~~ — satu level approval per status transition (submitted→verified→approved→paid), tidak berjenjang berdasarkan nominal
 
-### **FASE 0 — Fondasi Proyek**
-- Setup struktur project **monorepo Next.js tunggal** (UI + API routes dalam satu codebase, tanpa folder /frontend dan /backend terpisah)
-- Koneksi ke MongoDB Atlas (connection string via environment variable, user akan berikan terpisah)
-- Setup Docker (satu Dockerfile untuk seluruh aplikasi)
-- Struktur folder & konvensi kode (linting, env config, error handling standar)
-- Health-check endpoint (API route)
+## 10. Masih Terbuka / Belum Bisa Dibangun
 
-### **FASE 1 — Autentikasi & RBAC (Manajemen Pegawai)**
-- Collection `users`, `roles`, `permissions`, `audit_logs`
-- Definisi peran: Petugas Lapangan, Verifikator/Kepala Cabang, Direksi/Manajemen, Super Admin (dapat disesuaikan)
-- Login/logout, JWT session, password hashing
-- Middleware otorisasi berbasis peran per-endpoint
-- CRUD manajemen pengguna (khusus admin)
-- Audit log dasar (login, perubahan data user)
-
-### **FASE 2 — Manajemen Klaim & Santunan (Modul Inti)**
-- Collection `claims`, `claimants`, `tariff_rules`, `payments`
-- Alur: input laporan kecelakaan → upload dokumen → verifikasi kelengkapan → klasifikasi kasus (AI-assisted) → kalkulasi santunan (rules engine deterministik) → approval berjenjang → pencatatan pencairan
-- Rules engine tarif santunan sebagai modul terpisah & dapat diaudit
-- Status tracking klaim (draft, submitted, verified, approved, paid, rejected)
-- Audit log penuh di setiap perubahan status klaim
-
-### **FASE 3 — AI Asisten Internal (Groq + RAG)**
-- Ingest dokumen internal (tarif resmi, SOP, ketentuan) → chunking → embedding → simpan di MongoDB Atlas Vector Search
-- Endpoint chat: query pegawai → retrieve dokumen relevan → kirim ke Groq sebagai context → jawaban + sitasi sumber
-- Riwayat percakapan per pengguna
-- Guardrail: jika tidak ada dokumen relevan ditemukan, AI menyatakan tidak tahu (bukan mengarang jawaban)
-
-### **FASE 4 — Dashboard Analitik & Pelaporan**
-- Agregasi data dari Modul Klaim (jumlah klaim aktif, realisasi santunan per wilayah, tren bulanan, tingkat penyelesaian)
-- Visualisasi (chart) di frontend
-- Ekspor laporan PDF/Excel
-- Ringkasan eksekutif yang digenerate AI (berbasis data agregat riil, bukan asumsi)
-
-### **FASE 5 — Peta Data Kecelakaan**
-- Collection `accident_points` dengan struktur siap-integrasi Korlantas Polri (data awal: mock/dummy)
-- Visualisasi geospasial (peta interaktif)
-- Analisis pola AI: deteksi titik rawan berulang → sinyal peringatan ke dashboard manajemen
+- **Integrasi resmi data Korlantas Polri** — masih mock, menunggu kerja sama data resmi antar-instansi
+- **CCTV lalu lintas real-time (Jasa Marga Travoy)** — tidak ada akses API resmi; landing page hanya menaut ke situs Travoy, tidak menampilkan feed langsung
+- **"AI-based predictive collection"** (salah satu topik riset yang diminta) — butuh model data premi/billing yang belum ada di skema JARIS saat ini
 
 ---
 
-## 7. Struktur Data Awal (Gambaran Collection MongoDB)
+## 11. Cara Pakai Dokumen Ini
 
-> Ini adalah gambaran awal tingkat tinggi — detail skema penuh (field, index, validasi) akan disusun per fase saat eksekusi.
-
-- **users** — data pegawai, role_id, status aktif
-- **roles** — nama peran, daftar permission
-- **audit_logs** — actor, action, target, timestamp, detail perubahan
-- **claims** — data laporan kecelakaan, status, klasifikasi AI, riwayat approval
-- **claimants** — data korban/penerima santunan
-- **tariff_rules** — tabel tarif resmi per kategori/golongan
-- **payments** — riwayat pencairan santunan
-- **kb_documents** — dokumen knowledge base (untuk RAG)
-- **kb_embeddings** — vector embedding dari kb_documents (Atlas Vector Search)
-- **chat_history** — riwayat tanya-jawab AI Asisten per user
-- **accident_points** — data titik kecelakaan (geospasial, mock awal)
-
----
-
-## 8. Hal yang Perlu Diklarifikasi Sebelum/Selama Eksekusi
-
-Daftar ini sebaiknya diisi bertahap seiring proyek berjalan, bukan blocker untuk mulai Fase 0–1:
-
-- [ ] Daftar peran (roles) final dan permission matrix per peran
-- [ ] Tabel tarif santunan resmi terbaru (sumber dokumen untuk rules engine & RAG)
-- [ ] Format dokumen SOP/ketentuan internal yang akan di-ingest ke knowledge base
-- [ ] Ketentuan alur approval berjenjang (satu level approval atau berjenjang sesuai nominal?)
-- [ ] Kebutuhan integrasi resmi data Korlantas Polri (timeline, format data, API)
-- [ ] Kebijakan retensi data & keamanan (khususnya data pribadi/kesehatan korban)
-
----
-
-## 9. Ruang Lingkup di Luar Fase Awal (Out of Scope untuk saat ini)
-
-- Aplikasi/portal untuk publik/nasabah (di luar scope — ini sistem internal)
-- Integrasi pembayaran/perbankan langsung (pencairan dana dicatat, bukan dieksekusi otomatis oleh sistem)
-- Integrasi real-time dengan sistem Korlantas Polri (menunggu kerja sama data resmi)
-
----
-
-## 10. Cara Pakai Dokumen Ini
-
-Dokumen ini menjadi acuan saat membuka sesi Claude Code. Setiap fase dieksekusi sebagai prompt/task terpisah, merujuk ke bagian "Roadmap Bertahap" (§6) dan "Prinsip Desain & Batasan Penting" (§3). Connection string MongoDB Atlas akan diberikan langsung sebagai environment variable saat eksekusi Fase 0, tidak dituliskan di dalam dokumen ini atau di dalam kode.
+Dokumen versi 2.0 ini dipakai sebagai *briefing* saat membuka sesi Claude baru untuk brainstorming perombakan UI — terutama §8 (Sistem Desain Saat Ini). Sertakan juga tangkapan layar halaman yang ingin dirombak, karena dokumen ini mendeskripsikan struktur & mekanisme, bukan tampilan piksel-demi-piksel.
