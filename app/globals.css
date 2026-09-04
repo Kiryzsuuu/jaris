@@ -87,9 +87,9 @@ body {
 /* ---------------------------------------------------------------------
    Admin restyle - Mazer template palette (public/vendor/mazer-1.0.0),
    scoped to the AppShell subtree only. The tenant brand scale above
-   (--primary-*/--ai-*/--highlight-*/--accent-*/--color-secondary-*) is
-   shared with the public landing page, so Mazer's blue-purple identity
-   is applied by shadowing those same custom properties inside
+   (primary, ai, highlight, accent, color-secondary custom properties)
+   is shared with the public landing page, so Mazer's blue-purple
+   identity is applied by shadowing those same custom properties inside
    .mazer-admin rather than changing the shared defaults - the landing
    page keeps the NIIIS navy/cyan brand untouched. Scales derived with
    the same lighten/darken math as lib/colorUtils.ts::deriveColorScale,
