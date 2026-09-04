@@ -481,6 +481,125 @@ body {
   color: #ffffff;
 }
 
+/* ---------- Stats strip ---------- */
+
+.landing-stats {
+  background: linear-gradient(120deg, var(--ink-900) 0%, var(--primary-800, var(--ink-900)) 100%);
+  padding: 2.25rem clamp(1.25rem, 5vw, 4rem);
+}
+
+.landing-stats-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.landing-stat {
+  text-align: center;
+  padding: 0 0.5rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.landing-stat:first-child {
+  border-left: none;
+}
+
+.landing-stat-value {
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.landing-stat:nth-child(1) .landing-stat-value {
+  color: #ff6b35;
+}
+.landing-stat:nth-child(2) .landing-stat-value {
+  color: #00b67a;
+}
+.landing-stat:nth-child(3) .landing-stat-value {
+  color: #7c4dff;
+}
+.landing-stat:nth-child(4) .landing-stat-value {
+  color: #ff4785;
+}
+
+.landing-stat-label {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .landing-stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1.75rem;
+  }
+
+  .landing-stat:nth-child(2) {
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .landing-stat:nth-child(odd) {
+    border-left: none;
+  }
+}
+
+/* ---------- CTA banner ---------- */
+
+.landing-cta-banner {
+  position: relative;
+  overflow: hidden;
+  margin: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 5vw, 3rem);
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary-600), var(--ai-800, var(--primary-900)));
+  text-align: center;
+}
+
+.landing-cta-banner::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 40%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.16), transparent 70%);
+  pointer-events: none;
+}
+
+.landing-cta-banner h2 {
+  position: relative;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.landing-cta-banner p {
+  position: relative;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 480px;
+  margin: 0 auto 1.75rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.landing-cta-banner .landing-primary-btn {
+  position: relative;
+  background: #ffffff !important;
+  color: var(--primary-700) !important;
+}
+
+.landing-cta-banner .landing-primary-btn:hover {
+  filter: brightness(0.97);
+}
+
 /* ---------- Scroll reveal ---------- */
 
 .reveal {
@@ -547,12 +666,49 @@ body {
 /* ---------- Claim flow (how it works) ---------- */
 
 .landing-flow {
+  position: relative;
+  overflow: hidden;
   padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
   border-bottom: 1px solid var(--ink-100);
 }
 
+/* Soft, blurred color blobs sitting behind the content - purely decorative
+   depth so sections don't read as a flat, empty gray field. Kept low-
+   opacity and blurred so they never compete with foreground text. */
+.landing-flow::before {
+  content: "";
+  position: absolute;
+  top: -12%;
+  right: -8%;
+  width: 34vw;
+  max-width: 460px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 100, 210, 0.14), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-flow::after {
+  content: "";
+  position: absolute;
+  bottom: -18%;
+  left: -6%;
+  width: 26vw;
+  max-width: 340px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 107, 53, 0.12), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .landing-flow-inner {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -653,11 +809,45 @@ body {
 /* ---------- Features ---------- */
 
 .landing-features {
+  position: relative;
+  overflow: hidden;
   padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
   background: var(--brand-bg);
 }
 
+.landing-features::before {
+  content: "";
+  position: absolute;
+  top: -15%;
+  left: -8%;
+  width: 30vw;
+  max-width: 420px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(124, 77, 255, 0.12), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-features::after {
+  content: "";
+  position: absolute;
+  bottom: -20%;
+  right: -6%;
+  width: 28vw;
+  max-width: 380px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 182, 122, 0.12), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .landing-features-inner {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
 }

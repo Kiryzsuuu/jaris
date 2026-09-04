@@ -226,6 +226,27 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
         )}
       </header>
 
+      <section className="landing-stats">
+        <div className="landing-stats-inner">
+          <div className="landing-stat">
+            <div className="landing-stat-value">{CLAIM_FLOW.length}</div>
+            <div className="landing-stat-label">Tahap Alur Klaim Terpadu</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">{CAPABILITIES.length}</div>
+            <div className="landing-stat-label">Kemampuan AI Terintegrasi</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">{MAP_REGIONS.length}</div>
+            <div className="landing-stat-label">Kota Cabang Termonitor</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">24/7</div>
+            <div className="landing-stat-label">Akses Sistem Real-Time</div>
+          </div>
+        </div>
+      </section>
+
       <section id="alur-klaim" className="landing-flow">
         <div className="landing-flow-inner">
           <Reveal className="landing-features-header">
@@ -378,6 +399,17 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
           </Reveal>
         </div>
       </section>
+
+      <Reveal className="landing-cta-banner">
+        <h2>Siap mempercepat proses klaim Anda?</h2>
+        <p>
+          Masuk ke sistem untuk mengelola klaim, memantau dashboard analitik, dan menggunakan
+          asisten AI - semua dalam satu ekosistem terpadu.
+        </p>
+        <Link href="/login" className="landing-primary-btn">
+          Masuk ke Sistem
+        </Link>
+      </Reveal>
 
       <footer className="landing-footer">
         <p className="m-0">{settings.footerText}</p>
