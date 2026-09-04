@@ -179,7 +179,14 @@ export default function UsersPage() {
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.id}>
-                      <td>{u.name}</td>
+                      <td>
+                        <div className="flex items-center gap-2.5">
+                          <span className="bg-dark-500 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                            {u.name.slice(0, 1).toUpperCase()}
+                          </span>
+                          {u.name}
+                        </div>
+                      </td>
                       <td>{u.email}</td>
                       <td>{u.branch}</td>
                       <td>

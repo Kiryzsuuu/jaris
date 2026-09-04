@@ -20,8 +20,8 @@ body {
 
 body {
   min-height: 100%;
-  /* Matches the Berry admin template's default theme font. */
-  font-family: var(--font-roboto), Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+  /* Matches the Mazer admin template's default theme font. */
+  font-family: var(--font-nunito), Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
     sans-serif;
 }
 
@@ -84,29 +84,135 @@ body {
   --brand-bg: #f5f6f7;
 }
 
+/* ---------------------------------------------------------------------
+   Admin restyle - Mazer template palette (public/vendor/mazer-1.0.0),
+   scoped to the AppShell subtree only. The tenant brand scale above
+   (--primary-*/--ai-*/--highlight-*/--accent-*/--color-secondary-*) is
+   shared with the public landing page, so Mazer's blue-purple identity
+   is applied by shadowing those same custom properties inside
+   .mazer-admin rather than changing the shared defaults - the landing
+   page keeps the NIIIS navy/cyan brand untouched. Scales derived with
+   the same lighten/darken math as lib/colorUtils.ts::deriveColorScale,
+   from Mazer's own compiled CSS: primary/link/active accent #435ebe,
+   stat-card pastels purple #9694ff, sky #57caeb, mint #5ddab4.
+--------------------------------------------------------------------- */
+
+.mazer-admin {
+  --primary-50: #f4f5fb;
+  --primary-100: #e3e7f5;
+  --primary-200: #c7cfec;
+  --primary-300: #a1afdf;
+  --primary-400: #7286ce;
+  --primary-500: #435ebe;
+  --primary-600: #374d9c;
+  --primary-700: #2c3d7c;
+  --primary-800: #202d5b;
+  --primary-900: #151e3d;
+  --primary-950: #0c1122;
+
+  --color-secondary-50: #f5f6f7;
+  --color-secondary-100: #e7eaec;
+  --color-secondary-200: #cfd4d9;
+  --color-secondary-300: #b0b8c0;
+  --color-secondary-400: #8894a0;
+  --color-secondary-500: #607080;
+  --color-secondary-600: #4f5c69;
+  --color-secondary-700: #3e4953;
+  --color-secondary-800: #2e363d;
+  --color-secondary-900: #1f2429;
+  --color-secondary-950: #111417;
+  --color-secondary: #607080;
+
+  --ai-50: #f9f9ff;
+  --ai-100: #efefff;
+  --ai-200: #e0dfff;
+  --ai-300: #cbcaff;
+  --ai-400: #b0afff;
+  --ai-500: #9694ff;
+  --ai-600: #7b79d1;
+  --ai-700: #6260a6;
+  --ai-800: #48477a;
+  --ai-900: #302f52;
+  --ai-950: #1b1b2e;
+
+  --highlight-50: #f5fdfb;
+  --highlight-100: #e7f9f4;
+  --highlight-200: #cef4e9;
+  --highlight-300: #aeedda;
+  --highlight-400: #86e3c7;
+  --highlight-500: #5ddab4;
+  --highlight-600: #4cb394;
+  --highlight-700: #3c8e75;
+  --highlight-800: #2d6956;
+  --highlight-900: #1e463a;
+  --highlight-950: #112720;
+
+  --accent-50: #f5fcfe;
+  --accent-100: #e6f7fc;
+  --accent-200: #cdeff9;
+  --accent-300: #abe5f5;
+  --accent-400: #81d7f0;
+  --accent-500: #57caeb;
+  --accent-600: #47a6c1;
+  --accent-700: #398399;
+  --accent-800: #2a6171;
+  --accent-900: #1c414b;
+  --accent-950: #10242a;
+}
+
+/* Mazer's stat-card icon chips: solid pastel square (not circular),
+   white icon - purple/sky/mint/red rotation, admin-only. */
+.stats-icon {
+  display: flex;
+  height: 48px;
+  width: 48px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  color: #ffffff;
+  font-size: 1.15rem;
+}
+
+.stats-icon-purple {
+  background-color: #9694ff;
+}
+
+.stats-icon-blue {
+  background-color: #57caeb;
+}
+
+.stats-icon-green {
+  background-color: #5ddab4;
+}
+
+.stats-icon-red {
+  background-color: #ff7976;
+}
+
 .card {
   border: 1px solid var(--ink-200) !important;
   box-shadow: none !important;
-  border-radius: 8px !important;
+  border-radius: 11px !important;
 }
 
 .badge {
-  border-radius: 8px !important;
+  border-radius: 11px !important;
 }
 
 .dropdown-menu {
   border: 1px solid var(--ink-200) !important;
   box-shadow: 0 4px 16px -4px rgba(17, 25, 38, 0.12) !important;
-  border-radius: 8px !important;
+  border-radius: 11px !important;
 }
 
 .form-control,
 .form-select {
-  border-radius: 8px !important;
+  border-radius: 11px !important;
 }
 
 .btn {
-  border-radius: 8px !important;
+  border-radius: 11px !important;
 }
 
 /* Gradient echoes the NIIIS logo's navy-to-cyan mark instead of a flat

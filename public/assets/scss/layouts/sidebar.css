@@ -130,13 +130,18 @@
     @apply text-theme-lightsidebarcolor dark:text-themedark-sidebarcolor;
   }
 
-  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.active > .pc-link {
-    @apply text-theme-lightsidebarcolor after:bg-dark-500;
+  /* Mazer's active nav item is a solid colored pill (not a faint tint) -
+     override this template's default dark-sidebar left-bar/10%-tint combo
+     (set unconditionally further up this file) so the light theme gets
+     Mazer's look instead. */
+  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.active,
+  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.pc-trigger {
+    @apply before:bg-transparent bg-transparent;
   }
 
-  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.pc-trigger,
-  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.active {
-    @apply bg-[rgba(0,0,0,0.04)];
+  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.active > .pc-link,
+  [data-pc-sidebar_theme='true'] .pc-sidebar .pc-navbar > .pc-item.pc-trigger > .pc-link {
+    @apply bg-primary-500 mx-2.5 rounded-lg text-white after:hidden;
   }
 
   [data-pc-navbar*='preset-'] .pc-sidebar .pc-caption {

@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSiteSettings, serializeSiteSettings } from "@/lib/siteSettings";
 import { deriveColorScale } from "@/lib/colorUtils";
 
-// Matches the Berry admin template's default theme font (config.js: fontFamily: "'Roboto', sans-serif").
-const roboto = Roboto({
+// Matches the Mazer admin template's default theme font.
+const nunito = Nunito({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  variable: "--font-roboto",
+  weight: ["300", "400", "600", "700", "800"],
+  variable: "--font-nunito",
 });
 
 // Site Settings (name/logo/favicon/accent color/footer) are admin-editable
@@ -83,7 +83,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   ].join("");
 
   return (
-    <html lang="id" className={roboto.variable}>
+    <html lang="id" className={nunito.variable}>
       <head>
         {/* Full brand palette (Pengaturan Situs) - overrides the template's
             default color scales, computed server-side so there's no flash

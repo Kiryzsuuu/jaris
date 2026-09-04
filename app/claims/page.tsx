@@ -121,7 +121,14 @@ export default function ClaimsPage() {
                           {c.claimNumber}
                         </Link>
                       </td>
-                      <td>{c.claimant?.fullName ?? "-"}</td>
+                      <td>
+                        <div className="flex items-center gap-2.5">
+                          <span className="bg-dark-500 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                            {(c.claimant?.fullName ?? "?").slice(0, 1).toUpperCase()}
+                          </span>
+                          {c.claimant?.fullName ?? "-"}
+                        </div>
+                      </td>
                       <td>{c.caseCategory}</td>
                       <td>
                         <span className={`badge ${STATUS_BADGE[c.status] ?? STATUS_BADGE.draft}`}>

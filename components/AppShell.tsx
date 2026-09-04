@@ -109,7 +109,7 @@ export default function AppShell({
   const siteName = settings?.siteName ?? "JARIS";
 
   return (
-    <>
+    <div className="mazer-admin" data-pc-sidebar_theme="true">
       {mobileOpen && (
         <div className="pc-menu-overlay lg:hidden" onClick={() => setMobileOpen(false)} />
       )}
@@ -244,6 +244,6 @@ export default function AppShell({
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }

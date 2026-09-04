@@ -189,7 +189,7 @@ export default function DashboardPage() {
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="card">
               <div className="card-body flex items-start gap-4">
-                <span className="bg-primary-100 text-primary-700 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                <span className="stats-icon stats-icon-purple">
                   <i className="ti ti-file-text" />
                 </span>
                 <div>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
             </div>
             <div className="card">
               <div className="card-body flex items-start gap-4">
-                <span className="bg-success-100 text-success-700 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                <span className="stats-icon stats-icon-blue">
                   <i className="ti ti-wallet" />
                 </span>
                 <div>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
             </div>
             <div className="card">
               <div className="card-body flex items-start gap-4">
-                <span className="bg-highlight-100 text-highlight-600 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-lg">
+                <span className="stats-icon stats-icon-green">
                   <i className="ti ti-clock-check" />
                 </span>
                 <div>
