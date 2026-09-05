@@ -54,6 +54,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (typeof body.accidentLocation === "string") claim.accidentLocation = body.accidentLocation;
     if (typeof body.accidentDescription === "string")
       claim.accidentDescription = body.accidentDescription;
+    if (typeof body.vehiclePlateNumber === "string") claim.vehiclePlateNumber = body.vehiclePlateNumber;
     if (body.transportMode) {
       if (!TRANSPORT_MODES.includes(body.transportMode)) {
         return errorResponse(`transportMode tidak valid: ${body.transportMode}`, 400);

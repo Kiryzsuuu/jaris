@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     requirePermission(request, PERMISSIONS.FRAUD_VIEW);
 
-    const result = await runFraudDetectionScan(10);
+    const { searchParams } = new URL(request.url);
+    const withNarrative = searchParams.get("narrative") !== "false";
+
+    const result = await runFraudDetectionScan(10, { withNarrative });
     return successResponse(result, `${result.findings.length} klaim ditandai dari ${result.scannedCount} yang dipindai`);
   } catch (error) {
     if (error instanceof AuthError) return authErrorResponse(error);

@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
       accidentDate: new Date(body.accidentDate),
       accidentLocation: body.accidentLocation,
       accidentDescription: body.accidentDescription,
+      vehiclePlateNumber: typeof body.vehiclePlateNumber === "string" ? body.vehiclePlateNumber : null,
       transportMode: body.transportMode,
       caseCategory: body.caseCategory,
       disabilityPercentage: body.disabilityPercentage ?? null,

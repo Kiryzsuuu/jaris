@@ -1,0 +1,303 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .root { font-family: 'Inter', sans-serif; display: flex; height: 600px; background: #EEF2FF; overflow: hidden; border-radius: 14px; border: 1px solid #C7D5F5; }
+  .sidebar { width: 220px; min-width: 220px; background: #0B2D6B; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .sidebar::before { content: ''; position: absolute; top: -80px; right: -80px; width: 200px; height: 200px; background: #1B4FA0; border-radius: 50%; opacity: 0.3; }
+  .sidebar-logo { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .logo-badge { display: inline-flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 32px; height: 32px; background: #F2A900; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #0B2D6B; }
+  .logo-text { font-size: 15px; font-weight: 700; color: #fff; }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.8px; }
+  .nav-section-label { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.28); letter-spacing: 1.2px; padding: 18px 20px 6px; text-transform: uppercase; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; cursor: pointer; position: relative; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item.active { background: rgba(242,169,0,0.12); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 3px; background: #F2A900; border-radius: 0 3px 3px 0; }
+  .nav-icon { width: 18px; opacity: 0.6; color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .nav-item.active .nav-icon { opacity: 1; color: #F2A900; }
+  .nav-label { font-size: 12.5px; color: rgba(255,255,255,0.65); }
+  .nav-item.active .nav-label { color: #fff; font-weight: 500; }
+  .nav-badge { margin-left: auto; background: #F2A900; color: #0B2D6B; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 20px; }
+  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: #1B4FA0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #F2A900; border: 1.5px solid rgba(242,169,0,0.4); }
+  .user-info .name { font-size: 11.5px; font-weight: 500; color: #fff; }
+  .user-info .role { font-size: 10px; color: rgba(255,255,255,0.35); }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { background: #fff; border-bottom: 1px solid #E0E8F8; padding: 0 24px; height: 54px; display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-size: 14px; font-weight: 600; color: #0B2D6B; }
+  .breadcrumb { font-size: 11px; color: #94A3B8; margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .btn { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: pointer; border: none; }
+  .btn-primary { background: #0B2D6B; color: #fff; }
+  .btn-gold { background: #F2A900; color: #0B2D6B; }
+  .btn-outline { background: #fff; border: 1px solid #C7D5F5; color: #0B2D6B; }
+  .content { flex: 1; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 14px; }
+  /* SUMMARY STRIP */
+  .summary-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .sum-card { background: #fff; border: 1px solid #E0E8F8; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .sum-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .sum-label { font-size: 10px; color: #94A3B8; font-weight: 500; }
+  .sum-val { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  /* MAIN GRID */
+  .main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+  .card { background: #fff; border: 1px solid #E0E8F8; border-radius: 12px; padding: 16px 18px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { font-size: 12.5px; font-weight: 600; color: #0B2D6B; }
+  .card-sub { font-size: 10.5px; color: #94A3B8; margin-top: 2px; }
+  /* FRAUD TABLE */
+  .fraud-table { width: 100%; border-collapse: collapse; }
+  .fraud-table th { font-size: 10px; font-weight: 600; color: #94A3B8; text-align: left; padding: 0 8px 10px; border-bottom: 1px solid #F1F5FD; letter-spacing: 0.4px; }
+  .fraud-table td { font-size: 11.5px; color: #334155; padding: 10px 8px; border-bottom: 1px solid #F8FAFF; vertical-align: middle; }
+  .fraud-table tr:last-child td { border-bottom: none; }
+  .fraud-table tr { cursor: pointer; transition: background 0.1s; }
+  .fraud-table tr:hover td { background: #F8FAFF; }
+  .claim-link { color: #1B4FA0; font-weight: 600; }
+  .risk-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .risk-bar-bg { flex: 1; height: 6px; background: #F1F5F9; border-radius: 99px; overflow: hidden; }
+  .risk-bar-fill { height: 100%; border-radius: 99px; }
+  .risk-score { font-size: 11px; font-weight: 700; min-width: 28px; }
+  .risk-high .risk-bar-fill { background: #DC2626; }
+  .risk-high .risk-score { color: #DC2626; }
+  .risk-med .risk-bar-fill { background: #F2A900; }
+  .risk-med .risk-score { color: #D4920A; }
+  .risk-low .risk-bar-fill { background: #16A34A; }
+  .risk-low .risk-score { color: #16A34A; }
+  .flag-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .flag { font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .flag-red { background: #FEF2F2; color: #DC2626; }
+  .flag-yellow { background: #FFFBEB; color: #D4920A; }
+  .flag-blue { background: #EEF4FF; color: #1B4FA0; }
+  .action-mini { display: flex; gap: 6px; }
+  .icon-btn-sm { width: 28px; height: 28px; border-radius: 7px; border: 1px solid #E0E8F8; background: #F8FAFF; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748B; font-size: 13px; }
+  /* AI NARASI */
+  .ai-panel { background: linear-gradient(160deg, #0B2D6B 0%, #1B4FA0 100%); border-radius: 12px; padding: 18px; position: relative; overflow: hidden; }
+  .ai-panel::before { content: ''; position: absolute; bottom: -40px; right: -40px; width: 130px; height: 130px; background: rgba(242,169,0,0.1); border-radius: 50%; }
+  .ai-panel-title { font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .ai-panel-sub { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+  .ai-block { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; padding: 10px 12px; margin-bottom: 8px; }
+  .ai-block-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: #F2A900; margin-bottom: 5px; text-transform: uppercase; }
+  .ai-block-text { font-size: 11px; color: rgba(255,255,255,0.82); line-height: 1.6; }
+  .ai-footer { display: flex; gap: 8px; margin-top: 12px; }
+  .ai-btn-white { flex: 1; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; padding: 8px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Inter',sans-serif; }
+  .ai-btn-gold { flex: 1; background: #F2A900; border: none; color: #0B2D6B; border-radius: 8px; padding: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Inter',sans-serif; }
+  /* SCORE GAUGE (CSS only) */
+  .gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 10px 0 6px; }
+  .gauge-ring { position: relative; width: 88px; height: 88px; }
+  .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .gauge-bg { fill: none; stroke: #F1F5F9; stroke-width: 8; }
+  .gauge-fill-red { fill: none; stroke: #DC2626; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 200; stroke-dashoffset: 44; }
+  .gauge-fill-yellow { fill: none; stroke: #F2A900; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 200; stroke-dashoffset: 112; }
+  .gauge-fill-green { fill: none; stroke: #16A34A; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 200; stroke-dashoffset: 168; }
+  .gauge-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .gauge-num { font-size: 22px; font-weight: 700; color: #DC2626; line-height: 1; }
+  .gauge-label { font-size: 9px; color: #94A3B8; margin-top: 2px; }
+  .gauge-desc { font-size: 11px; font-weight: 600; color: #DC2626; margin-top: 6px; }
+  .signal-list { margin-top: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .signal-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; border: 1px solid #F1F5F9; background: #FAFBFF; }
+  .signal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .signal-text { font-size: 11px; color: #334155; flex: 1; }
+  .signal-val { font-size: 11px; font-weight: 700; }
+</style>
+
+<div class="root">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">
+        <div class="logo-icon">J</div>
+        <div><div class="logo-text">JARIS</div><div class="logo-sub">JASA RAHARJA</div></div>
+      </div>
+    </div>
+    <div class="nav-section-label">Menu</div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></div><span class="nav-label">Dashboard</span></div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><span class="nav-label">Manajemen Klaim</span><span class="nav-badge">12</span></div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-message-chatbot" aria-hidden="true"></i></div><span class="nav-label">AI Asisten</span></div>
+    <div class="nav-section-label">Operasional</div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div><span class="nav-label">Peta Kecelakaan</span></div>
+    <div class="nav-item active"><div class="nav-icon"><i class="ti ti-shield-search" aria-hidden="true"></i></div><span class="nav-label">Deteksi Fraud</span><span class="nav-badge">3</span></div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-speakerphone" aria-hidden="true"></i></div><span class="nav-label">Broadcast</span></div>
+    <div class="nav-section-label">Administrasi</div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-users" aria-hidden="true"></i></div><span class="nav-label">Pegawai & RBAC</span></div>
+    <div class="nav-item"><div class="nav-icon"><i class="ti ti-settings" aria-hidden="true"></i></div><span class="nav-label">Pengaturan</span></div>
+    <div class="sidebar-footer">
+      <div class="avatar-sm">RW</div>
+      <div class="user-info"><div class="name">Randi Wibowo</div><div class="role">Super Admin</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Deteksi Anomali & Fraud</div>
+        <div class="breadcrumb">Scan statistik otomatis · Diperbarui 4 Sep 2026, 08:00</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" style="font-size:11px;padding:6px 12px;">Filter</button>
+        <button class="btn btn-gold" style="font-size:11px;padding:6px 14px;" onclick="sendPrompt('Jalankan ulang scan fraud detection JARIS untuk semua klaim bulan September 2026')">⟳ Scan Ulang</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- SUMMARY -->
+      <div class="summary-strip">
+        <div class="sum-card">
+          <div class="sum-icon" style="background:#FEF2F2;color:#DC2626;"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+          <div><div class="sum-label">Risiko Tinggi</div><div class="sum-val" style="color:#DC2626;">3</div></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-icon" style="background:#FFFBEB;color:#D4920A;"><i class="ti ti-alert-circle" aria-hidden="true"></i></div>
+          <div><div class="sum-label">Risiko Sedang</div><div class="sum-val" style="color:#D4920A;">7</div></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-icon" style="background:#F0FDF4;color:#16A34A;"><i class="ti ti-shield-check" aria-hidden="true"></i></div>
+          <div><div class="sum-label">Aman</div><div class="sum-val" style="color:#16A34A;">1.274</div></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-icon" style="background:#EEF4FF;color:#1B4FA0;"><i class="ti ti-scan" aria-hidden="true"></i></div>
+          <div><div class="sum-label">Total Discan</div><div class="sum-val" style="color:#0B2D6B;">1.284</div></div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="main-grid">
+        <!-- TABLE -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card" style="padding:16px 18px;">
+            <div class="card-header">
+              <div><div class="card-title">Klaim Berpotensi Anomali</div><div class="card-sub">Diurutkan berdasarkan skor risiko tertinggi</div></div>
+              <div style="display:flex;gap:6px;">
+                <div style="background:#FEF2F2;color:#DC2626;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;cursor:pointer;">Tinggi</div>
+                <div style="background:#F1F5F9;color:#94A3B8;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;cursor:pointer;">Sedang</div>
+                <div style="background:#F1F5F9;color:#94A3B8;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;cursor:pointer;">Semua</div>
+              </div>
+            </div>
+            <table class="fraud-table">
+              <thead><tr>
+                <th>No. Klaim</th><th>Pemohon</th><th>Skor Risiko</th><th>Flag Anomali</th><th>Aksi</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="claim-link">#KL-2831</span></td>
+                  <td>M. Fathur Rahman</td>
+                  <td>
+                    <div class="risk-bar-wrap risk-high">
+                      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:88%"></div></div>
+                      <div class="risk-score">88</div>
+                    </div>
+                  </td>
+                  <td><div class="flag-chips"><span class="flag flag-red">NIK Ganda</span><span class="flag flag-red">Z-Score Tinggi</span></div></td>
+                  <td><div class="action-mini"><div class="icon-btn-sm"><i class="ti ti-eye" aria-hidden="true"></i></div><div class="icon-btn-sm" style="color:#DC2626;border-color:#FECACA;"><i class="ti ti-flag" aria-hidden="true"></i></div></div></td>
+                </tr>
+                <tr>
+                  <td><span class="claim-link">#KL-2819</span></td>
+                  <td>Sari Dewantari</td>
+                  <td>
+                    <div class="risk-bar-wrap risk-high">
+                      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:76%"></div></div>
+                      <div class="risk-score">76</div>
+                    </div>
+                  </td>
+                  <td><div class="flag-chips"><span class="flag flag-red">Rekening Bersama</span><span class="flag flag-yellow">Dok. Minim</span></div></td>
+                  <td><div class="action-mini"><div class="icon-btn-sm"><i class="ti ti-eye" aria-hidden="true"></i></div><div class="icon-btn-sm" style="color:#DC2626;border-color:#FECACA;"><i class="ti ti-flag" aria-hidden="true"></i></div></div></td>
+                </tr>
+                <tr>
+                  <td><span class="claim-link">#KL-2803</span></td>
+                  <td>Agus Wibowo</td>
+                  <td>
+                    <div class="risk-bar-wrap risk-high">
+                      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:71%"></div></div>
+                      <div class="risk-score">71</div>
+                    </div>
+                  </td>
+                  <td><div class="flag-chips"><span class="flag flag-red">Persetujuan Tercepat</span><span class="flag flag-blue">Perlu Verifikasi</span></div></td>
+                  <td><div class="action-mini"><div class="icon-btn-sm"><i class="ti ti-eye" aria-hidden="true"></i></div><div class="icon-btn-sm" style="color:#DC2626;border-color:#FECACA;"><i class="ti ti-flag" aria-hidden="true"></i></div></div></td>
+                </tr>
+                <tr>
+                  <td><span class="claim-link">#KL-2791</span></td>
+                  <td>Nurul Hasanah</td>
+                  <td>
+                    <div class="risk-bar-wrap risk-med">
+                      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:52%"></div></div>
+                      <div class="risk-score">52</div>
+                    </div>
+                  </td>
+                  <td><div class="flag-chips"><span class="flag flag-yellow">Z-Score Sedang</span></div></td>
+                  <td><div class="action-mini"><div class="icon-btn-sm"><i class="ti ti-eye" aria-hidden="true"></i></div><div class="icon-btn-sm"><i class="ti ti-flag" aria-hidden="true"></i></div></div></td>
+                </tr>
+                <tr>
+                  <td><span class="claim-link">#KL-2778</span></td>
+                  <td>Bambang Prasetyo</td>
+                  <td>
+                    <div class="risk-bar-wrap risk-med">
+                      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:45%"></div></div>
+                      <div class="risk-score">45</div>
+                    </div>
+                  </td>
+                  <td><div class="flag-chips"><span class="flag flag-yellow">Dok. Minim</span></div></td>
+                  <td><div class="action-mini"><div class="icon-btn-sm"><i class="ti ti-eye" aria-hidden="true"></i></div><div class="icon-btn-sm"><i class="ti ti-flag" aria-hidden="true"></i></div></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT: AI NARASI + GAUGE -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- GAUGE #KL-2831 -->
+          <div class="card">
+            <div class="card-title" style="font-size:12px;margin-bottom:10px;">🔍 Detail Risiko · <span style="color:#1B4FA0;">#KL-2831</span></div>
+            <div class="gauge-wrap">
+              <div class="gauge-ring">
+                <svg class="gauge-svg" viewBox="0 0 88 88">
+                  <circle class="gauge-bg" cx="44" cy="44" r="32"/>
+                  <circle class="gauge-fill-red" cx="44" cy="44" r="32"/>
+                </svg>
+                <div class="gauge-text">
+                  <div class="gauge-num">88</div>
+                  <div class="gauge-label">/ 100</div>
+                </div>
+              </div>
+              <div class="gauge-desc">⚠ Risiko Sangat Tinggi</div>
+            </div>
+            <div class="signal-list">
+              <div class="signal-item">
+                <div class="signal-dot" style="background:#DC2626;"></div>
+                <div class="signal-text">NIK Ganda ditemukan</div>
+                <div class="signal-val" style="color:#DC2626;">+35 poin</div>
+              </div>
+              <div class="signal-item">
+                <div class="signal-dot" style="background:#DC2626;"></div>
+                <div class="signal-text">Biaya 3.2σ di atas rata-rata</div>
+                <div class="signal-val" style="color:#DC2626;">+31 poin</div>
+              </div>
+              <div class="signal-item">
+                <div class="signal-dot" style="background:#F2A900;"></div>
+                <div class="signal-text">Dokumen minim (2/4)</div>
+                <div class="signal-val" style="color:#D4920A;">+22 poin</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI NARASI -->
+          <div class="ai-panel">
+            <div class="ai-panel-title"><i class="ti ti-sparkles" aria-hidden="true" style="color:#F2A900;margin-right:5px;"></i>Narasi AI</div>
+            <div class="ai-panel-sub">Analisis otomatis Groq · llama-3.3-70b</div>
+            <div class="ai-block">
+              <div class="ai-block-label">Temuan Utama</div>
+              <div class="ai-block-text">Klaim #KL-2831 menunjukkan pola NIK yang sama dengan klaim #KL-2244 (Maret 2026). Nilai santunan 3,2 standar deviasi di atas rata-rata klaim jenis serupa.</div>
+            </div>
+            <div class="ai-block">
+              <div class="ai-block-label">Rekomendasi</div>
+              <div class="ai-block-text">Tunda pencairan. Lakukan verifikasi langsung ke lapangan dan konfirmasi identitas pemohon sebelum proses dilanjutkan.</div>
+            </div>
+            <div class="ai-footer">
+              <button class="ai-btn-white">Abaikan</button>
+              <button class="ai-btn-gold" onclick="sendPrompt('Buat laporan investigasi fraud untuk klaim #KL-2831 JARIS')">Buat Laporan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

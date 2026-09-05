@@ -185,6 +185,64 @@ export async function getAvgResolutionDays(filters: DashboardFilters): Promise<R
   };
 }
 
+export interface MonthlyClaimsAndPayments {
+  year: number;
+  month: number;
+  claimsCount: number;
+  paidAmount: number;
+}
+
+/** Tren bulanan gabungan: jumlah klaim diajukan (submittedAt) vs. total
+ * santunan dicairkan (Payment.recordedAt) - dipakai untuk grafik
+ * perbandingan "Tren Klaim & Pencairan". Independen dari
+ * getMonthlyAccidentTrend, yang berbasis tanggal kejadian, bukan pengajuan. */
+export async function getMonthlyClaimsAndPayments(
+  filters: DashboardFilters,
+  monthsBack = 6
+): Promise<MonthlyClaimsAndPayments[]> {
+  const claimMatch = buildClaimMatch(filters);
+  delete claimMatch.accidentDate; // this trend is keyed by submission/payment date, not accident date
+
+  const since = new Date();
+  since.setMonth(since.getMonth() - (monthsBack - 1));
+  since.setDate(1);
+  since.setHours(0, 0, 0, 0);
+
+  const [claimRows, paymentRows] = await Promise.all([
+    Claim.aggregate([
+      { $match: { ...claimMatch, submittedAt: { $ne: null, $gte: since } } },
+      { $group: { _id: { year: { $year: "$submittedAt" }, month: { $month: "$submittedAt" } }, count: { $sum: 1 } } },
+    ]),
+    Payment.aggregate([
+      {
+        $lookup: { from: "claims", localField: "claimId", foreignField: "_id", as: "claim" },
+      },
+      { $unwind: "$claim" },
+      { $match: { ...prefixMatch(claimMatch, "claim."), recordedAt: { $gte: since } } },
+      { $group: { _id: { year: { $year: "$recordedAt" }, month: { $month: "$recordedAt" } }, total: { $sum: "$amount" } } },
+    ]),
+  ]);
+
+  const claimsByKey = new Map(claimRows.map((r) => [`${r._id.year}-${r._id.month}`, r.count as number]));
+  const paidByKey = new Map(paymentRows.map((r) => [`${r._id.year}-${r._id.month}`, r.total as number]));
+
+  const result: MonthlyClaimsAndPayments[] = [];
+  const cursor = new Date(since);
+  for (let i = 0; i < monthsBack; i++) {
+    const year = cursor.getFullYear();
+    const month = cursor.getMonth() + 1;
+    const key = `${year}-${month}`;
+    result.push({
+      year,
+      month,
+      claimsCount: claimsByKey.get(key) ?? 0,
+      paidAmount: paidByKey.get(key) ?? 0,
+    });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return result;
+}
+
 export interface ClaimsByCategory {
   caseCategory: string;
   count: number;
@@ -250,6 +308,7 @@ export interface DashboardSummary {
   claimsByStatus: ClaimsByStatus[];
   paymentsByBranch: PaymentsByBranch[];
   monthlyAccidentTrend: MonthlyAccidentTrend[];
+  monthlyClaimsAndPayments: MonthlyClaimsAndPayments[];
   trendProjection: MonthlyAccidentTrend[];
   claimsByCategory: ClaimsByCategory[];
   resolution: ResolutionStats;
@@ -258,13 +317,15 @@ export interface DashboardSummary {
 }
 
 export async function getDashboardSummary(filters: DashboardFilters): Promise<DashboardSummary> {
-  const [claimsByStatus, paymentsByBranch, monthlyAccidentTrend, resolution, claimsByCategory] = await Promise.all([
-    getClaimsByStatus(filters),
-    getPaymentsByBranch(filters),
-    getMonthlyAccidentTrend(filters),
-    getAvgResolutionDays(filters),
-    getClaimsByCategory(filters),
-  ]);
+  const [claimsByStatus, paymentsByBranch, monthlyAccidentTrend, monthlyClaimsAndPayments, resolution, claimsByCategory] =
+    await Promise.all([
+      getClaimsByStatus(filters),
+      getPaymentsByBranch(filters),
+      getMonthlyAccidentTrend(filters),
+      getMonthlyClaimsAndPayments(filters),
+      getAvgResolutionDays(filters),
+      getClaimsByCategory(filters),
+    ]);
   const trendProjection = projectMonthlyTrend(monthlyAccidentTrend);
 
   return {
@@ -273,6 +334,7 @@ export async function getDashboardSummary(filters: DashboardFilters): Promise<Da
     claimsByCategory,
     paymentsByBranch,
     monthlyAccidentTrend,
+    monthlyClaimsAndPayments,
     resolution,
     totalClaims: claimsByStatus.reduce((sum, s) => sum + s.count, 0),
     totalPaidAmount: paymentsByBranch.reduce((sum, b) => sum + b.totalPaid, 0),

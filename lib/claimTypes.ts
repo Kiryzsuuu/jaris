@@ -32,10 +32,14 @@ export const CLAIM_STATUSES = [
 export type ClaimStatus = (typeof CLAIM_STATUSES)[number];
 
 // Only these transitions are allowed. Anything else is rejected by the API.
+// submitted/verified -> draft ("Kembalikan") sends a claim back to the
+// reporter for revision - distinct from "rejected", which is a final
+// decision. A returned claim keeps its documents/data so the reporter only
+// has to fix what was flagged, not start over.
 export const CLAIM_STATUS_TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
   draft: ["submitted"],
-  submitted: ["verified", "rejected"],
-  verified: ["approved", "rejected"],
+  submitted: ["verified", "rejected", "draft"],
+  verified: ["approved", "rejected", "draft"],
   approved: ["paid"],
   paid: [],
   rejected: [],

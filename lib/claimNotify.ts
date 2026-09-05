@@ -6,7 +6,7 @@ import type { Types } from "mongoose";
 export async function notifyClaimStatusChange(params: {
   reporterId: Types.ObjectId | string;
   claimNumber: string;
-  status: "verified" | "approved" | "rejected" | "paid";
+  status: "verified" | "approved" | "rejected" | "paid" | "returned";
   note?: string;
 }) {
   const reporter = await User.findById(params.reporterId);

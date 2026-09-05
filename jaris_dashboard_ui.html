@@ -1,0 +1,679 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .jaris-root {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    height: 600px;
+    background: #EEF2FF;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid #C7D5F5;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #0B2D6B;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 200px; height: 200px;
+    background: #1B4FA0;
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+
+  .sidebar-logo {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: #F2A900;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #0B2D6B;
+  }
+  .logo-text { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.8px; margin-top: 1px; }
+
+  .nav-section-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 1.2px;
+    padding: 18px 20px 6px;
+    text-transform: uppercase;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    border-radius: 0;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item.active {
+    background: rgba(242,169,0,0.12);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: #F2A900;
+    border-radius: 0 3px 3px 0;
+  }
+  .nav-icon {
+    width: 18px; height: 18px;
+    opacity: 0.6;
+    color: #fff;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .nav-icon { opacity: 1; color: #F2A900; }
+  .nav-label { font-size: 12.5px; color: rgba(255,255,255,0.65); font-weight: 400; }
+  .nav-item.active .nav-label { color: #fff; font-weight: 500; }
+  .nav-badge {
+    margin-left: auto;
+    background: #F2A900;
+    color: #0B2D6B;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 20px;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar-sm {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #1B4FA0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #F2A900;
+    border: 1.5px solid rgba(242,169,0,0.4);
+  }
+  .user-info .name { font-size: 11.5px; font-weight: 500; color: #fff; }
+  .user-info .role { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E8F8;
+    padding: 0 24px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .page-title { font-size: 14px; font-weight: 600; color: #0B2D6B; }
+  .breadcrumb { font-size: 11px; color: #94A3B8; margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-date { font-size: 11px; color: #94A3B8; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid #E0E8F8;
+    background: #F8FAFF;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #64748B;
+    font-size: 15px;
+    transition: border-color 0.15s;
+  }
+  .icon-btn:hover { border-color: #1B4FA0; color: #1B4FA0; }
+  .notif-dot { position: relative; }
+  .notif-dot::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 7px;
+    width: 6px; height: 6px;
+    background: #F2A900;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+  }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* METRIC CARDS */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .metric-card {
+    background: #fff;
+    border: 1px solid #E0E8F8;
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .metric-card:hover { border-color: #1B4FA0; transform: translateY(-1px); }
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric-card.blue::after { background: #1B4FA0; }
+  .metric-card.gold::after { background: #F2A900; }
+  .metric-card.green::after { background: #16A34A; }
+  .metric-card.red::after { background: #DC2626; }
+  .metric-label { font-size: 10.5px; color: #94A3B8; font-weight: 500; letter-spacing: 0.3px; }
+  .metric-value { font-size: 26px; font-weight: 700; color: #0B2D6B; margin: 6px 0 4px; line-height: 1; }
+  .metric-value.gold { color: #D4920A; }
+  .metric-value.green { color: #16A34A; }
+  .metric-value.red { color: #DC2626; }
+  .metric-change {
+    font-size: 11px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .up { color: #16A34A; }
+  .down { color: #DC2626; }
+  .metric-icon {
+    position: absolute;
+    right: 14px; top: 14px;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .metric-icon.blue { background: #EEF4FF; color: #1B4FA0; }
+  .metric-icon.gold { background: #FEF9EE; color: #D4920A; }
+  .metric-icon.green { background: #F0FDF4; color: #16A34A; }
+  .metric-icon.red { background: #FEF2F2; color: #DC2626; }
+
+  /* MIDDLE ROW */
+  .mid-row {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 12px;
+  }
+
+  /* CHART CARD */
+  .chart-card {
+    background: #fff;
+    border: 1px solid #E0E8F8;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: #0B2D6B; }
+  .card-sub { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+  .filter-tabs { display: flex; gap: 4px; }
+  .tab {
+    font-size: 10.5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #E0E8F8;
+    cursor: pointer;
+    color: #94A3B8;
+    background: #F8FAFF;
+    font-weight: 500;
+  }
+  .tab.active { background: #0B2D6B; color: #fff; border-color: #0B2D6B; }
+
+  /* BAR CHART */
+  .bar-chart { display: flex; gap: 8px; align-items: flex-end; height: 120px; }
+  .bar-group { display: flex; gap: 3px; align-items: flex-end; flex: 1; }
+  .bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    min-height: 8px;
+    transition: opacity 0.15s;
+  }
+  .bar:hover { opacity: 0.8; }
+  .bar.b1 { background: #1B4FA0; }
+  .bar.b2 { background: #F2A900; }
+  .chart-labels {
+    display: flex; gap: 8px;
+    margin-top: 8px;
+  }
+  .chart-label { flex: 1; text-align: center; font-size: 9.5px; color: #94A3B8; }
+  .chart-legend { display: flex; gap: 12px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: #64748B; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* ACTIVITY CARD */
+  .activity-card {
+    background: #fff;
+    border: 1px solid #E0E8F8;
+    border-radius: 12px;
+    padding: 18px 16px;
+  }
+  .activity-list { display: flex; flex-direction: column; gap: 0; }
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #F1F5FD;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .activity-text { font-size: 11.5px; color: #334155; line-height: 1.5; }
+  .activity-time { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+
+  /* BOTTOM ROW */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* TABLE CARD */
+  .table-card {
+    background: #fff;
+    border: 1px solid #E0E8F8;
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow: hidden;
+  }
+  .mini-table { width: 100%; border-collapse: collapse; }
+  .mini-table th {
+    font-size: 10px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-align: left;
+    padding: 0 0 10px;
+    border-bottom: 1px solid #F1F5FD;
+    letter-spacing: 0.4px;
+  }
+  .mini-table td {
+    font-size: 11.5px;
+    color: #334155;
+    padding: 9px 0;
+    border-bottom: 1px solid #F8FAFF;
+    vertical-align: middle;
+  }
+  .mini-table tr:last-child td { border-bottom: none; }
+  .status-badge {
+    font-size: 9.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .status-badge.verified { background: #F0FDF4; color: #16A34A; }
+  .status-badge.pending { background: #FEF9EE; color: #D4920A; }
+  .status-badge.submitted { background: #EEF4FF; color: #1B4FA0; }
+  .status-badge.approved { background: #F3F0FF; color: #7C3AED; }
+
+  /* AI CARD */
+  .ai-card {
+    background: linear-gradient(135deg, #0B2D6B 0%, #1B4FA0 100%);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-card::before {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: rgba(242,169,0,0.12);
+    border-radius: 50%;
+  }
+  .ai-card::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: 60px;
+    width: 60px; height: 60px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .ai-card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .ai-card-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-bottom: 14px; }
+  .ai-insight {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .ai-insight-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .ai-insight-text { font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+  .ai-btn {
+    margin-top: 10px;
+    background: #F2A900;
+    color: #0B2D6B;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.15s;
+  }
+  .ai-btn:hover { opacity: 0.9; }
+</style>
+
+<div class="jaris-root">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">
+        <div class="logo-icon">J</div>
+        <div>
+          <div class="logo-text">JARIS</div>
+          <div class="logo-sub">JASA RAHARJA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Menu</div>
+    <div class="nav-item active">
+      <div class="nav-icon"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></div>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div>
+      <span class="nav-label">Manajemen Klaim</span>
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-message-chatbot" aria-hidden="true"></i></div>
+      <span class="nav-label">AI Asisten</span>
+    </div>
+
+    <div class="nav-section-label">Operasional</div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
+      <span class="nav-label">Peta Kecelakaan</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-shield-search" aria-hidden="true"></i></div>
+      <span class="nav-label">Deteksi Fraud</span>
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-speakerphone" aria-hidden="true"></i></div>
+      <span class="nav-label">Broadcast</span>
+    </div>
+
+    <div class="nav-section-label">Administrasi</div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+      <span class="nav-label">Pegawai & RBAC</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-book" aria-hidden="true"></i></div>
+      <span class="nav-label">Knowledge Base</span>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"><i class="ti ti-settings" aria-hidden="true"></i></div>
+      <span class="nav-label">Pengaturan</span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar-sm">RW</div>
+      <div class="user-info">
+        <div class="name">Randi Wibowo</div>
+        <div class="role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="page-title">Dashboard Analitik</div>
+        <div class="breadcrumb">Ringkasan operasional · September 2026</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">Jum, 4 Sep 2026</div>
+        <div class="icon-btn notif-dot"><i class="ti ti-bell" aria-hidden="true"></i></div>
+        <div class="icon-btn"><i class="ti ti-search" aria-hidden="true"></i></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- METRICS -->
+      <div class="metrics-row">
+        <div class="metric-card blue">
+          <div class="metric-icon blue"><i class="ti ti-file-text" aria-hidden="true"></i></div>
+          <div class="metric-label">Total Klaim Masuk</div>
+          <div class="metric-value">1.284</div>
+          <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> +8.4% bulan ini</div>
+        </div>
+        <div class="metric-card gold">
+          <div class="metric-icon gold"><i class="ti ti-cash" aria-hidden="true"></i></div>
+          <div class="metric-label">Santunan Dicairkan</div>
+          <div class="metric-value gold">Rp 4,7M</div>
+          <div class="metric-change up"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> +12.1% bulan ini</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-icon green"><i class="ti ti-clock" aria-hidden="true"></i></div>
+          <div class="metric-label">Rata-rata Waktu Proses</div>
+          <div class="metric-value green">3,2j</div>
+          <div class="metric-change up"><i class="ti ti-trending-down" style="font-size:12px" aria-hidden="true"></i> SLA terpenuhi 94%</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-icon red"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+          <div class="metric-label">Potensi Fraud Terdeteksi</div>
+          <div class="metric-value red">3</div>
+          <div class="metric-change down"><i class="ti ti-alert-circle" style="font-size:12px" aria-hidden="true"></i> Perlu investigasi</div>
+        </div>
+      </div>
+
+      <!-- MID ROW -->
+      <div class="mid-row">
+        <!-- CHART -->
+        <div class="chart-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Tren Klaim & Pencairan</div>
+              <div class="card-sub">Perbandingan 6 bulan terakhir</div>
+            </div>
+            <div class="filter-tabs">
+              <div class="tab">3B</div>
+              <div class="tab active">6B</div>
+              <div class="tab">1T</div>
+            </div>
+          </div>
+          <div class="bar-chart">
+            <div class="bar-group"><div class="bar b1" style="height:55px"></div><div class="bar b2" style="height:40px"></div></div>
+            <div class="bar-group"><div class="bar b1" style="height:72px"></div><div class="bar b2" style="height:58px"></div></div>
+            <div class="bar-group"><div class="bar b1" style="height:60px"></div><div class="bar b2" style="height:50px"></div></div>
+            <div class="bar-group"><div class="bar b1" style="height:88px"></div><div class="bar b2" style="height:70px"></div></div>
+            <div class="bar-group"><div class="bar b1" style="height:78px"></div><div class="bar b2" style="height:65px"></div></div>
+            <div class="bar-group"><div class="bar b1" style="height:100px"></div><div class="bar b2" style="height:82px"></div></div>
+          </div>
+          <div class="chart-labels">
+            <div class="chart-label">Apr</div>
+            <div class="chart-label">Mei</div>
+            <div class="chart-label">Jun</div>
+            <div class="chart-label">Jul</div>
+            <div class="chart-label">Agu</div>
+            <div class="chart-label">Sep</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#1B4FA0"></div>Klaim Masuk</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#F2A900"></div>Santunan Dicairkan</div>
+          </div>
+        </div>
+
+        <!-- ACTIVITY -->
+        <div class="activity-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Aktivitas Terbaru</div>
+              <div class="card-sub">Real-time</div>
+            </div>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#16A34A"></div>
+              <div>
+                <div class="activity-text">Klaim #KL-2847 disetujui oleh Budi S.</div>
+                <div class="activity-time">2 menit lalu</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#F2A900"></div>
+              <div>
+                <div class="activity-text">Klaim #KL-2846 sedang diverifikasi</div>
+                <div class="activity-time">15 menit lalu</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#DC2626"></div>
+              <div>
+                <div class="activity-text">Anomali terdeteksi: NIK ganda di #KL-2839</div>
+                <div class="activity-time">42 menit lalu</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#1B4FA0"></div>
+              <div>
+                <div class="activity-text">Klaim #KL-2838 baru diajukan oleh petugas</div>
+                <div class="activity-time">1 jam lalu</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#7C3AED"></div>
+              <div>
+                <div class="activity-text">Broadcast pengumuman dikirim ke 142 pegawai</div>
+                <div class="activity-time">2 jam lalu</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+        <!-- TABLE -->
+        <div class="table-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Klaim Memerlukan Tindakan</div>
+              <div class="card-sub">Perlu diproses hari ini</div>
+            </div>
+            <div class="icon-btn" style="font-size:12px;width:auto;padding:0 10px;gap:4px;display:flex;align-items:center;color:#1B4FA0;font-weight:500;border-color:#C7D5F5;">
+              Lihat semua <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+            </div>
+          </div>
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>No. Klaim</th>
+                <th>Pemohon</th>
+                <th>Jenis</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:#1B4FA0;font-weight:500">#KL-2851</td>
+                <td>Siti Mariana</td>
+                <td style="color:#94A3B8">Kecelakaan</td>
+                <td><span class="status-badge pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td style="color:#1B4FA0;font-weight:500">#KL-2850</td>
+                <td>Ahmad Fauzi</td>
+                <td style="color:#94A3B8">Meninggal</td>
+                <td><span class="status-badge submitted">Diajukan</span></td>
+              </tr>
+              <tr>
+                <td style="color:#1B4FA0;font-weight:500">#KL-2849</td>
+                <td>Dewi Kusuma</td>
+                <td style="color:#94A3B8">Cacat Tetap</td>
+                <td><span class="status-badge verified">Diverifikasi</span></td>
+              </tr>
+              <tr>
+                <td style="color:#1B4FA0;font-weight:500">#KL-2848</td>
+                <td>Rudi Hartono</td>
+                <td style="color:#94A3B8">Kecelakaan</td>
+                <td><span class="status-badge approved">Disetujui</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- AI CARD -->
+        <div class="ai-card">
+          <div class="ai-card-title"><i class="ti ti-sparkles" aria-hidden="true" style="color:#F2A900;margin-right:6px;"></i>Rekomendasi AI</div>
+          <div class="ai-card-sub">Analisis otomatis dari sistem JARIS</div>
+          <div class="ai-insight">
+            <div class="ai-insight-icon">⚠️</div>
+            <div class="ai-insight-text">3 klaim memiliki pola anomali biaya tinggi. Disarankan untuk dilakukan audit manual sebelum pencairan.</div>
+          </div>
+          <div class="ai-insight">
+            <div class="ai-insight-icon">📈</div>
+            <div class="ai-insight-text">Tren klaim meningkat 8,4% — puncak diperkirakan terjadi Okt–Nov 2026 berdasarkan data historis.</div>
+          </div>
+          <button class="ai-btn" onclick="sendPrompt('Tampilkan detail rekomendasi AI untuk dashboard JARIS bulan September 2026')">
+            Lihat Analisis Lengkap ↗
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

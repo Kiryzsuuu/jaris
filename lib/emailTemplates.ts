@@ -28,6 +28,7 @@ export function claimStatusEmail(params: {
     approved: "disetujui",
     rejected: "ditolak",
     paid: "santunan telah dicairkan",
+    returned: "dikembalikan untuk revisi",
   };
   const statusLabel = statusLabels[params.status] ?? params.status;
 
