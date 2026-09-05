@@ -86,6 +86,30 @@ const SEVERITY_LABELS: Record<string, string> = {
   berat: "Berat",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  draft: "Draf",
+  submitted: "Diajukan",
+  verified: "Diverifikasi",
+  approved: "Disetujui",
+  paid: "Dicairkan",
+  rejected: "Ditolak",
+};
+
+const STATUS_CHIP_CLASSES: Record<string, string> = {
+  draft: "chip-draft",
+  submitted: "chip-submitted",
+  verified: "chip-verified",
+  approved: "chip-approved",
+  paid: "chip-paid",
+  rejected: "chip-rejected",
+};
+
+const AUDIT_STEP_CLASSES: Record<AuditStep["status"], string> = {
+  ok: "claim-step-ok",
+  warning: "claim-step-warning",
+  skipped: "claim-step-skipped",
+};
+
 function formatCurrency(amount: number | null) {
   if (amount === null) return "-";
   return `Rp${amount.toLocaleString("id-ID")}`;
@@ -288,6 +312,15 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
       }
     >
       <div className="max-w-6xl">
+        <div className="claim-topbar">
+          <div className="claim-id-badge">
+            <span className="claim-id">{claim.claimNumber}</span>
+            <span className={`status-chip ${STATUS_CHIP_CLASSES[claim.status] ?? "chip-draft"}`}>
+              {STATUS_LABELS[claim.status] ?? claim.status}
+            </span>
+          </div>
+        </div>
+
         {actionMessage && <p className="text-secondary-400 mb-3 text-sm">{actionMessage}</p>}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_1fr]">
@@ -326,15 +359,17 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
             <div className="card">
               <div className="card-body">
                 <h2 className="mb-3 text-base font-semibold text-[#1e293b]">Dokumen Pendukung</h2>
-                <ul className="space-y-2 text-sm">
+                <div className="claim-doc-list text-sm">
                   {claim.documents.map((d) => {
                     const isImage = d.mimeType.startsWith("image/");
                     const analysis = damageAnalysis[d.id];
                     return (
-                      <li key={d.id} className="border-secondary-200 border-b pb-2 last:border-0">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="flex items-center gap-2">
-                            <i className={`ti ${isImage ? "ti-photo" : "ti-file-text"} text-primary-600`} />
+                      <div key={d.id} className="claim-doc-item flex-wrap">
+                        <div className="claim-doc-icon">
+                          <i className={`ti ${isImage ? "ti-photo" : "ti-file-text"}`} />
+                        </div>
+                        <div className="flex flex-1 flex-wrap items-center justify-between gap-2">
+                          <span className="claim-doc-name">
                             {d.type} - {d.fileName}
                           </span>
                           <div className="flex items-center gap-2">
@@ -379,11 +414,11 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                             )}
                           </div>
                         )}
-                      </li>
+                      </div>
                     );
                   })}
-                  {claim.documents.length === 0 && <li className="text-secondary-400">Belum ada dokumen</li>}
-                </ul>
+                  {claim.documents.length === 0 && <p className="text-secondary-400">Belum ada dokumen</p>}
+                </div>
 
                 {canUploadDoc && (
                   <form onSubmit={handleUpload} className="mt-4 flex flex-wrap items-end gap-3">
@@ -431,17 +466,22 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                   {auditError && <p className="text-danger-600 mt-2 text-sm">{auditError}</p>}
 
                   {auditResult && (
-                    <div className="mt-4">
-                      <ol className="space-y-1.5 text-xs">
-                        {auditResult.steps.map((s) => (
-                          <li key={s.step} className="flex items-start gap-2">
-                            <i
-                              className={`ti ${s.status === "ok" ? "ti-circle-check text-success-600" : s.status === "warning" ? "ti-alert-triangle text-warning-600" : "ti-circle-dashed text-secondary-400"} mt-0.5`}
-                            />
-                            <span><strong>{s.name}:</strong> {s.detail}</span>
-                          </li>
-                        ))}
-                      </ol>
+                    <div className="claim-audit-panel mt-4">
+                      {auditResult.steps.map((s) => (
+                        <div key={s.step} className="claim-audit-step">
+                          <div className="claim-audit-step-header">
+                            <div className={`claim-step-num ${AUDIT_STEP_CLASSES[s.status]}`}>
+                              <i
+                                className={
+                                  s.status === "ok" ? "ti ti-check" : s.status === "warning" ? "ti ti-alert-triangle" : "ti ti-minus"
+                                }
+                              />
+                            </div>
+                            <div className="claim-step-title">{s.name}</div>
+                          </div>
+                          <div className="claim-audit-body">{s.detail}</div>
+                        </div>
+                      ))}
 
                       {auditResult.flags.length > 0 && (
                         <ul className="mt-3 space-y-1 text-xs">
@@ -468,15 +508,21 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
             <div className="card">
               <div className="card-body">
                 <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Kalkulasi Santunan (Rules Engine)</h2>
-                <div className="bg-primary-50 -mx-1 mb-3 grid grid-cols-2 gap-3 rounded-lg px-4 py-3">
-                  <Field label="Estimasi" value={formatCurrency(claim.estimatedAmount)} />
-                  <Field label="Disetujui" value={formatCurrency(claim.approvedAmount)} />
+                <div className="claim-amount-highlight mb-3">
+                  <div>
+                    <div className="claim-amount-label">Estimasi Santunan</div>
+                    <div className="claim-amount-value">{formatCurrency(claim.estimatedAmount)}</div>
+                    {claim.approvedAmount !== null && (
+                      <div className="claim-amount-label mt-1">Disetujui: {formatCurrency(claim.approvedAmount)}</div>
+                    )}
+                  </div>
                   {claim.claimant.bankName && (
-                    <div className="col-span-2 border-t border-white/60 pt-3">
-                      <Field
-                        label="Rekening Tujuan"
-                        value={`${claim.claimant.bankName} - ${claim.claimant.bankAccountNumber ?? "-"} a.n. ${claim.claimant.bankAccountHolder ?? "-"}`}
-                      />
+                    <div style={{ textAlign: "right" }}>
+                      <div className="claim-amount-label">Rekening Tujuan</div>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--ink-800)", marginTop: "0.2rem" }}>
+                        {claim.claimant.bankName} · {claim.claimant.bankAccountNumber ?? "-"}
+                      </div>
+                      <div className="claim-amount-label mt-1">a.n. {claim.claimant.bankAccountHolder ?? "-"}</div>
                     </div>
                   )}
                 </div>
@@ -508,20 +554,26 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
             <div className="card">
               <div className="card-body">
                 <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Riwayat Status</h2>
-                <ol className="space-y-3">
+                <div className="claim-timeline">
                   {claim.timeline.map((entry, i) => (
-                    <li key={i} className="flex gap-3">
-                      <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full" style={{ backgroundColor: i === claim.timeline.length - 1 ? "var(--accent-500)" : "var(--ink-300)" }} />
-                      <div>
-                        <p className="mb-0 text-sm text-[#1e293b]">{entry.label}</p>
-                        <p className="text-secondary-400 mb-0 text-xs">
+                    <div key={i} className="claim-tl-item">
+                      <div className="claim-tl-left">
+                        <span
+                          className="claim-tl-dot"
+                          style={{ background: i === claim.timeline.length - 1 ? "var(--accent-500)" : "var(--primary-500)" }}
+                        />
+                        {i < claim.timeline.length - 1 && <span className="claim-tl-line" />}
+                      </div>
+                      <div className="claim-tl-content">
+                        <div className="claim-tl-title">{entry.label}</div>
+                        <div className="claim-tl-time">
                           {new Date(entry.at).toLocaleString("id-ID")}
                           {entry.detail ? ` - ${entry.detail}` : ""}
-                        </p>
+                        </div>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ol>
+                </div>
               </div>
             </div>
 

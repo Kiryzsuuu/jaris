@@ -384,7 +384,7 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
                 <div className="landing-learn-more-body">
                   <h3>{c.title}</h3>
                   <button type="button" className="landing-learn-more-link" onClick={() => setActiveCard(c)}>
-                    Baca selengkapnya <i className="ti ti-arrow-right" />
+                    Baca selengkapnya
                   </button>
                 </div>
               </Reveal>

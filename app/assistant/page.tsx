@@ -172,8 +172,8 @@ export default function AssistantPage() {
       pageTitle="AI Asisten Internal"
       pageSubtitle="Jawaban berbasis knowledge base internal (RAG) - bukan mengarang jawaban"
     >
-      <div className="card flex overflow-hidden p-0" style={{ height: "calc(100vh - 220px)", minHeight: 420 }}>
-        <aside className="border-secondary-200 w-[260px] shrink-0 overflow-y-auto border-r p-4">
+      <div className="assistant-shell">
+        <aside className="assistant-sidebar">
           <button onClick={startNewConversation} className="btn btn-primary mb-3 w-full">
             <i className="ti ti-plus mr-1" /> Percakapan Baru
           </button>
@@ -184,9 +184,7 @@ export default function AssistantPage() {
             <button
               key={c.conversationId}
               onClick={() => openConversation(c.conversationId)}
-              className={`mb-1 block w-full truncate rounded-lg px-2 py-1.5 text-left text-sm ${
-                c.conversationId === conversationId ? "bg-primary-50 text-primary-700" : "text-[#1e293b]"
-              }`}
+              className={`assistant-conv-item ${c.conversationId === conversationId ? "is-active" : ""}`}
             >
               {c.lastMessage}
             </button>
@@ -196,41 +194,34 @@ export default function AssistantPage() {
           )}
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col">
-          <div className="border-secondary-200 flex items-center justify-between border-b px-5 py-3">
+        <section className="assistant-main">
+          <div className="assistant-header">
             <p className="mb-0 text-sm font-semibold text-[#1e293b]">
               <i className="ti ti-sparkles text-accent-500 mr-1.5" /> JARIS AI Asisten Internal
             </p>
             {kbCount !== null && (
-              <span className="bg-success-50 text-success-600 border-success-200 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold">
-                <span className="bg-success-500 h-1.5 w-1.5 animate-pulse rounded-full" />
+              <span className="assistant-rag-badge">
+                <span className="assistant-rag-dot" />
                 RAG Aktif - {kbCount} Dokumen
               </span>
             )}
           </div>
 
-          <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-5">
+          <div className="assistant-messages">
             {messages.map((m, i) => (
               <div key={i} className={`flex items-start gap-2.5 ${m.role === "user" ? "justify-end" : ""}`}>
                 {m.role === "assistant" && (
-                  <span
-                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm text-white"
-                    style={{ background: "linear-gradient(135deg, var(--primary-700), var(--ai-600))" }}
-                  >
+                  <span className="assistant-avatar">
                     <i className="ti ti-robot" />
                   </span>
                 )}
-                <div
-                  className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
-                    m.role === "user" ? "bg-primary-600 text-white" : "bg-primary-50 text-[#1e293b]"
-                  }`}
-                >
+                <div className={`assistant-bubble ${m.role === "user" ? "is-user" : "is-assistant"}`}>
                   {m.content}
                   {m.role === "assistant" && m.sources && m.sources.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {m.sources.map((s, j) => (
-                        <span key={j} className="bg-primary-100 text-primary-700 rounded-full px-2.5 py-0.5 text-xs">
-                          <i className="ti ti-file-text mr-1" />
+                        <span key={j} className="assistant-source-pill">
+                          <i className="ti ti-file-text" />
                           {s.documentTitle} #{s.chunkIndex}
                         </span>
                       ))}
@@ -258,13 +249,13 @@ export default function AssistantPage() {
           {error && <p className="text-danger-600 px-4 text-sm">{error}</p>}
 
           {messages.length === 0 && (
-            <div className="flex flex-wrap gap-1.5 px-5 pb-3">
+            <div className="assistant-suggestions">
               {SUGGESTED_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => sendMessage(q)}
-                  className="border-secondary-200 text-primary-600 rounded-full border px-3 py-1.5 text-xs font-medium"
+                  className="assistant-suggestion-chip"
                 >
                   {q}
                 </button>
@@ -272,7 +263,7 @@ export default function AssistantPage() {
             </div>
           )}
 
-          <form onSubmit={handleSend} className="border-secondary-200 flex gap-2 border-t p-4">
+          <form onSubmit={handleSend} className="assistant-input-row">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
