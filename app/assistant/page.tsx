@@ -18,6 +18,26 @@ type ConversationSummary = {
   updatedAt: string;
 };
 
+const SUGGESTED_QUESTIONS = [
+  "Apa SOP verifikasi klaim kecelakaan di JARIS?",
+  "Berapa batas waktu pengajuan klaim santunan Jasa Raharja?",
+  "Prosedur klaim untuk korban meninggal dunia di Jasa Raharja",
+];
+
+// Minimal typing for the Web Speech API - not in standard lib.dom.d.ts, and
+// only available in some browsers (mainly Chromium-based). Voice input is
+// entirely client-side; there's no backend speech-to-text service here.
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  onresult: ((event: { results: { transcript: string }[][] } | SpeechRecognitionEventLike) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+type SpeechRecognitionEventLike = { results: ArrayLike<ArrayLike<{ transcript: string }>> };
+
 export default function AssistantPage() {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -25,7 +45,11 @@ export default function AssistantPage() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [kbCount, setKbCount] = useState<number | null>(null);
+  const [listening, setListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const loadConversations = useCallback(async () => {
     const res = await fetch("/api/assistant/chat").then((r) => r.json());
@@ -35,11 +59,47 @@ export default function AssistantPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount
     loadConversations();
+    fetch("/api/kb/documents/count")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setKbCount(json.data.count);
+      })
+      .catch(() => {});
+
+    const SpeechRecognitionCtor =
+      (window as unknown as { SpeechRecognition?: new () => SpeechRecognitionLike; webkitSpeechRecognition?: new () => SpeechRecognitionLike })
+        .SpeechRecognition ??
+      (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognitionLike }).webkitSpeechRecognition;
+    if (SpeechRecognitionCtor) {
+      setVoiceSupported(true);
+      const recognition = new SpeechRecognitionCtor();
+      recognition.lang = "id-ID";
+      recognition.interimResults = false;
+      recognition.onresult = (event) => {
+        const results = (event as SpeechRecognitionEventLike).results;
+        const transcript = results[results.length - 1]?.[0]?.transcript;
+        if (transcript) setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      };
+      recognition.onend = () => setListening(false);
+      recognition.onerror = () => setListening(false);
+      recognitionRef.current = recognition;
+    }
   }, [loadConversations]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function toggleVoiceInput() {
+    if (!recognitionRef.current) return;
+    if (listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+    } else {
+      recognitionRef.current.start();
+      setListening(true);
+    }
+  }
 
   async function openConversation(id: string) {
     setConversationId(id);
@@ -63,9 +123,7 @@ export default function AssistantPage() {
     setError(null);
   }
 
-  async function handleSend(e: React.FormEvent) {
-    e.preventDefault();
-    const text = input.trim();
+  async function sendMessage(text: string) {
     if (!text || sending) return;
 
     setSending(true);
@@ -104,6 +162,11 @@ export default function AssistantPage() {
     }
   }
 
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    await sendMessage(input.trim());
+  }
+
   return (
     <AppShell
       pageTitle="AI Asisten Internal"
@@ -134,42 +197,80 @@ export default function AssistantPage() {
         </aside>
 
         <section className="flex min-w-0 flex-1 flex-col">
+          <div className="border-secondary-200 flex items-center justify-between border-b px-5 py-3">
+            <p className="mb-0 text-sm font-semibold text-[#1e293b]">
+              <i className="ti ti-sparkles text-accent-500 mr-1.5" /> JARIS AI Asisten Internal
+            </p>
+            {kbCount !== null && (
+              <span className="bg-success-50 text-success-600 border-success-200 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold">
+                <span className="bg-success-500 h-1.5 w-1.5 animate-pulse rounded-full" />
+                RAG Aktif - {kbCount} Dokumen
+              </span>
+            )}
+          </div>
+
           <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-5">
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
-                  m.role === "user" ? "bg-primary-600 self-end text-white" : "bg-primary-50 self-start text-[#1e293b]"
-                }`}
-              >
-                {m.content}
-                {m.role === "assistant" && m.sources && m.sources.length > 0 && (
-                  <div className="text-secondary-400 mt-2 text-xs">
-                    <strong>Sumber:</strong>
-                    <ul className="mt-1 list-disc pl-4">
+              <div key={i} className={`flex items-start gap-2.5 ${m.role === "user" ? "justify-end" : ""}`}>
+                {m.role === "assistant" && (
+                  <span
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm text-white"
+                    style={{ background: "linear-gradient(135deg, var(--primary-700), var(--ai-600))" }}
+                  >
+                    <i className="ti ti-robot" />
+                  </span>
+                )}
+                <div
+                  className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
+                    m.role === "user" ? "bg-primary-600 text-white" : "bg-primary-50 text-[#1e293b]"
+                  }`}
+                >
+                  {m.content}
+                  {m.role === "assistant" && m.sources && m.sources.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {m.sources.map((s, j) => (
-                        <li key={j}>{s.documentTitle} (bagian #{s.chunkIndex}, skor {s.score.toFixed(2)})</li>
+                        <span key={j} className="bg-primary-100 text-primary-700 rounded-full px-2.5 py-0.5 text-xs">
+                          <i className="ti ti-file-text mr-1" />
+                          {s.documentTitle} #{s.chunkIndex}
+                        </span>
                       ))}
-                    </ul>
-                  </div>
-                )}
-                {m.role === "assistant" && m.isGrounded === false && (
-                  <div className="text-warning-600 mt-2 text-xs">
-                    <i className="ti ti-alert-triangle mr-1" />
-                    Tidak ditemukan di knowledge base
-                  </div>
-                )}
+                    </div>
+                  )}
+                  {m.role === "assistant" && m.isGrounded === false && (
+                    <div className="text-warning-600 mt-2 text-xs">
+                      <i className="ti ti-alert-triangle mr-1" />
+                      Tidak ditemukan di knowledge base
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
             {messages.length === 0 && (
-              <p className="text-secondary-400 text-sm">
-                Tanyakan sesuatu, mis. &quot;Berapa santunan meninggal dunia untuk kendaraan darat?&quot;
-              </p>
+              <div>
+                <p className="text-secondary-400 mb-0 text-sm">
+                  Tanyakan sesuatu, mis. &quot;Berapa santunan meninggal dunia untuk kendaraan darat?&quot;
+                </p>
+              </div>
             )}
             <div ref={bottomRef} />
           </div>
 
           {error && <p className="text-danger-600 px-4 text-sm">{error}</p>}
+
+          {messages.length === 0 && (
+            <div className="flex flex-wrap gap-1.5 px-5 pb-3">
+              {SUGGESTED_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => sendMessage(q)}
+                  className="border-secondary-200 text-primary-600 rounded-full border px-3 py-1.5 text-xs font-medium"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
 
           <form onSubmit={handleSend} className="border-secondary-200 flex gap-2 border-t p-4">
             <input
@@ -178,6 +279,16 @@ export default function AssistantPage() {
               placeholder="Ketik pertanyaan Anda..."
               className="form-control"
             />
+            {voiceSupported && (
+              <button
+                type="button"
+                onClick={toggleVoiceInput}
+                className={`btn btn-sm ${listening ? "btn-danger" : "btn-outline-primary"}`}
+                title="Input suara"
+              >
+                <i className={`ti ${listening ? "ti-microphone-off" : "ti-microphone"}`} />
+              </button>
+            )}
             <button type="submit" disabled={sending || !input.trim()} className="btn btn-primary">
               {sending ? "Mengirim..." : "Kirim"}
             </button>

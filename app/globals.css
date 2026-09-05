@@ -152,6 +152,11 @@ body {
   color: #ffffff;
 }
 
+.stats-icon-red {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
 /* Card chrome per the mockup: soft rounded corners, hairline slate border,
    and a light shadow that lifts slightly on hover. */
 .card {
@@ -200,6 +205,21 @@ body {
 
 .btn-primary:active {
   filter: brightness(0.94);
+}
+
+/* Gold action button - used sparingly for a single primary "AI-adjacent"
+   action per screen (e.g. rescan, build report), echoing the mockup. */
+.btn-gold {
+  background: var(--accent-500) !important;
+  color: var(--primary-700) !important;
+  border: none !important;
+  font-weight: 700;
+  transition: filter 0.15s ease;
+}
+
+.btn-gold:hover,
+.btn-gold:focus {
+  filter: brightness(1.08);
 }
 
 /* Thin gold rule along the top of the navy sidebar - the one place gold

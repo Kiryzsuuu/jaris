@@ -14,20 +14,26 @@ type ClaimDetail = {
     relationshipToVictim?: string;
     phone?: string;
     address?: string;
+    bankName?: string | null;
+    bankAccountNumber?: string | null;
+    bankAccountHolder?: string | null;
   };
   accidentDate: string;
   accidentLocation: string;
   accidentDescription: string;
+  vehiclePlateNumber: string | null;
   transportMode: string;
   caseCategory: string;
   disabilityPercentage: number | null;
   claimedTreatmentCost: number | null;
-  documents: { id: string; type: string; fileName: string; mimeType: string; uploadedAt: string }[];
+  documents: { id: string; type: string; fileName: string; mimeType: string; uploadedAt: string; reviewStatus: "verified" | "needs_review" }[];
   estimatedAmount: number | null;
   approvedAmount: number | null;
   verification: { verifiedBy: string; verifiedAt: string; notes: string | null } | null;
   approval: { approvedBy: string; approvedAt: string; notes: string | null } | null;
   rejection: { rejectedBy: string; rejectedAt: string; reason: string } | null;
+  returnedForRevision: { returnedBy: string; returnedAt: string; reason: string } | null;
+  timeline: { label: string; actorId: string | null; at: string; detail: string | null }[];
 };
 
 type Me = { id: string; permissions: string[] };
@@ -212,6 +218,15 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  async function handleMarkReviewed(docId: string) {
+    await fetch(`/api/claims/${id}/documents/${docId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewStatus: "verified" }),
+    });
+    await loadData();
+  }
+
   async function handleRunAudit() {
     setAuditRunning(true);
     setAuditError(null);
@@ -254,7 +269,24 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
   const canPay = permissions.includes("claim:approve") && claim.status === "approved";
 
   return (
-    <AppShell pageTitle={claim.claimNumber} pageSubtitle={`Status: ${claim.status}`}>
+    <AppShell
+      pageTitle={claim.claimNumber}
+      pageSubtitle={`Status: ${claim.status}`}
+      headerActions={
+        <div className="flex gap-2">
+          <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => window.print()}>
+            <i className="ti ti-printer mr-1" /> Cetak
+          </button>
+          <button
+            className="btn btn-outline-primary btn-sm"
+            type="button"
+            onClick={() => window.open(`/api/claims/${id}/report`, "_blank")}
+          >
+            <i className="ti ti-download mr-1" /> Unduh PDF
+          </button>
+        </div>
+      }
+    >
       <div className="max-w-6xl">
         {actionMessage && <p className="text-secondary-400 mb-3 text-sm">{actionMessage}</p>}
 
@@ -267,6 +299,7 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                   <Field label="Tanggal" value={new Date(claim.accidentDate).toLocaleDateString("id-ID")} />
                   <Field label="Moda Transportasi" value={claim.transportMode} />
                   <Field label="Lokasi" value={claim.accidentLocation} />
+                  {claim.vehiclePlateNumber && <Field label="No. Polisi Kendaraan" value={claim.vehiclePlateNumber} />}
                   <Field label="Klasifikasi Kasus" value={claim.caseCategory} />
                   {claim.disabilityPercentage !== null && <Field label="Persentase Cacat" value={`${claim.disabilityPercentage}%`} />}
                   {claim.claimedTreatmentCost !== null && (
@@ -300,18 +333,37 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                     return (
                       <li key={d.id} className="border-secondary-200 border-b pb-2 last:border-0">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span>{d.type} - {d.fileName}</span>
-                          {isImage && (
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary btn-sm"
-                              disabled={analyzingDocId === d.id}
-                              onClick={() => handleAnalyzeDamage(d.id)}
-                            >
-                              <i className="ti ti-camera mr-1" />
-                              {analyzingDocId === d.id ? "Menganalisis..." : "Analisis Foto (AI)"}
-                            </button>
-                          )}
+                          <span className="flex items-center gap-2">
+                            <i className={`ti ${isImage ? "ti-photo" : "ti-file-text"} text-primary-600`} />
+                            {d.type} - {d.fileName}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {d.reviewStatus === "verified" ? (
+                              <span className="text-success-600 text-xs font-semibold">
+                                <i className="ti ti-check mr-0.5" /> Terverifikasi
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="text-warning-600 text-xs font-semibold"
+                                onClick={() => handleMarkReviewed(d.id)}
+                                title="Tandai sudah ditinjau"
+                              >
+                                <i className="ti ti-alert-triangle mr-0.5" /> Perlu Review
+                              </button>
+                            )}
+                            {isImage && (
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary btn-sm"
+                                disabled={analyzingDocId === d.id}
+                                onClick={() => handleAnalyzeDamage(d.id)}
+                              >
+                                <i className="ti ti-camera mr-1" />
+                                {analyzingDocId === d.id ? "Menganalisis..." : "Analisis Foto (AI)"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                         {analysis && (
                           <div className="bg-primary-50 mt-2 rounded-lg p-3 text-xs">
@@ -419,6 +471,14 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="bg-primary-50 -mx-1 mb-3 grid grid-cols-2 gap-3 rounded-lg px-4 py-3">
                   <Field label="Estimasi" value={formatCurrency(claim.estimatedAmount)} />
                   <Field label="Disetujui" value={formatCurrency(claim.approvedAmount)} />
+                  {claim.claimant.bankName && (
+                    <div className="col-span-2 border-t border-white/60 pt-3">
+                      <Field
+                        label="Rekening Tujuan"
+                        value={`${claim.claimant.bankName} - ${claim.claimant.bankAccountNumber ?? "-"} a.n. ${claim.claimant.bankAccountHolder ?? "-"}`}
+                      />
+                    </div>
+                  )}
                 </div>
                 {claim.verification && (
                   <p className="text-secondary-400 text-sm">
@@ -437,6 +497,31 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                     Ditolak: {new Date(claim.rejection.rejectedAt).toLocaleString("id-ID")} - {claim.rejection.reason}
                   </p>
                 )}
+                {claim.returnedForRevision && (
+                  <p className="text-warning-600 mb-0 text-sm">
+                    Dikembalikan: {new Date(claim.returnedForRevision.returnedAt).toLocaleString("id-ID")} - {claim.returnedForRevision.reason}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-body">
+                <h2 className="mb-4 text-base font-semibold text-[#1e293b]">Riwayat Status</h2>
+                <ol className="space-y-3">
+                  {claim.timeline.map((entry, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full" style={{ backgroundColor: i === claim.timeline.length - 1 ? "var(--accent-500)" : "var(--ink-300)" }} />
+                      <div>
+                        <p className="mb-0 text-sm text-[#1e293b]">{entry.label}</p>
+                        <p className="text-secondary-400 mb-0 text-xs">
+                          {new Date(entry.at).toLocaleString("id-ID")}
+                          {entry.detail ? ` - ${entry.detail}` : ""}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
 
@@ -456,6 +541,13 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                       <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/verify`, { action: "verify" })} className="btn btn-primary mr-2 mb-2">
                         Verifikasi Lengkap
                       </button>
+                      <button
+                        disabled={busy || !reason}
+                        onClick={() => callAction(`/api/claims/${id}/return`, { reason })}
+                        className="btn btn-outline-primary mr-2 mb-2"
+                      >
+                        Kembalikan
+                      </button>
                       <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/verify`, { action: "reject", reason })} />
                     </>
                   )}
@@ -464,6 +556,13 @@ export default function ClaimDetailPage({ params }: { params: Promise<{ id: stri
                     <>
                       <button disabled={busy} onClick={() => callAction(`/api/claims/${id}/approve`, { action: "approve" })} className="btn btn-primary mr-2 mb-2">
                         Setujui Klaim
+                      </button>
+                      <button
+                        disabled={busy || !reason}
+                        onClick={() => callAction(`/api/claims/${id}/return`, { reason })}
+                        className="btn btn-outline-primary mr-2 mb-2"
+                      >
+                        Kembalikan
                       </button>
                       <RejectControl busy={busy} reason={reason} setReason={setReason} onReject={() => callAction(`/api/claims/${id}/approve`, { action: "reject", reason })} />
                     </>

@@ -4,6 +4,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 import { requirePermission, authErrorResponse, AuthError } from "@/lib/authGuard";
 import { PERMISSIONS } from "@/lib/permissions";
 import { canAccessClaim } from "@/lib/claimAccess";
+import { recordAuditLog } from "@/lib/auditLog";
 import Claim from "@/models/Claim";
 
 type Params = { params: Promise<{ id: string; docId: string }> };
@@ -31,6 +32,44 @@ export async function GET(request: NextRequest, { params }: Params) {
       fileBase64: doc.fileBase64,
       uploadedAt: doc.uploadedAt,
     });
+  } catch (error) {
+    if (error instanceof AuthError) return authErrorResponse(error);
+    return handleApiError(error);
+  }
+}
+
+// Lets a verifier manually clear a document's "needs_review" flag (e.g.
+// after visually checking a photo) without running the AI analysis.
+export async function PATCH(request: NextRequest, { params }: Params) {
+  try {
+    await connectToDatabase();
+    const session = requirePermission(request, PERMISSIONS.CLAIM_VERIFY);
+    const { id, docId } = await params;
+
+    const claim = await Claim.findById(id);
+    if (!claim) return errorResponse("Klaim tidak ditemukan", 404);
+
+    const doc = claim.documents.find((d) => d._id?.toString() === docId);
+    if (!doc) return errorResponse("Dokumen tidak ditemukan", 404);
+
+    const body = await request.json();
+    if (body.reviewStatus !== "verified" && body.reviewStatus !== "needs_review") {
+      return errorResponse("reviewStatus harus 'verified' atau 'needs_review'", 400);
+    }
+
+    doc.reviewStatus = body.reviewStatus;
+    await claim.save();
+
+    await recordAuditLog({
+      actorId: session.sub,
+      actorEmail: session.email,
+      action: "claim_document_reviewed",
+      target: "claim",
+      targetId: claim._id,
+      after: { docId, reviewStatus: doc.reviewStatus },
+    });
+
+    return successResponse({ id: docId, reviewStatus: doc.reviewStatus }, "Status dokumen diperbarui");
   } catch (error) {
     if (error instanceof AuthError) return authErrorResponse(error);
     return handleApiError(error);

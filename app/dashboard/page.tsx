@@ -20,11 +20,13 @@ import { CASE_CATEGORY_LABELS } from "@/lib/claimTypes";
 type ClaimsByStatus = { status: string; count: number };
 type PaymentsByBranch = { branch: string; totalPaid: number; paymentCount: number };
 type MonthlyTrend = { year: number; month: number; count: number };
+type MonthlyClaimsAndPayments = { year: number; month: number; claimsCount: number; paidAmount: number };
 type ClaimsByCategory = { caseCategory: string; count: number };
 type Summary = {
   claimsByStatus: ClaimsByStatus[];
   paymentsByBranch: PaymentsByBranch[];
   monthlyAccidentTrend: MonthlyTrend[];
+  monthlyClaimsAndPayments: MonthlyClaimsAndPayments[];
   trendProjection: MonthlyTrend[];
   claimsByCategory: ClaimsByCategory[];
   resolution: {
@@ -48,6 +50,16 @@ type FraudFinding = {
   detail: string;
 };
 
+type ActionableClaim = {
+  id: string;
+  claimNumber: string;
+  status: string;
+  caseCategory: string;
+  claimant: { fullName?: string };
+};
+
+type ActivityItem = { id: string; text: string; color: string; at: string };
+
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
   "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
@@ -65,7 +77,7 @@ function StatCard({
   value: string;
   sub?: string;
   icon: string;
-  tone: "navy" | "gold" | "blue" | "slate";
+  tone: "navy" | "gold" | "blue" | "slate" | "red";
 }) {
   return (
     <div className="card">
@@ -123,6 +135,9 @@ export default function DashboardPage() {
   // entirely - a user who does have the permission but scores a clean scan
   // still sees the card with a "no anomalies" message.
   const [fraudLoaded, setFraudLoaded] = useState(false);
+  const [fraudHighCount, setFraudHighCount] = useState(0);
+  const [actionableClaims, setActionableClaims] = useState<ActionableClaim[]>([]);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
 
   const queryParams = { branch, dateFrom, dateTo };
 
@@ -130,11 +145,13 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [summaryRes, branchesRes, clustersRes, fraudRes] = await Promise.all([
+      const [summaryRes, branchesRes, clustersRes, fraudRes, claimsRes, activityRes] = await Promise.all([
         fetch(`/api/dashboard/summary${buildQuery(params)}`).then((r) => r.json()),
         fetch("/api/dashboard/branches").then((r) => r.json()),
         fetch(`/api/accident-points/clusters${buildQuery(params)}`).then((r) => r.json()),
         fetch("/api/fraud-detection").then((r) => r.json()),
+        fetch("/api/claims").then((r) => r.json()),
+        fetch("/api/dashboard/activity").then((r) => r.json()),
       ]);
       if (!summaryRes.success) {
         setError(summaryRes.message ?? "Gagal memuat data dashboard");
@@ -145,8 +162,16 @@ export default function DashboardPage() {
       if (clustersRes.success) setClusterWarnings(clustersRes.data);
       if (fraudRes.success) {
         setFraudFindings(fraudRes.data.findings ?? []);
+        setFraudHighCount(fraudRes.data.counts?.high ?? 0);
         setFraudLoaded(true);
       }
+      if (claimsRes.success) {
+        const actionable = (claimsRes.data as ActionableClaim[]).filter((c) =>
+          ["submitted", "verified"].includes(c.status)
+        );
+        setActionableClaims(actionable.slice(0, 5));
+      }
+      if (activityRes.success) setActivity(activityRes.data);
     } catch {
       setError("Tidak dapat menghubungi server");
     } finally {
@@ -269,7 +294,7 @@ export default function DashboardPage() {
 
       {!loading && !error && summary && (
         <>
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
             <StatCard label="Total klaim" value={String(summary.totalClaims)} icon="ti-file-text" tone="navy" />
             <StatCard
               label="Total realisasi santunan"
@@ -299,6 +324,15 @@ export default function DashboardPage() {
               icon="ti-target-arrow"
               tone="slate"
             />
+            {fraudLoaded && (
+              <StatCard
+                label="Potensi Fraud Terdeteksi"
+                value={String(fraudHighCount)}
+                sub={fraudHighCount > 0 ? "Perlu investigasi" : "Tidak ada risiko tinggi"}
+                icon="ti-alert-triangle"
+                tone="red"
+              />
+            )}
           </div>
 
           {clusterWarnings.length > 0 && (
@@ -329,6 +363,37 @@ export default function DashboardPage() {
           )}
 
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="card md:col-span-2">
+              <div className="card-header">
+                <h5>Tren Klaim & Pencairan</h5>
+                <span className="text-secondary-400 text-xs">6 bulan terakhir, berdasarkan tanggal pengajuan/pencairan</span>
+              </div>
+              <div className="card-body">
+                {(summary.monthlyClaimsAndPayments ?? []).every((m) => m.claimsCount === 0 && m.paidAmount === 0) ? (
+                  <p className="text-secondary-400 text-sm">Belum ada data pada filter ini.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart
+                      data={(summary.monthlyClaimsAndPayments ?? []).map((m) => ({
+                        label: `${MONTH_NAMES[m.month - 1]} ${m.year}`,
+                        claimsCount: m.claimsCount,
+                        paidAmount: m.paidAmount,
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
+                      <XAxis dataKey="label" />
+                      <YAxis yAxisId="left" allowDecimals={false} />
+                      <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => formatCurrency(Number(v))} width={90} />
+                      <Tooltip formatter={(value, name) => (name === "paidAmount" ? formatCurrency(Number(value)) : value)} />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="claimsCount" fill="var(--ai-500)" name="Klaim Diajukan" radius={[6, 6, 0, 0]} />
+                      <Bar yAxisId="right" dataKey="paidAmount" fill="var(--accent-500)" name="Santunan Dicairkan" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
             <div className="card md:col-span-2">
               <div className="card-header">
                 <h5>Jumlah Klaim per Status</h5>
@@ -418,6 +483,71 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+
+            {actionableClaims.length > 0 && (
+              <div className="card">
+                <div className="card-header flex items-center justify-between">
+                  <h5>Klaim Memerlukan Tindakan</h5>
+                  <Link href="/claims" className="text-primary-600 text-sm font-semibold">
+                    Lihat semua
+                  </Link>
+                </div>
+                <div className="card-body p-0">
+                  <div className="table-responsive">
+                    <table className="table w-full">
+                      <thead>
+                        <tr>
+                          <th className="ps-6">No. Klaim</th>
+                          <th>Pemohon</th>
+                          <th>Jenis</th>
+                          <th className="pe-6">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {actionableClaims.map((c) => (
+                          <tr key={c.id}>
+                            <td className="ps-6">
+                              <Link href={`/claims/${c.id}`} className="text-primary-600 font-semibold">
+                                {c.claimNumber}
+                              </Link>
+                            </td>
+                            <td>{c.claimant?.fullName ?? "-"}</td>
+                            <td className="text-secondary-400">{CASE_CATEGORY_LABELS[c.caseCategory as keyof typeof CASE_CATEGORY_LABELS] ?? c.caseCategory}</td>
+                            <td className="pe-6">
+                              <span className={`badge ${c.status === "submitted" ? "bg-ai-100 text-ai-700" : "bg-accent-100 text-accent-700"}`}>
+                                {c.status === "submitted" ? "Diajukan" : "Diverifikasi"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activity.length > 0 && (
+              <div className="card">
+                <div className="card-header">
+                  <h5>Aktivitas Terbaru</h5>
+                  <span className="text-secondary-400 text-xs">Real-time</span>
+                </div>
+                <div className="card-body">
+                  <ul className="mb-0 list-none space-y-3 pl-0 text-sm">
+                    {activity.map((a) => (
+                      <li key={a.id} className="flex items-start gap-2.5">
+                        <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ backgroundColor: a.color }} />
+                        <span>
+                          <span className="block text-[#1e293b]">{a.text}</span>
+                          <span className="text-secondary-400 text-xs">{new Date(a.at).toLocaleString("id-ID")}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
 
             {fraudLoaded && (
               <div className="card">

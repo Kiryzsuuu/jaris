@@ -16,6 +16,7 @@ type NavItem = {
   label: string;
   icon: string;
   permission?: string;
+  badgeKey?: "claimAction" | "fraudHigh";
 };
 
 const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
@@ -26,7 +27,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "Operasional",
     items: [
-      { href: "/claims", label: "Manajemen Klaim", icon: "ti-file-text", permission: "claim:view" },
+      { href: "/claims", label: "Manajemen Klaim", icon: "ti-file-text", permission: "claim:view", badgeKey: "claimAction" },
       { href: "/assistant", label: "AI Asisten", icon: "ti-message-chatbot", permission: "assistant:use" },
       { href: "/accident-map", label: "Peta Kecelakaan", icon: "ti-map-pin", permission: "map:view" },
     ],
@@ -37,7 +38,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
       { href: "/users", label: "Manajemen Pengguna", icon: "ti-users", permission: "user:view" },
       { href: "/knowledge-base", label: "Knowledge Base", icon: "ti-database", permission: "kb:manage" },
       { href: "/broadcast", label: "Broadcast", icon: "ti-speakerphone", permission: "broadcast:manage" },
-      { href: "/fraud-detection", label: "Deteksi Anomali Klaim", icon: "ti-shield-exclamation", permission: "fraud:view" },
+      { href: "/fraud-detection", label: "Deteksi Anomali Klaim", icon: "ti-shield-exclamation", permission: "fraud:view", badgeKey: "fraudHigh" },
       { href: "/settings", label: "Pengaturan Situs", icon: "ti-settings", permission: "settings:manage" },
     ],
   },
@@ -61,6 +62,9 @@ export default function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [banner, setBanner] = useState<BroadcastBanner | null>(null);
+  const [badgeCounts, setBadgeCounts] = useState<{ claimAction: number; fraudHigh: number }>({ claimAction: 0, fraudHigh: 0 });
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [recentBroadcasts, setRecentBroadcasts] = useState<BroadcastBanner[]>([]);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -78,7 +82,9 @@ export default function AppShell({
     fetch("/api/broadcasts")
       .then((r) => r.json())
       .then((json) => {
-        if (!json.success || !json.data?.[0]) return;
+        if (!json.success) return;
+        setRecentBroadcasts(json.data.slice(0, 5));
+        if (!json.data?.[0]) return;
         const latest = json.data[0];
         let dismissed: string | null = null;
         try {
@@ -89,6 +95,18 @@ export default function AppShell({
         if (dismissed !== latest.id) {
           setBanner(latest);
         }
+      })
+      .catch(() => {});
+    fetch("/api/claims/action-count")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setBadgeCounts((b) => ({ ...b, claimAction: json.data.count }));
+      })
+      .catch(() => {});
+    fetch("/api/fraud-detection?narrative=false")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setBadgeCounts((b) => ({ ...b, fraudHigh: json.data.counts.high }));
       })
       .catch(() => {});
   }, []);
@@ -169,16 +187,20 @@ export default function AppShell({
                       <label>{section.title}</label>
                     </span>
                     <ul className="pc-navbar">
-                      {visibleItems.map((item) => (
-                        <li key={item.href} className={`pc-item ${pathname.startsWith(item.href) ? "active" : ""}`}>
-                          <Link href={item.href} className="pc-link">
-                            <span className="pc-micon">
-                              <i className={`ti ${item.icon}`} />
-                            </span>
-                            <span className="pc-mtext">{item.label}</span>
-                          </Link>
-                        </li>
-                      ))}
+                      {visibleItems.map((item) => {
+                        const badgeCount = item.badgeKey ? badgeCounts[item.badgeKey] : 0;
+                        return (
+                          <li key={item.href} className={`pc-item ${pathname.startsWith(item.href) ? "active" : ""}`}>
+                            <Link href={item.href} className="pc-link">
+                              <span className="pc-micon">
+                                <i className={`ti ${item.icon}`} />
+                              </span>
+                              <span className="pc-mtext">{item.label}</span>
+                              {badgeCount > 0 && <span className="pc-badge">{badgeCount}</span>}
+                            </Link>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </li>
                 );
@@ -201,32 +223,63 @@ export default function AppShell({
             </button>
           </div>
 
-          <div className={`dropdown ${profileOpen ? "drp-show" : ""}`}>
-            <button
-              className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-black/[.03]"
-              type="button"
-              onClick={() => setProfileOpen((v) => !v)}
-            >
-              <span className="bg-dark-500 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white">
-                {me?.email.slice(0, 1).toUpperCase() ?? "?"}
-              </span>
-              <span className="hidden text-left md:block">
-                <span className="block text-sm leading-tight font-medium">{me?.email ?? ""}</span>
-                <span className="text-secondary-400 block text-xs leading-tight capitalize">
-                  {me?.roleSlug.replace(/-/g, " ")}
-                </span>
-              </span>
-              <i className="ti ti-chevron-down text-base" />
-            </button>
-
-            <div className="dropdown-menu dropdown-menu-end">
+          <div className="flex items-center gap-2">
+            <div className={`dropdown ${notifOpen ? "drp-show" : ""}`}>
               <button
-                className="dropdown-item text-danger-500 w-full text-left"
+                className="pc-head-link relative"
                 type="button"
-                onClick={handleLogout}
+                aria-label="Notifikasi"
+                onClick={() => setNotifOpen((v) => !v)}
               >
-                <i className="ti ti-logout" /> Keluar
+                <i className="ti ti-bell" />
+                {recentBroadcasts.length > 0 && (
+                  <span className="bg-highlight-500 absolute top-1.5 right-2 h-1.5 w-1.5 rounded-full" />
+                )}
               </button>
+              <div className="dropdown-menu dropdown-menu-end" style={{ width: 300 }}>
+                <div className="border-secondary-100 border-b px-3 py-2 text-xs font-semibold text-[#1e293b]">
+                  Pengumuman Terbaru
+                </div>
+                {recentBroadcasts.length === 0 && (
+                  <p className="text-secondary-400 px-3 py-3 text-xs">Belum ada pengumuman</p>
+                )}
+                {recentBroadcasts.map((b) => (
+                  <div key={b.id} className="border-secondary-100 border-b px-3 py-2 last:border-0">
+                    <p className="mb-0.5 text-xs font-semibold text-[#1e293b]">{b.title}</p>
+                    <p className="text-secondary-500 mb-0.5 line-clamp-2 text-xs">{b.message}</p>
+                    <p className="text-secondary-300 text-[10px]">{new Date(b.createdAt).toLocaleString("id-ID")}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={`dropdown ${profileOpen ? "drp-show" : ""}`}>
+              <button
+                className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-black/[.03]"
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+              >
+                <span className="bg-dark-500 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white">
+                  {me?.email.slice(0, 1).toUpperCase() ?? "?"}
+                </span>
+                <span className="hidden text-left md:block">
+                  <span className="block text-sm leading-tight font-medium">{me?.email ?? ""}</span>
+                  <span className="text-secondary-400 block text-xs leading-tight capitalize">
+                    {me?.roleSlug.replace(/-/g, " ")}
+                  </span>
+                </span>
+                <i className="ti ti-chevron-down text-base" />
+              </button>
+
+              <div className="dropdown-menu dropdown-menu-end">
+                <button
+                  className="dropdown-item text-danger-500 w-full text-left"
+                  type="button"
+                  onClick={handleLogout}
+                >
+                  <i className="ti ti-logout" /> Keluar
+                </button>
+              </div>
             </div>
           </div>
         </div>
