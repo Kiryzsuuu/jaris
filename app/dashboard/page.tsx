@@ -65,22 +65,32 @@ const MONTH_NAMES = [
   "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
 ];
 
-/** Label top-left, tone-colored icon chip top-right, big figure below. */
+const STAT_ACCENT_COLORS: Record<string, string> = {
+  navy: "var(--primary-500)",
+  gold: "var(--accent-500)",
+  blue: "var(--ai-500)",
+  slate: "var(--ink-300)",
+  red: "#dc2626",
+};
+
+/** Colored left accent, label top-left, tone-colored icon chip top-right, big figure below. */
 function StatCard({
   label,
   value,
   sub,
   icon,
   tone,
+  className = "",
 }: {
   label: string;
   value: string;
   sub?: string;
   icon: string;
   tone: "navy" | "gold" | "blue" | "slate" | "red";
+  className?: string;
 }) {
   return (
-    <div className="card">
+    <div className={`card ${className}`} style={{ borderLeft: `3px solid ${STAT_ACCENT_COLORS[tone]}` }}>
       <div className="card-body">
         <div className="mb-3 flex items-center justify-between gap-2">
           <span className="text-secondary-400 text-xs">{label}</span>
@@ -93,6 +103,10 @@ function StatCard({
       </div>
     </div>
   );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="dashboard-section-title">{children}</h2>;
 }
 
 function formatCurrency(amount: number) {
@@ -294,15 +308,24 @@ export default function DashboardPage() {
 
       {!loading && !error && summary && (
         <>
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <StatCard label="Total klaim" value={String(summary.totalClaims)} icon="ti-file-text" tone="navy" />
+          <SectionTitle>Ringkasan</SectionTitle>
+          <div className="grid grid-cols-12 gap-4">
             <StatCard
+              className="col-span-12 sm:col-span-6 lg:col-span-3"
+              label="Total klaim"
+              value={String(summary.totalClaims)}
+              icon="ti-file-text"
+              tone="navy"
+            />
+            <StatCard
+              className="col-span-12 sm:col-span-6 lg:col-span-3"
               label="Total realisasi santunan"
               value={formatCurrency(summary.totalPaidAmount)}
               icon="ti-wallet"
               tone="gold"
             />
             <StatCard
+              className="col-span-6 sm:col-span-4 lg:col-span-2"
               label="Rata-rata penyelesaian"
               value={
                 summary.resolution.avgResolutionDays !== null
@@ -314,6 +337,7 @@ export default function DashboardPage() {
               tone="blue"
             />
             <StatCard
+              className="col-span-6 sm:col-span-4 lg:col-span-2"
               label={`SLA (${summary.resolution.slaTargetDays} hari)`}
               value={
                 summary.resolution.withinSlaPercent !== null
@@ -326,6 +350,7 @@ export default function DashboardPage() {
             />
             {fraudLoaded && (
               <StatCard
+                className="col-span-12 sm:col-span-4 lg:col-span-2"
                 label="Potensi Fraud Terdeteksi"
                 value={String(fraudHighCount)}
                 sub={fraudHighCount > 0 ? "Perlu investigasi" : "Tidak ada risiko tinggi"}
@@ -336,34 +361,41 @@ export default function DashboardPage() {
           </div>
 
           {clusterWarnings.length > 0 && (
-            <div className="border-accent-200 bg-accent-50 mt-6 rounded-xl border p-5">
-              <div>
-                <h2 className="text-accent-800 flex items-center gap-2 text-base font-semibold">
-                  <i className="ti ti-alert-triangle" />
-                  Sinyal Peringatan - Titik Rawan Kecelakaan
-                </h2>
-                <p className="text-accent-700 mt-2 text-sm">
+            <div className="dashboard-alert-banner mt-4">
+              <div className="dashboard-alert-icon">
+                <i className="ti ti-alert-triangle" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="dashboard-alert-title">Sinyal Peringatan - Titik Rawan Kecelakaan</h2>
+                <p className="dashboard-alert-desc">
                   Terdeteksi {clusterWarnings.length} klaster kecelakaan berulang dalam radius dekat
                   (analisis pola dari data peta kecelakaan).
                 </p>
-                <ul className="text-accent-800 mt-2 list-disc pl-5 text-sm">
-                  {clusterWarnings.slice(0, 8).map((c, i) => (
-                    <li key={i}>
-                      {c.city ?? "?"} ({c.branch ?? "?"}) - {c.count} kejadian berdekatan
-                      {c.peakHourRange && `, jam rawan ${c.peakHourRange}`}
-                      {c.recommendation && <> — {c.recommendation}</>}
-                    </li>
+                <div className="dashboard-alert-grid">
+                  {clusterWarnings.slice(0, 6).map((c, i) => (
+                    <div key={i} className="dashboard-alert-item">
+                      <span className="dashboard-alert-item-title">
+                        {c.city ?? "?"} ({c.branch ?? "?"})
+                      </span>
+                      <span className="dashboard-alert-item-detail">
+                        {c.count} kejadian berdekatan{c.peakHourRange && `, jam rawan ${c.peakHourRange}`}
+                      </span>
+                    </div>
                   ))}
-                </ul>
-                <Link href="/accident-map" className="text-primary-600 mt-2 inline-block text-sm font-semibold">
+                </div>
+                {clusterWarnings.length > 6 && (
+                  <p className="dashboard-alert-more">+{clusterWarnings.length - 6} klaster lainnya</p>
+                )}
+                <Link href="/accident-map" className="dashboard-alert-link">
                   Lihat di peta
                 </Link>
               </div>
             </div>
           )}
 
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="card md:col-span-2">
+          <SectionTitle>Analitik Klaim & Kecelakaan</SectionTitle>
+          <div className="grid grid-cols-12 gap-4">
+            <div className="card col-span-12 lg:col-span-8">
               <div className="card-header">
                 <h5>Tren Klaim & Pencairan</h5>
                 <span className="text-secondary-400 text-xs">6 bulan terakhir, berdasarkan tanggal pengajuan/pencairan</span>
@@ -372,7 +404,7 @@ export default function DashboardPage() {
                 {(summary.monthlyClaimsAndPayments ?? []).every((m) => m.claimsCount === 0 && m.paidAmount === 0) ? (
                   <p className="text-secondary-400 text-sm">Belum ada data pada filter ini.</p>
                 ) : (
-                  <ResponsiveContainer width="100%" height={240}>
+                  <ResponsiveContainer width="100%" height={260}>
                     <BarChart
                       data={(summary.monthlyClaimsAndPayments ?? []).map((m) => ({
                         label: `${MONTH_NAMES[m.month - 1]} ${m.year}`,
@@ -386,15 +418,15 @@ export default function DashboardPage() {
                       <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => formatCurrency(Number(v))} width={90} />
                       <Tooltip formatter={(value, name) => (name === "paidAmount" ? formatCurrency(Number(value)) : value)} />
                       <Legend />
-                      <Bar yAxisId="left" dataKey="claimsCount" fill="var(--ai-500)" name="Klaim Diajukan" radius={[6, 6, 0, 0]} />
-                      <Bar yAxisId="right" dataKey="paidAmount" fill="var(--accent-500)" name="Santunan Dicairkan" radius={[6, 6, 0, 0]} />
+                      <Bar yAxisId="left" dataKey="claimsCount" fill="var(--ai-500)" name="Klaim Diajukan" radius={[2, 2, 0, 0]} />
+                      <Bar yAxisId="right" dataKey="paidAmount" fill="var(--accent-500)" name="Santunan Dicairkan" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
 
-            <div className="card md:col-span-2">
+            <div className="card col-span-12 lg:col-span-4">
               <div className="card-header">
                 <h5>Jumlah Klaim per Status</h5>
               </div>
@@ -405,13 +437,13 @@ export default function DashboardPage() {
                     <XAxis dataKey="status" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="count" fill="var(--ai-500)" name="Jumlah Klaim" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="count" fill="var(--ai-500)" name="Jumlah Klaim" radius={[2, 2, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="card">
+            <div className="card col-span-12 lg:col-span-4">
               <div className="card-header">
                 <h5>Realisasi Santunan per Cabang</h5>
               </div>
@@ -419,20 +451,20 @@ export default function DashboardPage() {
                 {summary.paymentsByBranch.length === 0 ? (
                   <p className="text-secondary-400 text-sm">Belum ada data pencairan pada filter ini.</p>
                 ) : (
-                  <ResponsiveContainer width="100%" height={260}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <BarChart data={summary.paymentsByBranch}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                       <XAxis dataKey="branch" />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                      <Bar dataKey="totalPaid" fill="var(--accent-500)" name="Total Santunan" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="totalPaid" fill="var(--accent-500)" name="Total Santunan" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
 
-            <div className="card">
+            <div className="card col-span-12 lg:col-span-4">
               <div className="card-header">
                 <h5>Tren Kecelakaan Bulanan</h5>
               </div>
@@ -441,7 +473,7 @@ export default function DashboardPage() {
                   <p className="text-secondary-400 text-sm">Belum ada data pada filter ini.</p>
                 ) : (
                   <>
-                    <ResponsiveContainer width="100%" height={260}>
+                    <ResponsiveContainer width="100%" height={240}>
                       <LineChart data={trendData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                         <XAxis dataKey="label" />
@@ -463,7 +495,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="card col-span-12 lg:col-span-4">
               <div className="card-header">
                 <h5>Korban per Kategori Kasus</h5>
               </div>
@@ -471,86 +503,96 @@ export default function DashboardPage() {
                 {categoryData.every((c) => c.count === 0) ? (
                   <p className="text-secondary-400 text-sm">Belum ada data pada filter ini.</p>
                 ) : (
-                  <ResponsiveContainer width="100%" height={260}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <BarChart data={categoryData} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
                       <XAxis type="number" allowDecimals={false} />
                       <YAxis type="category" dataKey="label" width={140} />
                       <Tooltip />
-                      <Bar dataKey="count" fill="var(--primary-500)" name="Jumlah Klaim" radius={[0, 6, 6, 0]} />
+                      <Bar dataKey="count" fill="var(--primary-500)" name="Jumlah Klaim" radius={[0, 2, 2, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
+          </div>
 
-            {actionableClaims.length > 0 && (
-              <div className="card">
-                <div className="card-header flex items-center justify-between">
-                  <h5>Klaim Memerlukan Tindakan</h5>
-                  <Link href="/claims" className="text-primary-600 text-sm font-semibold">
-                    Lihat semua
-                  </Link>
-                </div>
-                <div className="card-body p-0">
-                  <div className="table-responsive">
-                    <table className="table w-full">
-                      <thead>
-                        <tr>
-                          <th className="ps-6">No. Klaim</th>
-                          <th>Pemohon</th>
-                          <th>Jenis</th>
-                          <th className="pe-6">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {actionableClaims.map((c) => (
-                          <tr key={c.id}>
-                            <td className="ps-6">
-                              <Link href={`/claims/${c.id}`} className="text-primary-600 font-semibold">
-                                {c.claimNumber}
-                              </Link>
-                            </td>
-                            <td>{c.claimant?.fullName ?? "-"}</td>
-                            <td className="text-secondary-400">{CASE_CATEGORY_LABELS[c.caseCategory as keyof typeof CASE_CATEGORY_LABELS] ?? c.caseCategory}</td>
-                            <td className="pe-6">
-                              <span className={`badge ${c.status === "submitted" ? "bg-ai-100 text-ai-700" : "bg-accent-100 text-accent-700"}`}>
-                                {c.status === "submitted" ? "Diajukan" : "Diverifikasi"}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+          {(actionableClaims.length > 0 || activity.length > 0) && (
+            <>
+              <SectionTitle>Tindakan & Aktivitas</SectionTitle>
+              <div className="grid grid-cols-12 gap-4">
+                {actionableClaims.length > 0 && (
+                  <div className="card col-span-12 lg:col-span-8">
+                    <div className="card-header flex items-center justify-between">
+                      <h5>Klaim Memerlukan Tindakan</h5>
+                      <Link href="/claims" className="text-primary-600 text-sm font-semibold">
+                        Lihat semua
+                      </Link>
+                    </div>
+                    <div className="card-body p-0">
+                      <div className="table-responsive">
+                        <table className="table w-full">
+                          <thead>
+                            <tr>
+                              <th className="ps-6">No. Klaim</th>
+                              <th>Pemohon</th>
+                              <th>Jenis</th>
+                              <th className="pe-6">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {actionableClaims.map((c) => (
+                              <tr key={c.id}>
+                                <td className="ps-6">
+                                  <Link href={`/claims/${c.id}`} className="text-primary-600 font-semibold">
+                                    {c.claimNumber}
+                                  </Link>
+                                </td>
+                                <td>{c.claimant?.fullName ?? "-"}</td>
+                                <td className="text-secondary-400">{CASE_CATEGORY_LABELS[c.caseCategory as keyof typeof CASE_CATEGORY_LABELS] ?? c.caseCategory}</td>
+                                <td className="pe-6">
+                                  <span className={`badge ${c.status === "submitted" ? "bg-ai-100 text-ai-700" : "bg-accent-100 text-accent-700"}`}>
+                                    {c.status === "submitted" ? "Diajukan" : "Diverifikasi"}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {activity.length > 0 && (
-              <div className="card">
-                <div className="card-header">
-                  <h5>Aktivitas Terbaru</h5>
-                  <span className="text-secondary-400 text-xs">Real-time</span>
-                </div>
-                <div className="card-body">
-                  <ul className="mb-0 list-none space-y-3 pl-0 text-sm">
-                    {activity.map((a) => (
-                      <li key={a.id} className="flex items-start gap-2.5">
-                        <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ backgroundColor: a.color }} />
-                        <span>
-                          <span className="block text-[#1e293b]">{a.text}</span>
-                          <span className="text-secondary-400 text-xs">{new Date(a.at).toLocaleString("id-ID")}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {activity.length > 0 && (
+                  <div className="card col-span-12 lg:col-span-4">
+                    <div className="card-header">
+                      <h5>Aktivitas Terbaru</h5>
+                      <span className="text-secondary-400 text-xs">Real-time</span>
+                    </div>
+                    <div className="card-body">
+                      <ul className="mb-0 list-none space-y-3 pl-0 text-sm">
+                        {activity.map((a) => (
+                          <li key={a.id} className="flex items-start gap-2.5">
+                            <span className="dashboard-activity-dot" style={{ backgroundColor: a.color }} />
+                            <span>
+                              <span className="block text-[#1e293b]">{a.text}</span>
+                              <span className="text-secondary-400 text-xs">{new Date(a.at).toLocaleString("id-ID")}</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </>
+          )}
 
+          <SectionTitle>Wawasan AI (Saran - Bukan Keputusan Otomatis)</SectionTitle>
+          <div className="grid grid-cols-12 gap-4">
             {fraudLoaded && (
-              <div className="card">
+              <div className="card col-span-12 lg:col-span-4">
                 <div className="card-header flex items-center justify-between">
                   <h5>Ringkasan Deteksi Anomali Klaim</h5>
                   <Link href="/fraud-detection" className="text-primary-600 text-sm font-semibold">
@@ -582,7 +624,7 @@ export default function DashboardPage() {
             )}
 
             {hasRecommendations && (
-              <div className="card md:col-span-2">
+              <div className="card col-span-12 lg:col-span-4">
                 <div className="card-header">
                   <h5>Rekomendasi AI</h5>
                 </div>
@@ -604,7 +646,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="card md:col-span-2">
+            <div className="card col-span-12 lg:col-span-4">
               <div className="card-header">
                 <h5>Ringkasan Eksekutif (AI)</h5>
               </div>
