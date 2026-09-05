@@ -11,6 +11,19 @@ type Me = { id: string; email: string; roleSlug: string; permissions: string[] }
 type Settings = { siteName: string; logoDataUrl: string | null; footerText: string };
 type BroadcastBanner = { id: string; title: string; message: string; createdAt: string };
 
+// AppShell is instantiated fresh by every page (not a shared layout), so it
+// fully remounts on each client-side navigation. Without this cache, that
+// remount resets `me`/`settings` to null and briefly shows the fallback
+// logo/site name before the fetches resolve - a visible flash back to
+// defaults on every page change. Caching the last-known values at module
+// scope (survives remounts, not page reloads) makes navigations after the
+// first one render with the real data immediately while still refetching
+// in the background to pick up any changes.
+let cachedMe: Me | null = null;
+let cachedSettings: Settings | null = null;
+let cachedBadgeCounts: { claimAction: number; fraudHigh: number } = { claimAction: 0, fraudHigh: 0 };
+let cachedBroadcasts: BroadcastBanner[] = [];
+
 type NavItem = {
   href: string;
   label: string;
@@ -57,33 +70,41 @@ export default function AppShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [me, setMe] = useState<Me | null>(null);
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [me, setMe] = useState<Me | null>(cachedMe);
+  const [settings, setSettings] = useState<Settings | null>(cachedSettings);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [banner, setBanner] = useState<BroadcastBanner | null>(null);
-  const [badgeCounts, setBadgeCounts] = useState<{ claimAction: number; fraudHigh: number }>({ claimAction: 0, fraudHigh: 0 });
+  const [badgeCounts, setBadgeCounts] = useState<{ claimAction: number; fraudHigh: number }>(cachedBadgeCounts);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [recentBroadcasts, setRecentBroadcasts] = useState<BroadcastBanner[]>([]);
+  const [recentBroadcasts, setRecentBroadcasts] = useState<BroadcastBanner[]>(cachedBroadcasts);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setMe(json.data);
+        if (json.success) {
+          cachedMe = json.data;
+          setMe(json.data);
+        }
       })
       .catch(() => {});
     fetch("/api/settings")
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setSettings(json.data);
+        if (json.success) {
+          cachedSettings = json.data;
+          setSettings(json.data);
+        }
       })
       .catch(() => {});
     fetch("/api/broadcasts")
       .then((r) => r.json())
       .then((json) => {
         if (!json.success) return;
-        setRecentBroadcasts(json.data.slice(0, 5));
+        const recent = json.data.slice(0, 5);
+        cachedBroadcasts = recent;
+        setRecentBroadcasts(recent);
         if (!json.data?.[0]) return;
         const latest = json.data[0];
         let dismissed: string | null = null;
@@ -100,13 +121,19 @@ export default function AppShell({
     fetch("/api/claims/action-count")
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setBadgeCounts((b) => ({ ...b, claimAction: json.data.count }));
+        if (json.success) {
+          cachedBadgeCounts = { ...cachedBadgeCounts, claimAction: json.data.count };
+          setBadgeCounts((b) => ({ ...b, claimAction: json.data.count }));
+        }
       })
       .catch(() => {});
     fetch("/api/fraud-detection?narrative=false")
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setBadgeCounts((b) => ({ ...b, fraudHigh: json.data.counts.high }));
+        if (json.success) {
+          cachedBadgeCounts = { ...cachedBadgeCounts, fraudHigh: json.data.counts.high };
+          setBadgeCounts((b) => ({ ...b, fraudHigh: json.data.counts.high }));
+        }
       })
       .catch(() => {});
   }, []);

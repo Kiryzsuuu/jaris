@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const LOGIN_HIGHLIGHTS = [
@@ -73,7 +74,7 @@ function LoginForm() {
             <div className="login-visual-image-overlay" />
           </>
         )}
-        <div className="login-visual-brand">
+        <Link href="/" className="login-visual-brand">
           {logoDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
             <img src={logoDataUrl} alt={siteName} />
@@ -81,7 +82,10 @@ function LoginForm() {
             <span className="login-visual-mark">{siteName.slice(0, 1)}</span>
           )}
           <span>{siteName}</span>
-        </div>
+        </Link>
+        <Link href="/" className="login-home-btn">
+          <i className="ti ti-arrow-left" /> Kembali ke Beranda
+        </Link>
 
         <div className="login-visual-body">
           <span className="login-visual-eyebrow">PT Jasa Raharja (Persero)</span>

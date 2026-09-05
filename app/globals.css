@@ -1177,6 +1177,7 @@ body {
 .landing-cta-banner h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 300;
+  color: #ffffff;
   margin: 0 0 0.6rem;
 }
 
@@ -1868,6 +1869,31 @@ body {
   gap: 0.65rem;
   font-weight: 700;
   font-size: 1.05rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.login-home-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: background-color 0.15s ease;
+}
+
+.login-home-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .login-visual-brand img {
@@ -1908,6 +1934,7 @@ body {
 .login-visual-body h1 {
   font-size: clamp(1.6rem, 2.6vw, 2.1rem);
   font-weight: 700;
+  color: #ffffff;
   line-height: 1.25;
   letter-spacing: -0.01em;
   margin: 0 0 2rem;
