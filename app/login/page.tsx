@@ -84,7 +84,7 @@ function LoginForm() {
           <span>{siteName}</span>
         </Link>
         <Link href="/" className="login-home-btn">
-          <i className="ti ti-arrow-left" /> Kembali ke Beranda
+          Kembali ke Beranda
         </Link>
 
         <div className="login-visual-body">
