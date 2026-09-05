@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CLAIM_FLOW, CAPABILITIES, type LandingCard } from "@/lib/landingContent";
+import {
+  CLAIM_FLOW,
+  CAPABILITIES,
+  ABOUT_SECTION,
+  SHOWCASE_SECTIONS,
+  LEARN_MORE_CARDS,
+  STATS_BACKGROUND_SLUG,
+  type LandingCard,
+} from "@/lib/landingContent";
 
 export type SettingsResponse = {
   siteName: string;
@@ -235,95 +243,155 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
         </Link>
       </nav>
 
-      <header className="landing-hero">
-        {/* Diamond motif echoing the brand mark, kept subtle behind content. */}
-        <svg className="landing-hero-diamond" viewBox="0 0 200 200" aria-hidden="true">
-          <rect x="40" y="40" width="120" height="120" rx="16" transform="rotate(45 100 100)" fill="none" stroke="currentColor" strokeWidth="2" />
-          <rect x="65" y="65" width="70" height="70" rx="10" transform="rotate(45 100 100)" fill="none" stroke="currentColor" strokeWidth="2" />
-        </svg>
-        <span className="landing-hero-blob landing-hero-blob-blue" aria-hidden="true" />
-        <span className="landing-hero-blob landing-hero-blob-gold" aria-hidden="true" />
-        <span className="landing-hero-dots" aria-hidden="true" />
+      <header className="landing-hero landing-hero-fullbleed">
+        <div className="landing-hero-bg">
+          {settings.heroImageDataUrls.length > 0 ? (
+            <HeroSlideshow images={settings.heroImageDataUrls} alt={settings.heroHeadline} />
+          ) : (
+            <div className="landing-hero-bg-fallback" />
+          )}
+          <div className="landing-hero-bg-overlay" />
+        </div>
 
-        <div className="landing-hero-inner">
-          <div className="landing-hero-copy">
-            <span className="landing-eyebrow">
-              <span className="landing-eyebrow-dot" />
-              PT Jasa Raharja (Persero)
-            </span>
-            <h1 className="landing-headline">{settings.heroHeadline}</h1>
-            <p className="landing-subheadline">{settings.heroSubheadline}</p>
-
-            <div className="landing-hero-actions">
-              <Link href="/login" className="landing-btn-gold">
-                Masuk ke sistem
-              </Link>
-              <a href="#alur-klaim" className="landing-btn-ghost">
-                Pelajari alur klaim
-              </a>
-            </div>
-
-            <div className="landing-hero-stats">
-              <div className="landing-stat">
-                <div className="landing-stat-value">{CLAIM_FLOW.length}</div>
-                <div className="landing-stat-label">Tahap klaim</div>
-              </div>
-              <div className="landing-stat">
-                <div className="landing-stat-value">{CAPABILITIES.length}</div>
-                <div className="landing-stat-label">Kemampuan AI</div>
-              </div>
-              <div className="landing-stat">
-                <div className="landing-stat-value">{MAP_REGIONS.length}</div>
-                <div className="landing-stat-label">Kota cabang</div>
-              </div>
-              <div className="landing-stat">
-                <div className="landing-stat-value">24/7</div>
-                <div className="landing-stat-label">Akses sistem</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="landing-hero-visual">
-            {settings.heroImageDataUrls.length > 0 ? (
-              <div className="landing-hero-visual-frame">
-                <HeroSlideshow images={settings.heroImageDataUrls} alt={settings.heroHeadline} />
-              </div>
-            ) : (
-              publicStats && (
-                <>
-                  <div className="landing-hero-preview">
-                    <div className="landing-hero-preview-dots">
-                      <span /><span /><span />
-                    </div>
-                    <div className="landing-hero-preview-label">Total realisasi santunan</div>
-                    <div className="landing-hero-preview-value">
-                      Rp{publicStats.totalPaidAmount.toLocaleString("id-ID")}
-                    </div>
-                    <div className="landing-hero-preview-grid">
-                      <div>
-                        <div className="landing-hero-preview-num">{publicStats.totalClaims}</div>
-                        <div className="landing-hero-preview-sub">klaim tercatat</div>
-                      </div>
-                      <div>
-                        <div className="landing-hero-preview-num">{publicStats.totalAccidentPoints}</div>
-                        <div className="landing-hero-preview-sub">titik kecelakaan</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="landing-hero-preview-badge">
-                    <div className="landing-hero-preview-badge-top">
-                      <i className="ti ti-users" />
-                      <span>Pengguna aktif</span>
-                    </div>
-                    <div className="landing-hero-preview-badge-value">{publicStats.totalActiveUsers}</div>
-                    <div className="landing-hero-preview-sub">petugas terdaftar</div>
-                  </div>
-                </>
-              )
-            )}
+        <div className="landing-hero-overlay-content">
+          <span className="landing-eyebrow landing-eyebrow-onimage">
+            <span className="landing-eyebrow-dot" />
+            Dibangun untuk Operasional Jasa Raharja
+          </span>
+          <h1 className="landing-headline landing-headline-onimage">{settings.heroHeadline}</h1>
+          <div className="landing-hero-actions">
+            <Link href="/login" className="landing-btn-gold">
+              Masuk ke sistem
+            </Link>
+            <a href="#tentang" className="landing-btn-ghost landing-btn-ghost-onimage">
+              Pelajari lebih lanjut
+            </a>
           </div>
         </div>
       </header>
+
+      <nav className="landing-subnav">
+        <a href="#tentang" className="landing-subnav-link is-active">Tentang Kami</a>
+        <a href="#showcase" className="landing-subnav-link">Kapabilitas Inti</a>
+        <a href="#peta" className="landing-subnav-link">Wilayah Kerja</a>
+      </nav>
+
+      <section id="tentang" className="landing-about">
+        <div className="landing-about-inner">
+          <div className="landing-about-image">
+            {settings.cardImages[ABOUT_SECTION.slug] ? (
+              // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+              <img src={settings.cardImages[ABOUT_SECTION.slug]} alt="" />
+            ) : (
+              <div className="landing-about-image-fallback">
+                <i className="ti ti-building-skyscraper" />
+              </div>
+            )}
+          </div>
+          <div className="landing-about-panel">
+            <h2>{ABOUT_SECTION.title}</h2>
+            <p>{ABOUT_SECTION.detail}</p>
+            <Link href={ABOUT_SECTION.linkHref ?? "/login"} className="landing-btn-gold">
+              {ABOUT_SECTION.linkLabel ?? "Masuk ke Sistem"} <i className="ti ti-arrow-right" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section id="showcase" className="landing-showcase">
+        {SHOWCASE_SECTIONS.map((s, i) => (
+          <Reveal key={s.slug} className={`landing-showcase-row ${i % 2 === 1 ? "is-reversed" : ""}`}>
+            <div className="landing-showcase-image">
+              {settings.cardImages[s.slug] ? (
+                // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+                <img src={settings.cardImages[s.slug]} alt="" />
+              ) : (
+                <div className="landing-showcase-image-fallback">
+                  <i className={`ti ${s.icon}`} />
+                </div>
+              )}
+            </div>
+            <div className="landing-showcase-copy">
+              <span className="landing-features-eyebrow">Kapabilitas Inti</span>
+              <h3>{s.title}</h3>
+              <p>{s.detail}</p>
+            </div>
+          </Reveal>
+        ))}
+      </section>
+
+      <section
+        className="landing-stats-section"
+        style={
+          settings.cardImages[STATS_BACKGROUND_SLUG]
+            ? { backgroundImage: `url(${settings.cardImages[STATS_BACKGROUND_SLUG]})` }
+            : undefined
+        }
+      >
+        <div className="landing-stats-section-overlay" />
+        <div className="landing-stats-section-inner">
+          <div className="landing-stats-section-copy">
+            <h2>Fondasi yang Kuat, Operasional yang Aman</h2>
+            <p>
+              JARIS dibangun di atas rules engine yang deterministik dan audit trail penuh - setiap angka
+              santunan dapat ditelusuri asal-usulnya.
+            </p>
+          </div>
+          {publicStats && (
+            <div className="landing-stats-section-card">
+              <div className="landing-stats-section-row">
+                <span>Total Klaim Tercatat</span>
+                <strong>{publicStats.totalClaims.toLocaleString("id-ID")}</strong>
+              </div>
+              <div className="landing-stats-section-row">
+                <span>Total Realisasi Santunan</span>
+                <strong>Rp{publicStats.totalPaidAmount.toLocaleString("id-ID")}</strong>
+              </div>
+              <div className="landing-stats-section-row">
+                <span>Titik Kecelakaan Terpetakan</span>
+                <strong>{publicStats.totalAccidentPoints.toLocaleString("id-ID")}</strong>
+              </div>
+              <div className="landing-stats-section-row">
+                <span>Pengguna Aktif</span>
+                <strong>{publicStats.totalActiveUsers.toLocaleString("id-ID")}</strong>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="landing-learn-more">
+        <div className="landing-learn-more-inner">
+          <Reveal className="landing-features-header landing-features-header-center">
+            <h2 className="landing-features-title">Pelajari lebih lanjut tentang JARIS</h2>
+            <p className="landing-features-desc">
+              Ketahui lebih jauh tentang sistem, pendekatan keamanan, dan siapa yang menggunakannya.
+            </p>
+          </Reveal>
+          <div className="landing-learn-more-grid">
+            {LEARN_MORE_CARDS.map((c) => (
+              <Reveal key={c.slug} className="landing-learn-more-card">
+                <div className="landing-learn-more-image">
+                  {settings.cardImages[c.slug] ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- base64 data URL from site settings
+                    <img src={settings.cardImages[c.slug]} alt="" />
+                  ) : (
+                    <div className="landing-learn-more-image-fallback">
+                      <i className={`ti ${c.icon}`} />
+                    </div>
+                  )}
+                </div>
+                <div className="landing-learn-more-body">
+                  <h3>{c.title}</h3>
+                  <button type="button" className="landing-learn-more-link" onClick={() => setActiveCard(c)}>
+                    Baca selengkapnya <i className="ti ti-arrow-right" />
+                  </button>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section id="alur-klaim" className="landing-flow">
         <div className="landing-flow-inner">
