@@ -292,7 +292,7 @@ export default function LandingHome({ initialSettings }: { initialSettings: Sett
             <h2>{ABOUT_SECTION.title}</h2>
             <p>{ABOUT_SECTION.detail}</p>
             <Link href={ABOUT_SECTION.linkHref ?? "/login"} className="landing-btn-gold">
-              {ABOUT_SECTION.linkLabel ?? "Masuk ke Sistem"} <i className="ti ti-arrow-right" />
+              {ABOUT_SECTION.linkLabel ?? "Masuk ke Sistem"}
             </Link>
           </div>
         </div>

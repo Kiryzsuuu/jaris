@@ -880,6 +880,7 @@ body {
 .landing-about-panel h2 {
   font-size: clamp(1.4rem, 2.4vw, 1.9rem);
   font-weight: 600;
+  color: #ffffff !important;
   margin: 0;
   line-height: 1.3;
 }
